@@ -26,5 +26,5 @@ jobs:
         with:
           repository: huggingface/layout_alignment
           path: huggingface-repository
-          github-server-url: https://huggingface.co/spaces
+          github-server-url: https://huggingface.co/spaces/
           token: ${{ secrets.HF_TOKEN }}
