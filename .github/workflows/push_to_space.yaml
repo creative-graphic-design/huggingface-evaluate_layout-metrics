@@ -1,15 +1,13 @@
 name: Push to Hugging Face Space
 
-# on:
-#   workflow_run:
-#     workflows:
-#       - CI
-#     branches:
-#       - main
-#     types:
-#       - completed
-
-on: [push]
+on:
+  workflow_run:
+    workflows:
+      - CI
+    branches:
+      - main
+    types:
+      - completed
 
 jobs:
   push_to_hub:
