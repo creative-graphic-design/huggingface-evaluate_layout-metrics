@@ -35,12 +35,12 @@ jobs:
       - name: Export requirements.txt
         run: |
           pip install poetry
-          poetry -C ${SRC_DIR} export -f requirements.txt --output ${DST_DIR}/requirements.txt
+          poetry -C ${SRC_DIR} --without-hashes export -f requirements.txt --output ${DST_DIR}/requirements.txt
 
       - name: Copy files to Huggingface repository
         run: |
           cp ${SRC_DIR}/README.md ${DST_DIR}/README.md
           cp ${SRC_DIR}/layout_alignment.py ${DST_DIR}/layout_alignment.py
 
-          cd ${DST_DIR}
-          git status
+          git -C ${DST_DIR} add README.md layout_alignment.py
+          git -C ${DST_DIR} status
