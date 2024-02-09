@@ -24,7 +24,7 @@ jobs:
       - name: Checkout Huggingface repository
         uses: actions/checkout@v4
         with:
-          repository: shunk031/layout_alignment
+          repository: spaces/shunk031/layout_alignment
           path: huggingface-repository
-          github-server-url: https://huggingface.co/spaces/
+          github-server-url: https://huggingface.co
           token: ${{ secrets.HF_TOKEN }}
