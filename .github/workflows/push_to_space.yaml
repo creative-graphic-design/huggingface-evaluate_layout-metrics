@@ -42,5 +42,7 @@ jobs:
           cp ${SRC_DIR}/README.md ${DST_DIR}/README.md
           cp ${SRC_DIR}/layout_alignment.py ${DST_DIR}/layout_alignment.py
 
-          git -C ${DST_DIR} add README.md layout_alignment.py
-          git -C ${DST_DIR} status
+          msg=$(git -C ${SRC_DIR} rev-parse HEAD)
+          git -C ${DST_DIR} add README.md layout_alignment.py requirements.txt
+          git -C ${DST_DIR} commit -m "deploy: ${msg}"
+          git -C ${DST_DIR} push -u origin main
