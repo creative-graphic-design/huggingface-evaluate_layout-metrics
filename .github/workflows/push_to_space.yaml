@@ -35,7 +35,7 @@ jobs:
       - name: Export requirements.txt
         run: |
           pip install poetry
-          poetry export -f ${SRC_DIR}/requirements.txt --output ${DST_DIR}/requirements.txt
+          poetry -C ${SRC_DIR} export -f ${SRC_DIR}/requirements.txt --output ${DST_DIR}/requirements.txt
 
       - name: Copy files to Huggingface repository
         run: |
