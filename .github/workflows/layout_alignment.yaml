@@ -1,21 +1,29 @@
-name: Push to Hugging Face Space
+name: Alignment
+
+# on:
+#   workflow_run:
+#     workflows:
+#       - CI
+#     branches:
+#       - main
+#     types:
+#       - completed
 
 on:
-  workflow_run:
-    workflows:
-      - CI
-    branches:
-      - main
-    types:
-      - completed
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+    paths-ignore:
+      - "README.md"
 
 jobs:
   push_to_hub:
     runs-on: ubuntu-latest
 
     env:
-      SRC_DIR: github-repo
-      DST_DIR: huggingface-repo
+      SRC_DIR: ./github-repo
+      DST_DIR: ./huggingface-repo
 
     steps:
       - name: Checkout GitHub repository
@@ -41,7 +49,7 @@ jobs:
           HF_EMAIL: ${{ secrets.HF_EMAIL }}
         run: |
           cp ${SRC_DIR}/README.md ${DST_DIR}/README.md
-          cp ${SRC_DIR}/layout_alignment.py ${DST_DIR}/layout_alignment.py
+          cp ${SRC_DIR}/layout_alignment/layout_alignment.py ${DST_DIR}/layout_alignment.py
 
           msg=$(git -C ${SRC_DIR} rev-parse HEAD)
           git -C ${DST_DIR} add README.md layout_alignment.py requirements.txt
@@ -50,4 +58,4 @@ jobs:
           git -C ${DST_DIR} config user.email "${HF_EMAIL}"
 
           git -C ${DST_DIR} commit -m "deploy: ${msg}"
-          git -C ${DST_DIR} push -u origin main
+          # git -C ${DST_DIR} push -u origin main
