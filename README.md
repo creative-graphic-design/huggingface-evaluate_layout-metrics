@@ -36,9 +36,9 @@ alignment_score.add_batch(batch_bbox=batch_bbox, batch_mask=batch_mask)
 alignment_score.compute()
 ```
 
-## References
+## Reference
 
-- Li, Jianan, et al. "LayoutGAN: Generating Graphic Layouts with Wireframe Discriminators." International Conference on Learning Representations. 2019.
-- Lee, Hsin-Ying, et al. "Neural design network: Graphic layout generation with constraints." Computer Vision–ECCV 2020: 16th European Conference, Glasgow, UK, August 23–28, 2020, Proceedings, Part III 16. Springer International Publishing, 2020.
-- Li, Jianan, et al. "Attribute-conditioned layout gan for automatic graphic design." IEEE Transactions on Visualization and Computer Graphics 27.10 (2020): 4039-4048.
-- Kikuchi, Kotaro, et al. "Constrained graphic layout generation via latent optimization." Proceedings of the 29th ACM International Conference on Multimedia. 2021.
+- Li, Jianan, et al. "[LayoutGAN: Generating Graphic Layouts with Wireframe Discriminators.](https://arxiv.org/abs/1901.06767)" International Conference on Learning Representations. 2019.
+- Lee, Hsin-Ying, et al. "[Neural design network: Graphic layout generation with constraints.](https://arxiv.org/abs/1912.09421)" Computer Vision–ECCV 2020: 16th European Conference, Glasgow, UK, August 23–28, 2020, Proceedings, Part III 16. Springer International Publishing, 2020.
+- Li, Jianan, et al. "[Attribute-conditioned layout gan for automatic graphic design.](https://arxiv.org/abs/2009.05284)" IEEE Transactions on Visualization and Computer Graphics 27.10 (2020): 4039-4048.
+- Kikuchi, Kotaro, et al. "[Constrained graphic layout generation via latent optimization.](https://arxiv.org/abs/2108.00871)" Proceedings of the 29th ACM International Conference on Multimedia. 2021.
