@@ -1,6 +1,8 @@
 # 🤗 Layout Evaluation Metrics by Huggingface Evaluate
 [![CI](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/ci.yaml/badge.svg)](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/ci.yaml)
 
+
+
 | 📊 Metric | 🤗 Space |
 |:---------:|:---------:|
 | [![Alignment](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_alignment.yaml/badge.svg)](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_alignment.yaml) | [`shunk031/layout_alignment`](https://huggingface.co/spaces/shunk031/layout_alignment) |
@@ -33,3 +35,10 @@ alignment_score.add_batch(batch_bbox=batch_bbox, batch_mask=batch_mask)
 # Perform the computation of the evaluation metric
 alignment_score.compute()
 ```
+
+## References
+
+- Li, Jianan, et al. "LayoutGAN: Generating Graphic Layouts with Wireframe Discriminators." International Conference on Learning Representations. 2019.
+- Lee, Hsin-Ying, et al. "Neural design network: Graphic layout generation with constraints." Computer Vision–ECCV 2020: 16th European Conference, Glasgow, UK, August 23–28, 2020, Proceedings, Part III 16. Springer International Publishing, 2020.
+- Li, Jianan, et al. "Attribute-conditioned layout gan for automatic graphic design." IEEE Transactions on Visualization and Computer Graphics 27.10 (2020): 4039-4048.
+- Kikuchi, Kotaro, et al. "Constrained graphic layout generation via latent optimization." Proceedings of the 29th ACM International Conference on Multimedia. 2021.

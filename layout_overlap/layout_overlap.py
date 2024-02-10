@@ -6,17 +6,15 @@ import numpy as np
 import numpy.typing as npt
 
 _DESCRIPTION = """\
-Computes some alignment metrics that are different to each other in previous works.
+some overlap metrics that are different to each other in previous works.
 """
 
 _CITATION = """\
-@inproceedings{lee2020neural,
-  title={Neural design network: Graphic layout generation with constraints},
-  author={Lee, Hsin-Ying and Jiang, Lu and Essa, Irfan and Le, Phuong B and Gong, Haifeng and Yang, Ming-Hsuan and Yang, Weilong},
-  booktitle={Computer Vision--ECCV 2020: 16th European Conference, Glasgow, UK, August 23--28, 2020, Proceedings, Part III 16},
-  pages={491--506},
-  year={2020},
-  organization={Springer}
+@inproceedings{li2018layoutgan,
+  title={LayoutGAN: Generating Graphic Layouts with Wireframe Discriminators},
+  author={Li, Jianan and Yang, Jimei and Hertzmann, Aaron and Zhang, Jianming and Xu, Tingfa},
+  booktitle={International Conference on Learning Representations},
+  year={2019}
 }
 
 @article{li2020attribute,
@@ -73,8 +71,8 @@ class LayoutOverlap(evaluate.Metric):
                 }
             ),
             codebase_urls=[
-                "https://github.com/ktrk115/const_layout/blob/master/metric.py#L167-L188",
-                "https://github.com/CyberAgentAILab/layout-dm/blob/main/src/trainer/trainer/helpers/metric.py#L98-L147",
+                "https://github.com/ktrk115/const_layout/blob/master/metric.py#L138-L164",
+                "https://github.com/CyberAgentAILab/layout-dm/blob/main/src/trainer/trainer/helpers/metric.py#L150-L203",
             ],
         )
 
