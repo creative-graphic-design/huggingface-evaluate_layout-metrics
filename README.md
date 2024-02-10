@@ -23,9 +23,6 @@ import numpy as np
 # Load the evaluation model named "shunk031/layout_alignment"
 alignment_score = evaluate.load("shunk031/layout_alignment")
 
-# Generate an array of shape 512x25x4. This represents a batch of bounding boxes
-# Generate an array filled with random numbers of shape 512x25. This represents a batch of masks
-
 # `batch_bbox` is a tensor representing (batch_size, max_num_elements, coordinates) 
 # and `batch_mask` is a tensor representing (batch_size, max_num_elements).
 batch_bbox = np.random.rand(512, 25, 4)
