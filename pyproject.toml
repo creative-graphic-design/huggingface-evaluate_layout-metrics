@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "huggingface-evaluate-layout-alignment"
+name = "huggingface-evaluate-layout-metrics"
 version = "0.1.0"
 description = ""
 authors = ["Shunsuke KITADA <shunsuke.kitada.0831@gmail.com>"]

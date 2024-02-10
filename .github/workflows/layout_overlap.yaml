@@ -1,0 +1,53 @@
+name: Overlap
+
+on:
+  workflow_run:
+    workflows:
+      - CI
+    branches:
+      - main
+    types:
+      - completed
+
+jobs:
+  push_to_hub:
+    runs-on: ubuntu-latest
+
+    env:
+      SRC_DIR: ./github-repo
+      DST_DIR: ./huggingface-repo
+
+    steps:
+      - name: Checkout GitHub repository
+        uses: actions/checkout@v3
+        with:
+          path: ${{ env.SRC_DIR }}
+
+      - name: Checkout Huggingface repository
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_USERNAME: ${{ secrets.HF_USERNAME }}
+        run: |
+          git clone https://${HF_USERNAME}:${HF_TOKEN}@huggingface.co/spaces/${HF_USERNAME}/layout_overlap ${DST_DIR}
+
+      - name: Export requirements.txt
+        run: |
+          pip install poetry
+          poetry -C ${SRC_DIR} --without-hashes export -f requirements.txt --output ${DST_DIR}/requirements.txt
+
+      - name: Copy files to Huggingface repository
+        env:
+          HF_USERNAME: ${{ secrets.HF_USERNAME }}
+          HF_EMAIL: ${{ secrets.HF_EMAIL }}
+        run: |
+          cp ${SRC_DIR}/layout_overlap/README.md ${DST_DIR}/README.md
+          cp ${SRC_DIR}/layout_overlap/layout_overlap.py ${DST_DIR}/layout_overlap.py
+
+          msg=$(git -C ${SRC_DIR} rev-parse HEAD)
+          git -C ${DST_DIR} add README.md layout_overlap.py requirements.txt
+
+          git -C ${DST_DIR} config user.name "${HF_USERNAME}"
+          git -C ${DST_DIR} config user.email "${HF_EMAIL}"
+
+          git -C ${DST_DIR} commit -m "deploy: ${msg}"
+          git -C ${DST_DIR} push -u origin main

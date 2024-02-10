@@ -11,12 +11,12 @@ import torch
 
 @pytest.fixture
 def base_dir() -> str:
-    return "layout_alignment"
+    return "layout_overlap"
 
 
 @pytest.fixture
 def metric_path(base_dir: str) -> str:
-    return os.path.join(base_dir, "layout_alignment.py")
+    return os.path.join(base_dir, "layout_overlap.py")
 
 
 @pytest.fixture
@@ -30,25 +30,25 @@ def test_fixture_dir() -> pathlib.Path:
         (
             1,
             {
-                "alignment-ACLayoutGAN": 5.670039176940918,
-                "alignment-LayoutGAN++": 1.373178482055664,
-                "alignment-NDN": 41.2618408203125,
+                "overlap-ACLayoutGAN": 6280.4189453125,
+                "overlap-LayoutGAN++": 468.6614685058594,
+                "overlap-LayoutGAN": 200.9669189453125,
             },
         ),
         (
             2,
             {
-                "alignment-ACLayoutGAN": 5.950614929199219,
-                "alignment-LayoutGAN++": 1.5703489780426025,
-                "alignment-NDN": 43.25517272949219,
+                "overlap-ACLayoutGAN": 6368.20654296875,
+                "overlap-LayoutGAN++": 473.6511535644531,
+                "overlap-LayoutGAN": 204.1142578125,
             },
         ),
         (
             3,
             {
-                "alignment-ACLayoutGAN": 4.884631633758545,
-                "alignment-LayoutGAN++": 0.7807250022888184,
-                "alignment-NDN": 41.5506477355957,
+                "overlap-ACLayoutGAN": 6527.58251953125,
+                "overlap-LayoutGAN++": 474.0531005859375,
+                "overlap-LayoutGAN": 198.0200653076172,
             },
         ),
     ),

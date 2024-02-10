@@ -1,4 +1,4 @@
-name: Push to Hugging Face Space
+name: Alignment
 
 on:
   workflow_run:
@@ -14,8 +14,8 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      SRC_DIR: github-repo
-      DST_DIR: huggingface-repo
+      SRC_DIR: ./github-repo
+      DST_DIR: ./huggingface-repo
 
     steps:
       - name: Checkout GitHub repository
@@ -40,8 +40,8 @@ jobs:
           HF_USERNAME: ${{ secrets.HF_USERNAME }}
           HF_EMAIL: ${{ secrets.HF_EMAIL }}
         run: |
-          cp ${SRC_DIR}/README.md ${DST_DIR}/README.md
-          cp ${SRC_DIR}/layout_alignment.py ${DST_DIR}/layout_alignment.py
+          cp ${SRC_DIR}/layout_alignment/README.md ${DST_DIR}/README.md
+          cp ${SRC_DIR}/layout_alignment/layout_alignment.py ${DST_DIR}/layout_alignment.py
 
           msg=$(git -C ${SRC_DIR} rev-parse HEAD)
           git -C ${DST_DIR} add README.md layout_alignment.py requirements.txt
