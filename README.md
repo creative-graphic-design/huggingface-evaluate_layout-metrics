@@ -20,7 +20,7 @@ pip install evaluate
 import evaluate
 import numpy as np
 
-# Load the evaluation model named "shunk031/layout_alignment"
+# Load the evaluation metric named "shunk031/layout_alignment"
 alignment_score = evaluate.load("shunk031/layout_alignment")
 
 # `batch_bbox` is a tensor representing (batch_size, max_num_elements, coordinates) 
@@ -28,8 +28,8 @@ alignment_score = evaluate.load("shunk031/layout_alignment")
 batch_bbox = np.random.rand(512, 25, 4)
 batch_mask = np.random.rand(512, 25)
 
-# Add the batch of bounding boxes and masks to the evaluation model
+# Add the batch of bboxes and masks to the metric
 alignment_score.add_batch(batch_bbox=batch_bbox, batch_mask=batch_mask)
-# Perform the computation of the evaluation model
+# Perform the computation of the evaluation metric
 alignment_score.compute()
 ```
