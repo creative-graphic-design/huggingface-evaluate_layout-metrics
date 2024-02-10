@@ -5,8 +5,8 @@
 
 | 📊 Metric | 🤗 Space |
 |:---------:|:---------:|
-| [![Alignment](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_alignment.yaml/badge.svg)](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_alignment.yaml) | [`shunk031/layout_alignment`](https://huggingface.co/spaces/shunk031/layout_alignment) |
-| [![Overlap](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_overlap.yaml/badge.svg)](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_overlap.yaml) | [`shunk031/layout_overlap`](https://huggingface.co/spaces/shunk031/layout_overlap) |
+| [![Alignment](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_alignment.yaml/badge.svg)](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_alignment.yaml) | [`shunk031/layout_alignment`](https://huggingface.co/spaces/pytorch-layout-generation/layout_alignment) |
+| [![Overlap](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_overlap.yaml/badge.svg)](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_overlap.yaml) | [`shunk031/layout_overlap`](https://huggingface.co/spaces/pytorch-layout-generation/layout_overlap) |
 
 # How to use
 
@@ -22,8 +22,8 @@ pip install evaluate
 import evaluate
 import numpy as np
 
-# Load the evaluation metric named "shunk031/layout_alignment"
-alignment_score = evaluate.load("shunk031/layout_alignment")
+# Load the evaluation metric named "pytorch-layout-generation/layout_alignment"
+alignment_score = evaluate.load("pytorch-layout-generation/layout_alignment")
 
 # `batch_bbox` is a tensor representing (batch_size, max_num_elements, coordinates) 
 # and `batch_mask` is a tensor representing (batch_size, max_num_elements).
