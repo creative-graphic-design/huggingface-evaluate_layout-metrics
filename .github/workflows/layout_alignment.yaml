@@ -1,21 +1,13 @@
 name: Alignment
 
-# on:
-#   workflow_run:
-#     workflows:
-#       - CI
-#     branches:
-#       - main
-#     types:
-#       - completed
-
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-    paths-ignore:
-      - "README.md"
+  workflow_run:
+    workflows:
+      - CI
+    branches:
+      - main
+    types:
+      - completed
 
 jobs:
   push_to_hub:
