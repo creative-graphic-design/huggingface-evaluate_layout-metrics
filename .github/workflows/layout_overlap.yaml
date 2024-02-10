@@ -58,4 +58,4 @@ jobs:
           git -C ${DST_DIR} config user.email "${HF_EMAIL}"
 
           git -C ${DST_DIR} commit -m "deploy: ${msg}"
-          # git -C ${DST_DIR} push -u origin main
+          git -C ${DST_DIR} push -u origin main
