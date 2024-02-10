@@ -96,8 +96,8 @@ class LayoutAlignment(evaluate.Metric):
         X = np.abs(X).transpose(0, 2, 1, 3)
         X[~batch_mask] = 1.0
 
-        # shape: (B, S)
-        X = X.min(axis=-1).min(axis=-1)
+        # shape: (B, S, 6, S) -> (B, S)
+        X = X.min(axis=(2, 3))
         X[X == 1.0] = 0.0
         X = -np.log(1 - X)
 
@@ -141,7 +141,7 @@ class LayoutAlignment(evaluate.Metric):
         Y[batch_mask] = 1.0
 
         # shape: (B, 3, S, S) -> (B, S, S) -> (B, S)
-        Y = np.abs(Y).min(axis=1).min(axis=2)
+        Y = np.abs(Y).min(axis=(1, 2))
         Y[Y == 1.0] = 0.0
 
         # shape: (B, S) -> (B,)

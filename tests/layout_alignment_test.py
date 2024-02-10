@@ -1,4 +1,5 @@
 import math
+import os
 import pathlib
 from typing import Dict
 
@@ -9,8 +10,13 @@ import torch
 
 
 @pytest.fixture
-def metric_path() -> str:
-    return "layout_alignment.py"
+def base_dir() -> str:
+    return "layout_alignment"
+
+
+@pytest.fixture
+def metric_path(base_dir: str) -> str:
+    return os.path.join(base_dir, "layout_alignment.py")
 
 
 @pytest.fixture
@@ -67,7 +73,7 @@ def test_metric(
     for k in expected_scores.keys():
         score = sum(scores[k])
         expected_score = expected_scores[k]
-        assert math.isclose(score, expected_score, rel_tol=0.001)
+        assert math.isclose(score, expected_score, rel_tol=1e-5)
 
 
 @pytest.mark.parametrize(
