@@ -6,7 +6,7 @@ import numpy as np
 import numpy.typing as npt
 
 _DESCRIPTION = """\
-some overlap metrics that are different to each other in previous works.
+Some overlap metrics that are different to each other in previous works.
 """
 
 _CITATION = """\
