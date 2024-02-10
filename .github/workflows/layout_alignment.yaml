@@ -48,7 +48,7 @@ jobs:
           HF_USERNAME: ${{ secrets.HF_USERNAME }}
           HF_EMAIL: ${{ secrets.HF_EMAIL }}
         run: |
-          cp ${SRC_DIR}/README.md ${DST_DIR}/README.md
+          cp ${SRC_DIR}/layout_alignment/README.md ${DST_DIR}/README.md
           cp ${SRC_DIR}/layout_alignment/layout_alignment.py ${DST_DIR}/layout_alignment.py
 
           msg=$(git -C ${SRC_DIR} rev-parse HEAD)

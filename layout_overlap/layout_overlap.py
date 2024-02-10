@@ -118,18 +118,21 @@ class LayoutOverlap(evaluate.Metric):
         self,
         score_ac_layout_gan: npt.NDArray[np.float64],
         batch_mask: npt.NDArray[np.bool_],
-    ):
+    ) -> npt.NDArray[np.float64]:
+
         # shape: (B, S) -> (B,)
         batch_mask = batch_mask.sum(axis=1)
 
         # shape: (B,)
         score_normalized = score_ac_layout_gan / batch_mask
         score_normalized[np.isnan(score_normalized)] = 0.0
+
         return score_normalized
 
     def _compute_layout_gan(
         self, S: int, B: int, ai: npt.NDArray[np.float64]
     ) -> npt.NDArray[np.float64]:
+
         indices = np.arange(S)
         ii, jj = np.meshgrid(indices, indices, indexing="ij")
 
@@ -153,6 +156,9 @@ class LayoutOverlap(evaluate.Metric):
         batch_bbox = np.array(batch_bbox)
         # shape: (B, model_max_length)
         batch_mask = np.array(batch_mask)
+
+        assert batch_bbox.ndim == 3
+        assert batch_mask.ndim == 2
 
         # S: model_max_length
         B, S, C = batch_bbox.shape

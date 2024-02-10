@@ -1,12 +1,7 @@
----
-title: Layout Alignment
-emoji: 📊
-colorFrom: pink
-colorTo: purple
-sdk: gradio
-sdk_version: 4.17.0
-app_file: app.py
-pinned: false
----
+# 🤗 Layout evaluation by Huggingface Evaluate
+[![CI](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/ci.yaml/badge.svg)](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/ci.yaml)
 
-Check out the configuration reference at https://huggingface.co/docs/hub/spaces-config-reference
+| 📊 Metric | 🤗 Space |
+|----------|--------- |
+| [![Alignment](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_alignment.yaml/badge.svg)](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_alignment.yaml) | [`shunk031/layout_alignment`](https://huggingface.co/spaces/shunk031/layout_alignment) |
+| [![Overlap](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_overlap.yaml/badge.svg)](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_overlap.yaml) | [`shunk031/layout_overlap`](https://huggingface.co/spaces/shunk031/layout_overlap) |
