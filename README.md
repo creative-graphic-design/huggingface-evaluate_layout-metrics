@@ -1,12 +1,13 @@
 # 🤗 Layout Evaluation Metrics by Huggingface Evaluate
 [![CI](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/ci.yaml/badge.svg)](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/ci.yaml)
 
-
+A collection of metrics to evaluate layout generation that can be easily used in 🤗 huggingface [evaluate](https://huggingface.co/docs/evaluate/index).
 
 | 📊 Metric | 🤗 Space |
 |:---------:|:---------:|
-| [![Alignment](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_alignment.yaml/badge.svg)](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_alignment.yaml) | [`pytorch-layout-generation/layout_alignment`](https://huggingface.co/spaces/pytorch-layout-generation/layout_alignment) |
-| [![Overlap](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_overlap.yaml/badge.svg)](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_overlap.yaml) | [`pytorch-layout-generation/layout_overlap`](https://huggingface.co/spaces/pytorch-layout-generation/layout_overlap) |
+| [![Alignment](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_alignment.yaml/badge.svg)](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_alignment.yaml) | [`pytorch-layout-generation/layout-alignment`](https://huggingface.co/spaces/pytorch-layout-generation/layout-alignment) |
+| [![Overlap](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_overlap.yaml/badge.svg)](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_overlap.yaml) | [`pytorch-layout-generation/layout-overlap`](https://huggingface.co/spaces/pytorch-layout-generation/layout-overlap) |
+[![Max. IoU](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_maximum_iou.yaml/badge.svg)](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_maximum_iou.yaml) | [`pytorch-layout-generation/layout-maximum-iou`](https://huggingface.co/spaces/pytorch-layout-generation/layout-maximum-iou) |
 
 # How to use
 
@@ -22,8 +23,8 @@ pip install evaluate
 import evaluate
 import numpy as np
 
-# Load the evaluation metric named "pytorch-layout-generation/layout_alignment"
-alignment_score = evaluate.load("pytorch-layout-generation/layout_alignment")
+# Load the evaluation metric named "pytorch-layout-generation/layout-alignment"
+alignment_score = evaluate.load("pytorch-layout-generation/layout-alignment")
 
 # `batch_bbox` is a tensor representing (batch_size, max_num_elements, coordinates) 
 # and `batch_mask` is a tensor representing (batch_size, max_num_elements).
