@@ -1,7 +1,7 @@
 # 🤗 Layout Evaluation Metrics by Huggingface Evaluate
 [![CI](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/ci.yaml/badge.svg)](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/ci.yaml)
 
-
+A collection of metrics to evaluate layout generation that can be easily used in 🤗 huggingface [evaluate](https://huggingface.co/docs/evaluate/index).
 
 | 📊 Metric | 🤗 Space |
 |:---------:|:---------:|
