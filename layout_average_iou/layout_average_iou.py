@@ -1,5 +1,4 @@
-from functools import partial
-from typing import Dict, List, Tuple, TypedDict, Union
+from typing import Dict, List, Tuple, TypedDict
 
 import datasets as ds
 import evaluate
@@ -122,8 +121,8 @@ def compute_perceptual_iou(
         for x in convert_xywh_to_ltrb(unique_box_1.T)
     ]
     canvas = np.zeros((N, N))
-    for l, t, r, b in zip(l1, t1, r1, b1):
-        canvas[t:b, l:r] = 1
+    for left, top, right, bottom in zip(l1, t1, r1, b1):
+        canvas[top:bottom, left:right] = 1
     global_area_union = canvas.sum() / (N**2)
 
     return ai / global_area_union if global_area_union > 0.0 else np.zeros((1,))
