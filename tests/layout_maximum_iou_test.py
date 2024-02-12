@@ -2,7 +2,6 @@ import math
 import os
 import pathlib
 import pickle
-from typing import Dict
 
 import evaluate
 import numpy as np
@@ -53,3 +52,16 @@ def test_metric(
     score = metric.compute()
     assert score is not None and isinstance(score, float)
     assert math.isclose(score, expected_score, rel_tol=1e-5)
+
+
+@pytest.mark.parametrize(
+    argnames="arr_func",
+    argvalues=(np.array, torch.Tensor),
+)
+def test_array_variant(metric_path: str, layouts1, layouts2, arr_func):
+    metric = evaluate.load(path=metric_path)
+
+    metric.add(
+        layouts1=[{k: arr_func(v) for k, v in layout.items()} for layout in layouts1],
+        layouts2=[{k: arr_func(v) for k, v in layout.items()} for layout in layouts2],
+    )
