@@ -48,7 +48,7 @@ jobs:
 
           git -C ${DST_DIR} add README.md layout_alignment.py requirements.txt
 
-          if git diff --cached --quiet; then
+          if git -C ${DST_DIR} diff --cached --quiet; then
               echo "No changes to commit"
           else
               msg=$(git -C ${SRC_DIR} rev-parse HEAD)
