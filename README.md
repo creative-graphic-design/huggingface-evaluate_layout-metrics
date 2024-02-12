@@ -5,10 +5,10 @@ A collection of metrics to evaluate layout generation that can be easily used in
 
 | 📊 Metric | 🤗 Space |
 |:---------:|:---------:|
+| [![FID](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_generative_model_scores.yaml/badge.svg)](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_generative_model_scores.yaml) | [`pytorch-layout-generation/layout-generative-model-scores`](https://huggingface.co/spaces/pytorch-layout-generation/layout-generative-model-scores) |
+| [![Max. IoU](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_maximum_iou.yaml/badge.svg)](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_maximum_iou.yaml) | [`pytorch-layout-generation/layout-maximum-iou`](https://huggingface.co/spaces/pytorch-layout-generation/layout-maximum-iou) |
 | [![Alignment](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_alignment.yaml/badge.svg)](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_alignment.yaml) | [`pytorch-layout-generation/layout-alignment`](https://huggingface.co/spaces/pytorch-layout-generation/layout-alignment) |
 | [![Overlap](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_overlap.yaml/badge.svg)](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_overlap.yaml) | [`pytorch-layout-generation/layout-overlap`](https://huggingface.co/spaces/pytorch-layout-generation/layout-overlap) |
-| [![Max. IoU](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_maximum_iou.yaml/badge.svg)](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_maximum_iou.yaml) | [`pytorch-layout-generation/layout-maximum-iou`](https://huggingface.co/spaces/pytorch-layout-generation/layout-maximum-iou) |
-| [![FID](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_generative_model_scores.yaml/badge.svg)](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_generative_model_scores.yaml) | [`pytorch-layout-generation/layout-generative-model-scores`](https://huggingface.co/spaces/pytorch-layout-generation/layout-generative-model-scores) |
 
 # How to use
 
@@ -46,3 +46,5 @@ alignment_score.compute()
 - Naeem, Muhammad Ferjad, et al. "[Reliable fidelity and diversity metrics for generative models.](https://arxiv.org/abs/2002.09797)" International Conference on Machine Learning. PMLR, 2020.
 - Li, Jianan, et al. "[Attribute-conditioned layout gan for automatic graphic design.](https://arxiv.org/abs/2009.05284)" IEEE Transactions on Visualization and Computer Graphics 27.10 (2020): 4039-4048.
 - Kikuchi, Kotaro, et al. "[Constrained graphic layout generation via latent optimization.](https://arxiv.org/abs/2108.00871)" Proceedings of the 29th ACM International Conference on Multimedia. 2021.
+- Arroyo, Diego Martin, Janis Postels, and Federico Tombari. "[Variational transformer networks for layout generation.](https://arxiv.org/abs/2104.02416)" Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. 2021.
+- Kong, Xiang, et al. "[BLT: bidirectional layout transformer for controllable layout generation.](https://arxiv.org/abs/2112.05112)" European Conference on Computer Vision. Cham: Springer Nature Switzerland, 2022.
