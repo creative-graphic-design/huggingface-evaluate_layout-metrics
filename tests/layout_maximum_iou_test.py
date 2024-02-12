@@ -26,7 +26,7 @@ def test_fixture_dir() -> pathlib.Path:
 
 @pytest.fixture
 def layouts1(test_fixture_dir: pathlib.Path):
-    layouts1_path = test_fixture_dir / "layouts1.pkl"
+    layouts1_path = test_fixture_dir / "layouts_main.pkl"
     with layouts1_path.open("rb") as rf:
         layouts1 = pickle.load(rf)
     return layouts1
@@ -34,7 +34,7 @@ def layouts1(test_fixture_dir: pathlib.Path):
 
 @pytest.fixture
 def layouts2(test_fixture_dir: pathlib.Path):
-    layouts2_path = test_fixture_dir / "layouts2.pkl"
+    layouts2_path = test_fixture_dir / "layouts_sub.pkl"
     with layouts2_path.open("rb") as rf:
         layouts2 = pickle.load(rf)
     return layouts2
@@ -47,7 +47,7 @@ def test_metric(
     expected_score: float = 0.2770548066027329,
 ):
     metric = evaluate.load(path=metric_path)
-    metric.add(layouts1=layouts1, layouts2=layouts2)
+    metric.add_batch(layouts1=layouts1, layouts2=layouts2)
 
     score = metric.compute()
     assert score is not None and isinstance(score, float)
@@ -61,7 +61,7 @@ def test_metric(
 def test_array_variant(metric_path: str, layouts1, layouts2, arr_func):
     metric = evaluate.load(path=metric_path)
 
-    metric.add(
+    metric.add_batch(
         layouts1=[{k: arr_func(v) for k, v in layout.items()} for layout in layouts1],
         layouts2=[{k: arr_func(v) for k, v in layout.items()} for layout in layouts2],
     )
