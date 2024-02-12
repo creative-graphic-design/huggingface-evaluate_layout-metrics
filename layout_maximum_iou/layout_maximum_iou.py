@@ -145,18 +145,14 @@ class LayoutMaximumIoU(evaluate.Metric):
             citation=_CITATION,
             features=ds.Features(
                 {
-                    "layouts1": ds.Sequence(
-                        {
-                            "bboxes": ds.Sequence(ds.Sequence((ds.Value("float64")))),
-                            "categories": ds.Sequence(ds.Value("int64")),
-                        }
-                    ),
-                    "layouts2": ds.Sequence(
-                        {
-                            "bboxes": ds.Sequence(ds.Sequence((ds.Value("float64")))),
-                            "categories": ds.Sequence(ds.Value("int64")),
-                        }
-                    ),
+                    "layouts1": {
+                        "bboxes": ds.Sequence(ds.Sequence((ds.Value("float64")))),
+                        "categories": ds.Sequence(ds.Value("int64")),
+                    },
+                    "layouts2": {
+                        "bboxes": ds.Sequence(ds.Sequence((ds.Value("float64")))),
+                        "categories": ds.Sequence(ds.Value("int64")),
+                    },
                 }
             ),
             codebase_urls=[
