@@ -121,12 +121,18 @@ def _get_cond_to_layouts(layouts: List[Layout]) -> Dict[str, List[Layout]]:
     out = defaultdict(list)
 
     for layout in layouts:
-        bboxes = np.asarray(layout["bboxes"])
+        bboxes = layout["bboxes"]
         categories = layout["categories"]
 
+        # e.g., [18, 2, 1, 20, 0, 0, 0, 0, 0, 9, 9, 5, 0, 5, 0, 0]
+        # -> "[0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 5, 5, 9, 9, 18, 20]"
         cond_key = str(sorted(categories))
+
         categories = np.array(categories)
-        layout_dict: Layout = {"bboxes": bboxes, "categories": categories}
+        layout_dict: Layout = {
+            "bboxes": np.asarray(bboxes),
+            "categories": np.asarray(categories),
+        }
         out[cond_key].append(layout_dict)
 
     return out
