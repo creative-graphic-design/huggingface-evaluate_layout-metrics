@@ -119,17 +119,16 @@ def _compute_maximum_iou(
 
 def _get_cond_to_layouts(layouts: List[Layout]) -> Dict[str, List[Layout]]:
     out = defaultdict(list)
-    for layout in layouts:
-        bboxes_list = layout["bboxes"]
-        categories_list = layout["categories"]
-        assert len(bboxes_list) == len(categories_list)
 
-        for bboxes, categories in zip(bboxes_list, categories_list):
-            bboxes = np.array(bboxes)
-            cond_key = str(sorted(categories))
-            categories = np.array(categories)
-            layout_dict: Layout = {"bboxes": bboxes, "categories": categories}
-            out[cond_key].append(layout_dict)
+    for layout in layouts:
+        bboxes = np.asarray(layout["bboxes"])
+        categories = layout["categories"]
+
+        cond_key = str(sorted(categories))
+        categories = np.array(categories)
+        layout_dict: Layout = {"bboxes": bboxes, "categories": categories}
+        out[cond_key].append(layout_dict)
+
     return out
 
 
