@@ -42,8 +42,8 @@ class LayoutGenerativeModelScores(evaluate.Metric):
             citation=_CITATION,
             features=ds.Features(
                 {
-                    "feats_real": ds.Sequence(ds.Sequence(ds.Value("float64"))),
-                    "feats_fake": ds.Sequence(ds.Sequence(ds.Value("float64"))),
+                    "feats_real": ds.Sequence(ds.Value("float64")),
+                    "feats_fake": ds.Sequence(ds.Value("float64")),
                 }
             ),
             codebase_urls=[
@@ -56,16 +56,18 @@ class LayoutGenerativeModelScores(evaluate.Metric):
     def _compute(
         self,
         *,
-        feats_real: Union[List[List[List[float]]], npt.NDArray[np.float64]],
-        feats_fake: Union[List[List[List[float]]], npt.NDArray[np.float64]],
+        feats_real: Union[List[List[float]], npt.NDArray[np.float64]],
+        feats_fake: Union[List[List[float]], npt.NDArray[np.float64]],
     ) -> Dict[str, float]:
-        # shape: (1, N, 256) -> (N, 256)
-        feats_real = np.asarray(feats_real).squeeze()
-        feats_fake = np.asarray(feats_fake).squeeze()
+        # shape: (N, 256)
+        feats_real = np.asarray(feats_real)
+        feats_fake = np.asarray(feats_fake)
 
+        # shape: (256,)
         mu_real = np.mean(feats_real, axis=0)
         mu_fake = np.mean(feats_fake, axis=0)
 
+        # shape: (256,)
         sigma_real = np.cov(feats_real, rowvar=False)
         sigma_fake = np.cov(feats_fake, rowvar=False)
 
