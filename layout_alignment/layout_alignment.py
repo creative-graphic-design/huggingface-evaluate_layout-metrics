@@ -63,8 +63,8 @@ class LayoutAlignment(evaluate.Metric):
             citation=_CITATION,
             features=ds.Features(
                 {
-                    "batch_bbox": ds.Sequence(ds.Sequence(ds.Value("float64"))),
-                    "batch_mask": ds.Sequence(ds.Value("bool")),
+                    "bbox": ds.Sequence(ds.Sequence(ds.Value("float64"))),
+                    "mask": ds.Sequence(ds.Value("bool")),
                 }
             ),
             codebase_urls=[
@@ -151,32 +151,32 @@ class LayoutAlignment(evaluate.Metric):
     def _compute(
         self,
         *,
-        batch_bbox: Union[npt.NDArray[np.float64], List[List[int]]],
-        batch_mask: Union[npt.NDArray[np.bool_], List[List[bool]]],
+        bbox: Union[npt.NDArray[np.float64], List[List[int]]],
+        mask: Union[npt.NDArray[np.bool_], List[List[bool]]],
     ) -> Dict[str, npt.NDArray[np.float64]]:
         # shape: (B, model_max_length, C)
-        batch_bbox = np.array(batch_bbox)
+        bbox = np.array(bbox)
         # shape: (B, model_max_length)
-        batch_mask = np.array(batch_mask)
+        mask = np.array(mask)
 
         # S: model_max_length
-        _, S, _ = batch_bbox.shape
+        _, S, _ = bbox.shape
 
         # shape: (B, S, C) -> (C, B, S)
-        batch_bbox = batch_bbox.transpose(2, 0, 1)
-        xl, yt, xr, yb = convert_xywh_to_ltrb(batch_bbox)
-        xc, yc = batch_bbox[0], batch_bbox[1]
+        bbox = bbox.transpose(2, 0, 1)
+        xl, yt, xr, yb = convert_xywh_to_ltrb(bbox)
+        xc, yc = bbox[0], bbox[1]
 
         # shape: (B,)
         score_ac_layout_gan = self._compute_ac_layout_gan(
-            S=S, xl=xl, xc=xc, xr=xr, yt=yt, yc=yc, yb=yb, batch_mask=batch_mask
+            S=S, xl=xl, xc=xc, xr=xr, yt=yt, yc=yc, yb=yb, batch_mask=mask
         )
         # shape: (B,)
         score_layout_gan_pp = self._compute_layout_gan_pp(
-            score_ac_layout_gan=score_ac_layout_gan, batch_mask=batch_mask
+            score_ac_layout_gan=score_ac_layout_gan, batch_mask=mask
         )
         score_ndn = self._compute_neural_design_network(
-            xl=xl, xc=xc, xr=xr, batch_mask=batch_mask, S=S
+            xl=xl, xc=xc, xr=xr, batch_mask=mask, S=S
         )
         return {
             "alignment-ACLayoutGAN": score_ac_layout_gan,
