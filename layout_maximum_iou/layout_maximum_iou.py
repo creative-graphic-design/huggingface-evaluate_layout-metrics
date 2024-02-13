@@ -15,11 +15,62 @@ class Layout(TypedDict):
 
 
 _DESCRIPTION = """\
+Compute the maximum IoU between two sets of layouts.
+"""
 
+_KWARGS_DESCRIPTION = """\
+Args:
+    layouts1 (`list` of `dict`): A list of dictionaries representing layouts including `list` of `bboxes` (float) and `list` of `categories` (int).
+    layouts2 (`list` of `dict`): A list of dictionaries representing layouts including `list` of `bboxes` (float) and `list` of `categories` (int).
+
+Returns:
+    float: The maximum IoU score.
+
+Examples:
+
+    Example 1: Single processing
+        >>> metric = evaluate.load("pytorch-layout-generation/layout-maximum-iou")
+        >>> num_samples, num_categories = 24, 4
+        >>> layout1 = {
+        >>>     "bboxes": np.random.rand(num_samples, num_categories),
+        >>>     "categories": np.random.randint(0, num_categories, size=(num_samples,)),
+        >>> }
+        >>> layout2 = {
+        >>>     "bboxes": np.random.rand(num_samples, num_categories),
+        >>>     "categories": np.random.randint(0, num_categories, size=(num_samples,)),
+        >>> }
+        >>> metric.add(layouts1=layout1, layouts2=layout2)
+        >>> print(metric.compute())
+
+    Example 2: Batch processing
+        >>> metric = evaluate.load("pytorch-layout-generation/layout-maximum-iou")
+        >>> batch_size, num_samples, num_categories = 512, 24, 4
+        >>> layouts1 = [
+        >>>     {
+        >>>         "bboxes": np.random.rand(num_samples, num_categories),
+        >>>         "categories": np.random.randint(0, num_categories, size=(num_samples,)),
+        >>>     }
+        >>>     for _ in range(batch_size)
+        >>> ]
+        >>> layouts2 = [
+        >>>     {
+        >>>         "bboxes": np.random.rand(num_samples, num_categories),
+        >>>         "categories": np.random.randint(0, num_categories, size=(num_samples,)),
+        >>>     }
+        >>>     for _ in range(batch_size)
+        >>> ]
+        >>> metric.add_batch(layouts1=layouts1, layouts2=layouts2)
+        >>> print(metric.compute())
 """
 
 _CITATION = """\
-
+@inproceedings{kikuchi2021constrained,
+  title={Constrained graphic layout generation via latent optimization},
+  author={Kikuchi, Kotaro and Simo-Serra, Edgar and Otani, Mayu and Yamaguchi, Kota},
+  booktitle={Proceedings of the 29th ACM International Conference on Multimedia},
+  pages={88--96},
+  year={2021}
+}
 """
 
 
@@ -148,6 +199,7 @@ class LayoutMaximumIoU(evaluate.Metric):
         return evaluate.EvaluationModuleInfo(
             description=_DESCRIPTION,
             citation=_CITATION,
+            inputs_description=_KWARGS_DESCRIPTION,
             features=ds.Features(
                 {
                     "layouts1": {

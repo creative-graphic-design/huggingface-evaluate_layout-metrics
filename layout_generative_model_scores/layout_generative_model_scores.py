@@ -11,6 +11,33 @@ _DESCRIPTION = """\
 Compute some generative model-based scores.
 """
 
+_KWARGS_DESCRIPTION = """\
+Args:
+    feats_real (`list` of `list` of `float`): A list of lists of floats representing real features.
+    feats_fake (`list` of `list` of `float`): A list of lists of floats representing fake features.
+
+Returns:
+    dictionaly: A set of generative model-based scores.
+
+Examples:
+
+    Example 1: Single processing
+        >>> metric = evaluate.load("pytorch-layout-generation/layout-generative-model-scores")
+        >> feat_size = 256
+        >>> feats_real = np.random.rand(feat_size)
+        >>> feats_fake = np.random.rand(feat_size)
+        >>> metric.add(feats_real=feats_real, feats_fake=feats_fake)
+        >>> print(metric.compute())
+    
+    Example 2: Batch processing
+        >>> metric = evaluate.load("pytorch-layout-generation/layout-generative-model-scores")
+        >>> batch_size, feat_size = 512, 256
+        >>> feats_real = np.random.rand(batch_size, feat_size)
+        >>> feats_fake = np.random.rand(batch_size, feat_size)
+        >>> metric.add_batch(feats_real=feats_real, feats_fake=feats_fake)
+        >>> print(metric.compute())
+"""
+
 _CITATION = """\
 @article{heusel2017gans,
   title={Gans trained by a two time-scale update rule converge to a local nash equilibrium},
@@ -40,6 +67,7 @@ class LayoutGenerativeModelScores(evaluate.Metric):
         return evaluate.MetricInfo(
             description=_DESCRIPTION,
             citation=_CITATION,
+            inputs_description=_KWARGS_DESCRIPTION,
             features=ds.Features(
                 {
                     "feats_real": ds.Sequence(ds.Value("float64")),

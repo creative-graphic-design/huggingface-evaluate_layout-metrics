@@ -9,6 +9,33 @@ _DESCRIPTION = """\
 Computes some alignment metrics that are different to each other in previous works.
 """
 
+_KWARGS_DESCRIPTION = """\
+Args:
+    bbox (`list` of `lists` of `int`): A list of lists of integers representing bounding boxes.
+    mask (`list` of `lists` of `bool`): A list of lists of booleans representing masks.
+
+Returns:
+    dictionaly: A set of alignment scores.
+
+Examples:
+
+    Example 1: Single processing
+        >>> metric = evaluate.load("pytorch-layout-generation/layout-alignment")
+        >>> model_max_length, num_coordinates = 25, 4
+        >>> bbox = np.random.rand(model_max_length, num_coordinates)
+        >>> mask = np.random.choice(a=[True, False], size=(model_max_length,))
+        >>> metric.add(bbox=bbox, mask=mask)
+        >>> print(metric.compute())
+
+    Example 2: Batch processing
+        >>> metric = evaluate.load("pytorch-layout-generation/layout-alignment")
+        >>> batch_size, model_max_length, num_coordinates = 512, 25, 4
+        >>> batch_bbox = np.random.rand(batch_size, model_max_length, num_coordinates)
+        >>> batch_mask = np.random.choice(a=[True, False], size=(batch_size, model_max_length))
+        >>> metric.add_batch(bbox=batch_bbox, mask=batch_mask)
+        >>> print(metric.compute())
+"""
+
 _CITATION = """\
 @inproceedings{lee2020neural,
   title={Neural design network: Graphic layout generation with constraints},
@@ -61,6 +88,7 @@ class LayoutAlignment(evaluate.Metric):
         return evaluate.MetricInfo(
             description=_DESCRIPTION,
             citation=_CITATION,
+            inputs_description=_KWARGS_DESCRIPTION,
             features=ds.Features(
                 {
                     "bbox": ds.Sequence(ds.Sequence(ds.Value("float64"))),
