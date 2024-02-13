@@ -122,11 +122,11 @@ def test_metric(
 def test_array_variant(
     metric_path: str, test_fixture_dir: pathlib.Path, num: int, arr_func
 ):
-    batch_bbox = np.load(test_fixture_dir / f"bbox{num}.npy")
-    batch_mask = np.load(test_fixture_dir / f"mask{num}.npy")
+    batch_bbox = np.load(test_fixture_dir / f"batch_bbox{num}.npy")
+    batch_mask = np.load(test_fixture_dir / f"batch_mask{num}.npy")
 
     metric = evaluate.load(path=metric_path)
     metric.add_batch(
-        batch_bbox=arr_func(batch_bbox),
-        batch_mask=arr_func(batch_mask),
+        bbox=arr_func(batch_bbox),
+        mask=arr_func(batch_mask),
     )

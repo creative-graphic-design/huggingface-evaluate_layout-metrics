@@ -66,8 +66,8 @@ class LayoutOverlap(evaluate.Metric):
             citation=_CITATION,
             features=ds.Features(
                 {
-                    "batch_bbox": ds.Sequence(ds.Sequence(ds.Value("float64"))),
-                    "batch_mask": ds.Sequence(ds.Value("bool")),
+                    "bbox": ds.Sequence(ds.Sequence(ds.Value("float64"))),
+                    "mask": ds.Sequence(ds.Value("bool")),
                 }
             ),
             codebase_urls=[
@@ -146,35 +146,33 @@ class LayoutOverlap(evaluate.Metric):
     def _compute(
         self,
         *,
-        batch_bbox: Union[npt.NDArray[np.float64], List[List[int]]],
-        batch_mask: Union[npt.NDArray[np.bool_], List[List[bool]]],
+        bbox: Union[npt.NDArray[np.float64], List[List[int]]],
+        mask: Union[npt.NDArray[np.bool_], List[List[bool]]],
     ) -> Dict[str, npt.NDArray[np.float64]]:
 
         # shape: (B, model_max_length, C)
-        batch_bbox = np.array(batch_bbox)
+        bbox = np.array(bbox)
         # shape: (B, model_max_length)
-        batch_mask = np.array(batch_mask)
+        mask = np.array(mask)
 
-        assert batch_bbox.ndim == 3
-        assert batch_mask.ndim == 2
+        assert bbox.ndim == 3
+        assert mask.ndim == 2
 
         # S: model_max_length
-        B, S, C = batch_bbox.shape
+        B, S, C = bbox.shape
 
         # shape: batch_bbox (B, S, C), batch_mask (B, S) -> (B, S, 1) -> (B, S, C)
-        batch_bbox[np.repeat(~batch_mask[:, :, None], axis=2, repeats=C)] = 0.0
+        bbox[np.repeat(~mask[:, :, None], axis=2, repeats=C)] = 0.0
         # shape: (C, B, S)
-        batch_bbox = batch_bbox.transpose(2, 0, 1)
+        bbox = bbox.transpose(2, 0, 1)
 
-        A = self.__calculate_a1_ai(batch_bbox)
+        A = self.__calculate_a1_ai(bbox)
 
         # shape: (B,)
-        score_ac_layout_gan = self._compute_ac_layout_gan(
-            S=S, batch_mask=batch_mask, **A
-        )
+        score_ac_layout_gan = self._compute_ac_layout_gan(S=S, batch_mask=mask, **A)
         # shape: (B,)
         score_layout_gan_pp = self._compute_layout_gan_pp(
-            score_ac_layout_gan=score_ac_layout_gan, batch_mask=batch_mask
+            score_ac_layout_gan=score_ac_layout_gan, batch_mask=mask
         )
         # shape: (B,)
         score_layout_gan = self._compute_layout_gan(B=B, S=S, ai=A["ai"])
