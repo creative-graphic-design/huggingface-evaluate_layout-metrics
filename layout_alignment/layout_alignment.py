@@ -9,6 +9,33 @@ _DESCRIPTION = """\
 Computes some alignment metrics that are different to each other in previous works.
 """
 
+_KWARGS_DESCRIPTION = """\
+Args:
+    bbox (`list` of `lists` of `int`): A list of lists of integers representing bounding boxes.
+    mask (`list` of `lists` of `bool`): A list of lists of booleans representing masks.
+
+Returns:
+    dictionaly: A set of alignment scores.
+
+Examples:
+
+    Example 1: Single processing
+        >>> metric = evaluate.load("pytorch-layout-generation/layout-alignment")
+        >>> model_max_length, num_coordinates = 25, 4
+        >>> bbox = np.random.rand(model_max_length, num_coordinates)
+        >>> mask = np.random.choice(a=[True, False], size=(model_max_length,))
+        >>> metric.add(bbox=bbox, mask=mask)
+        >>> print(metric.compute())
+
+    Example 2: Batch processing
+        >>> metric = evaluate.load("pytorch-layout-generation/layout-alignment")
+        >>> batch_size, model_max_length, num_coordinates = 512, 25, 4
+        >>> batch_bbox = np.random.rand(batch_size, model_max_length, num_coordinates)
+        >>> batch_mask = np.random.choice(a=[True, False], size=(batch_size, model_max_length))
+        >>> metric.add_batch(bbox=batch_bbox, mask=batch_mask)
+        >>> print(metric.compute())
+"""
+
 _CITATION = """\
 @inproceedings{lee2020neural,
   title={Neural design network: Graphic layout generation with constraints},
@@ -61,10 +88,11 @@ class LayoutAlignment(evaluate.Metric):
         return evaluate.MetricInfo(
             description=_DESCRIPTION,
             citation=_CITATION,
+            inputs_description=_KWARGS_DESCRIPTION,
             features=ds.Features(
                 {
-                    "batch_bbox": ds.Sequence(ds.Sequence(ds.Value("float64"))),
-                    "batch_mask": ds.Sequence(ds.Value("bool")),
+                    "bbox": ds.Sequence(ds.Sequence(ds.Value("float64"))),
+                    "mask": ds.Sequence(ds.Value("bool")),
                 }
             ),
             codebase_urls=[
@@ -151,32 +179,32 @@ class LayoutAlignment(evaluate.Metric):
     def _compute(
         self,
         *,
-        batch_bbox: Union[npt.NDArray[np.float64], List[List[int]]],
-        batch_mask: Union[npt.NDArray[np.bool_], List[List[bool]]],
+        bbox: Union[npt.NDArray[np.float64], List[List[int]]],
+        mask: Union[npt.NDArray[np.bool_], List[List[bool]]],
     ) -> Dict[str, npt.NDArray[np.float64]]:
         # shape: (B, model_max_length, C)
-        batch_bbox = np.array(batch_bbox)
+        bbox = np.array(bbox)
         # shape: (B, model_max_length)
-        batch_mask = np.array(batch_mask)
+        mask = np.array(mask)
 
         # S: model_max_length
-        _, S, _ = batch_bbox.shape
+        _, S, _ = bbox.shape
 
         # shape: (B, S, C) -> (C, B, S)
-        batch_bbox = batch_bbox.transpose(2, 0, 1)
-        xl, yt, xr, yb = convert_xywh_to_ltrb(batch_bbox)
-        xc, yc = batch_bbox[0], batch_bbox[1]
+        bbox = bbox.transpose(2, 0, 1)
+        xl, yt, xr, yb = convert_xywh_to_ltrb(bbox)
+        xc, yc = bbox[0], bbox[1]
 
         # shape: (B,)
         score_ac_layout_gan = self._compute_ac_layout_gan(
-            S=S, xl=xl, xc=xc, xr=xr, yt=yt, yc=yc, yb=yb, batch_mask=batch_mask
+            S=S, xl=xl, xc=xc, xr=xr, yt=yt, yc=yc, yb=yb, batch_mask=mask
         )
         # shape: (B,)
         score_layout_gan_pp = self._compute_layout_gan_pp(
-            score_ac_layout_gan=score_ac_layout_gan, batch_mask=batch_mask
+            score_ac_layout_gan=score_ac_layout_gan, batch_mask=mask
         )
         score_ndn = self._compute_neural_design_network(
-            xl=xl, xc=xc, xr=xr, batch_mask=batch_mask, S=S
+            xl=xl, xc=xc, xr=xr, batch_mask=mask, S=S
         )
         return {
             "alignment-ACLayoutGAN": score_ac_layout_gan,

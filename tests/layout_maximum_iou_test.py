@@ -40,14 +40,56 @@ def layouts2(test_fixture_dir: pathlib.Path):
     return layouts2
 
 
+def test_metric_random(
+    metric_path: str, num_samples: int = 16, num_categories: int = 24
+):
+    metric = evaluate.load(path=metric_path)
+
+    layout1 = {
+        "bboxes": np.random.rand(num_samples, 4),
+        "categories": np.random.randint(0, num_categories, size=(num_samples,)),
+    }
+    layout2 = {
+        "bboxes": np.random.rand(num_samples, 4),
+        "categories": np.random.randint(0, num_categories, size=(num_samples,)),
+    }
+    metric.add(layouts1=layout1, layouts2=layout2)
+
+    scores = metric.compute()
+    assert scores is not None
+
+
 def test_metric(
     metric_path: str,
     layouts1,
     layouts2,
     expected_score: float = 0.2770548066027329,
 ):
+    #
+    # Load Max. IoU metric
+    #
     metric = evaluate.load(path=metric_path)
+
+    #
+    # Batch processing
+    #
     metric.add_batch(layouts1=layouts1, layouts2=layouts2)
+
+    score = metric.compute()
+    assert score is not None and isinstance(score, float)
+    assert math.isclose(score, expected_score, rel_tol=1e-5)
+
+    #
+    # Reload the metric
+    #
+    metric = evaluate.load(path=metric_path)
+
+    #
+    # Single processing
+    #
+    assert len(layouts1) == len(layouts2)
+    for i in range(len(layouts1)):
+        metric.add(layouts1=layouts1[i], layouts2=layouts2[i])
 
     score = metric.compute()
     assert score is not None and isinstance(score, float)

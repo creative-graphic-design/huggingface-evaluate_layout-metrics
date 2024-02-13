@@ -9,6 +9,39 @@ _DESCRIPTION = """\
 Computes some average IoU metrics that are different to each other in previous works.
 """
 
+_KWARGS_DESCRIPTION = """\
+Args:
+    layouts (`list` of `dict`): A list of dictionaries representing layouts including `list` of `bboxes` (float) and `list` of `categories` (int).
+
+Returns:
+    dicrionaly: A set of average IoU scores.
+
+Examples:
+
+    Example 1: Single processing
+        >>> metric = evaluate.load("pytorch-layout-generation/layout-average-iou")
+        >>> num_samples, num_categories = 24, 4
+        >>> layout = {
+        >>>     "bboxes": np.random.rand(num_samples, num_categories),
+        >>>     "categories": np.random.randint(0, num_categories, size=(num_samples,)),
+        >>> }
+        >>> metric.add(layouts=layout)
+        >>> print(metric.compute())
+    
+    Example 2: Batch processing
+        >>> metric = evaluate.load("pytorch-layout-generation/layout-average-iou")
+        >>> batch_size, num_samples, num_categories = 512, 24, 4
+        >>> layouts = [
+        >>>     {
+        >>>         "bboxes": np.random.rand(num_samples, num_categories),
+        >>>         "categories": np.random.randint(0, num_categories, size=(num_samples,)),
+        >>>     }
+        >>>     for _ in range(batch_size)
+        >>> ]
+        >>> metric.add_batch(layouts=layouts)
+        >>> print(metric.compute())
+"""
+
 _CITATION = """\
 @inproceedings{arroyo2021variational,
   title={Variational transformer networks for layout generation},
@@ -157,6 +190,7 @@ class LayoutAverageIoU(evaluate.Metric):
         return evaluate.EvaluationModuleInfo(
             description=_DESCRIPTION,
             citation=_CITATION,
+            inputs_description=_KWARGS_DESCRIPTION,
             features=ds.Features(
                 {
                     "layouts": {

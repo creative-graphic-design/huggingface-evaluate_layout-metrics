@@ -24,6 +24,17 @@ def test_fixture_dir() -> pathlib.Path:
     return pathlib.Path(__file__).parents[1] / "test_fixtures"
 
 
+def test_metric_random(metric_path: str):
+    metric = evaluate.load(path=metric_path)
+
+    batch_bbox = np.random.rand(512, 25, 4)
+    batch_mask = np.random.choice(a=[True, False], size=(512, 25))
+
+    metric.add_batch(bbox=batch_bbox, mask=batch_mask)
+    scores = metric.compute()
+    assert scores is not None
+
+
 @pytest.mark.parametrize(
     argnames=("num", "expected_scores"),
     argvalues=(
@@ -59,17 +70,41 @@ def test_metric(
     num: int,
     expected_scores: Dict[str, float],
 ):
-    batch_bbox = np.load(test_fixture_dir / f"bbox{num}.npy")
-    batch_mask = np.load(test_fixture_dir / f"mask{num}.npy")
+    batch_bbox = np.load(test_fixture_dir / f"batch_bbox{num}.npy")
+    batch_mask = np.load(test_fixture_dir / f"batch_mask{num}.npy")
 
+    #
+    # Load Align. metric
+    #
     metric = evaluate.load(path=metric_path)
-    metric.add_batch(
-        batch_bbox=batch_bbox,
-        batch_mask=batch_mask,
-    )
+
+    #
+    # Batch processing
+    #
+    metric.add_batch(bbox=batch_bbox, mask=batch_mask)
     scores = metric.compute()
     assert scores is not None
 
+    for k in expected_scores.keys():
+        score = sum(scores[k])
+        expected_score = expected_scores[k]
+        assert math.isclose(score, expected_score, rel_tol=1e-5)
+
+    #
+    # Reload the metric
+    #
+    metric = evaluate.load(path=metric_path)
+
+    #
+    # Single processing
+    #
+    assert len(batch_bbox) == len(batch_mask)
+    batch_size = len(batch_bbox)
+    for i in range(batch_size):
+        metric.add(bbox=batch_bbox[i], mask=batch_mask[i])
+
+    scores = metric.compute()
+    assert scores is not None
     for k in expected_scores.keys():
         score = sum(scores[k])
         expected_score = expected_scores[k]
@@ -87,11 +122,11 @@ def test_metric(
 def test_array_variant(
     metric_path: str, test_fixture_dir: pathlib.Path, num: int, arr_func
 ):
-    batch_bbox = np.load(test_fixture_dir / f"bbox{num}.npy")
-    batch_mask = np.load(test_fixture_dir / f"mask{num}.npy")
+    batch_bbox = np.load(test_fixture_dir / f"batch_bbox{num}.npy")
+    batch_mask = np.load(test_fixture_dir / f"batch_mask{num}.npy")
 
     metric = evaluate.load(path=metric_path)
     metric.add_batch(
-        batch_bbox=arr_func(batch_bbox),
-        batch_mask=arr_func(batch_mask),
+        bbox=arr_func(batch_bbox),
+        mask=arr_func(batch_mask),
     )

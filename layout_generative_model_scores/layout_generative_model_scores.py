@@ -11,6 +11,33 @@ _DESCRIPTION = """\
 Compute some generative model-based scores.
 """
 
+_KWARGS_DESCRIPTION = """\
+Args:
+    feats_real (`list` of `list` of `float`): A list of lists of floats representing real features.
+    feats_fake (`list` of `list` of `float`): A list of lists of floats representing fake features.
+
+Returns:
+    dictionaly: A set of generative model-based scores.
+
+Examples:
+
+    Example 1: Single processing
+        >>> metric = evaluate.load("pytorch-layout-generation/layout-generative-model-scores")
+        >> feat_size = 256
+        >>> feats_real = np.random.rand(feat_size)
+        >>> feats_fake = np.random.rand(feat_size)
+        >>> metric.add(feats_real=feats_real, feats_fake=feats_fake)
+        >>> print(metric.compute())
+    
+    Example 2: Batch processing
+        >>> metric = evaluate.load("pytorch-layout-generation/layout-generative-model-scores")
+        >>> batch_size, feat_size = 512, 256
+        >>> feats_real = np.random.rand(batch_size, feat_size)
+        >>> feats_fake = np.random.rand(batch_size, feat_size)
+        >>> metric.add_batch(feats_real=feats_real, feats_fake=feats_fake)
+        >>> print(metric.compute())
+"""
+
 _CITATION = """\
 @article{heusel2017gans,
   title={Gans trained by a two time-scale update rule converge to a local nash equilibrium},
@@ -40,10 +67,11 @@ class LayoutGenerativeModelScores(evaluate.Metric):
         return evaluate.MetricInfo(
             description=_DESCRIPTION,
             citation=_CITATION,
+            inputs_description=_KWARGS_DESCRIPTION,
             features=ds.Features(
                 {
-                    "feats_real": ds.Sequence(ds.Sequence(ds.Value("float64"))),
-                    "feats_fake": ds.Sequence(ds.Sequence(ds.Value("float64"))),
+                    "feats_real": ds.Sequence(ds.Value("float64")),
+                    "feats_fake": ds.Sequence(ds.Value("float64")),
                 }
             ),
             codebase_urls=[
@@ -56,16 +84,18 @@ class LayoutGenerativeModelScores(evaluate.Metric):
     def _compute(
         self,
         *,
-        feats_real: Union[List[List[List[float]]], npt.NDArray[np.float64]],
-        feats_fake: Union[List[List[List[float]]], npt.NDArray[np.float64]],
+        feats_real: Union[List[List[float]], npt.NDArray[np.float64]],
+        feats_fake: Union[List[List[float]], npt.NDArray[np.float64]],
     ) -> Dict[str, float]:
-        # shape: (1, N, 256) -> (N, 256)
-        feats_real = np.asarray(feats_real).squeeze()
-        feats_fake = np.asarray(feats_fake).squeeze()
+        # shape: (N, 256)
+        feats_real = np.asarray(feats_real)
+        feats_fake = np.asarray(feats_fake)
 
+        # shape: (256,)
         mu_real = np.mean(feats_real, axis=0)
         mu_fake = np.mean(feats_fake, axis=0)
 
+        # shape: (256,)
         sigma_real = np.cov(feats_real, rowvar=False)
         sigma_fake = np.cov(feats_fake, rowvar=False)
 
