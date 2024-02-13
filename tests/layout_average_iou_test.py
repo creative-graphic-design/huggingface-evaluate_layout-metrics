@@ -41,13 +41,53 @@ def expected_scores() -> Dict[str, float]:
     }
 
 
+def test_metric_random(
+    metric_path: str, num_samples: int = 24, num_categories: int = 24
+):
+    metric = evaluate.load(path=metric_path)
+
+    layout = {
+        "bboxes": np.random.rand(num_samples, 4),
+        "categories": np.random.randint(0, num_categories, size=(num_samples,)),
+    }
+    metric.add(layouts=layout)
+
+    scores = metric.compute()
+    assert scores is not None
+
+
 def test_metric(
     metric_path: str,
     layouts,
     expected_scores: Dict[str, float],
 ):
+    #
+    # Load Avg. IoU metric
+    #
     metric = evaluate.load(path=metric_path)
+
+    #
+    # Batch processing
+    #
     metric.add_batch(layouts=layouts)
+
+    scores = metric.compute()
+    assert scores is not None
+    for k in expected_scores.keys():
+        score = scores[k]
+        expected_score = expected_scores[k]
+        assert math.isclose(score, expected_score, rel_tol=1e-5)
+
+    #
+    # Reload the metric
+    #
+    metric = evaluate.load(path=metric_path)
+
+    #
+    # Single processing
+    #
+    for layout in layouts:
+        metric.add(layouts=layout)
 
     scores = metric.compute()
     assert scores is not None

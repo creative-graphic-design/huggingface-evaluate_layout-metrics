@@ -73,6 +73,9 @@ def test_metric(
     batch_bbox = np.load(test_fixture_dir / f"batch_bbox{num}.npy")
     batch_mask = np.load(test_fixture_dir / f"batch_mask{num}.npy")
 
+    #
+    # Load Align. metric
+    #
     metric = evaluate.load(path=metric_path)
 
     #
@@ -87,7 +90,9 @@ def test_metric(
         expected_score = expected_scores[k]
         assert math.isclose(score, expected_score, rel_tol=1e-5)
 
-    # Reload metric
+    #
+    # Reload the metric
+    #
     metric = evaluate.load(path=metric_path)
 
     #
