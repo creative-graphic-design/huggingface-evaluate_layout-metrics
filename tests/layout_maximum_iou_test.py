@@ -16,7 +16,7 @@ def base_dir() -> str:
 
 @pytest.fixture
 def metric_path(base_dir: str) -> str:
-    return os.path.join(base_dir, "layout_maximum_iou.py")
+    return os.path.join(base_dir, "layout-maximum-iou.py")
 
 
 @pytest.fixture

@@ -17,7 +17,7 @@ def base_dir() -> str:
 
 @pytest.fixture
 def metric_path(base_dir: str) -> str:
-    return os.path.join(base_dir, "layout_average_iou.py")
+    return os.path.join(base_dir, "layout-average-iou.py")
 
 
 @pytest.fixture
