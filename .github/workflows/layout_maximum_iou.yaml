@@ -40,13 +40,13 @@ jobs:
           HF_USERNAME: ${{ secrets.HF_USERNAME }}
           HF_EMAIL: ${{ secrets.HF_EMAIL }}
         run: |
-          cp ${SRC_DIR}/layout_maximum_iou/README.md ${DST_DIR}/README.md
-          cp ${SRC_DIR}/layout_maximum_iou/layout_maximum_iou.py ${DST_DIR}/layout_maximum_iou.py
+          cp ${SRC_DIR}/layout-maximum-iou/README.md ${DST_DIR}/README.md
+          cp ${SRC_DIR}/layout-maximum-iou/layout-maximum-iou.py ${DST_DIR}/layout-maximum-iou.py
 
           git -C ${DST_DIR} config user.name "${HF_USERNAME}"
           git -C ${DST_DIR} config user.email "${HF_EMAIL}"
 
-          git -C ${DST_DIR} add README.md layout_maximum_iou.py requirements.txt
+          git -C ${DST_DIR} add README.md layout-maximum-iou.py requirements.txt
 
           if git -C ${DST_DIR} diff --cached --quiet; then
               echo "No changes to commit"
