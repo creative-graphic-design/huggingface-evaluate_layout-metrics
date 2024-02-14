@@ -15,7 +15,7 @@ def base_dir() -> str:
 
 @pytest.fixture
 def metric_path(base_dir: str) -> str:
-    return os.path.join(base_dir, "layout_generative_model_scores.py")
+    return os.path.join(base_dir, "layout-generative-model-scores.py")
 
 
 @pytest.fixture
