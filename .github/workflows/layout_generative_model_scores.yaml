@@ -40,13 +40,16 @@ jobs:
           HF_USERNAME: ${{ secrets.HF_USERNAME }}
           HF_EMAIL: ${{ secrets.HF_EMAIL }}
         run: |
-          cp ${SRC_DIR}/layout-generative-model-scores/README.md ${DST_DIR}/README.md
-          cp ${SRC_DIR}/layout-generative-model-scores/layout-generative-model-scores.py ${DST_DIR}/layout-generative-model-scores.py
+          local dir_name="layout_generative_model_scores"
+          local script_name="layout-generative-model-scores.py"
+
+          cp ${SRC_DIR}/${dir_name}/README.md ${DST_DIR}/README.md
+          cp ${SRC_DIR}/${dir_name}/${script_name} ${DST_DIR}/${script_name}
 
           git -C ${DST_DIR} config user.name "${HF_USERNAME}"
           git -C ${DST_DIR} config user.email "${HF_EMAIL}"
 
-          git -C ${DST_DIR} add README.md layout-generative-model-scores.py requirements.txt
+          git -C ${DST_DIR} add README.md requirements.txt ${script_name}
 
           if git -C ${DST_DIR} diff --cached --quiet; then
               echo "No changes to commit"
