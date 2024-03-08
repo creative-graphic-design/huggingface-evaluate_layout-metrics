@@ -31,9 +31,10 @@ import numpy as np
 alignment_score = evaluate.load("pytorch-layout-generation/layout-alignment")
 
 # `batch_bbox` is a tensor representing (batch_size, max_num_elements, coordinates) 
-# and `batch_mask` is a tensor representing (batch_size, max_num_elements).
+# and `batch_mask` is a boolean tensor representing (batch_size, max_num_elements).
 batch_bbox = np.random.rand(512, 25, 4)
-batch_mask = np.random.rand(512, 25)
+# Note that padded fields will be set to `False`
+batch_mask = np.full((512, 25), fill_value=True)
 
 # Add the batch of bboxes and masks to the metric
 alignment_score.add_batch(batch_bbox=batch_bbox, batch_mask=batch_mask)
