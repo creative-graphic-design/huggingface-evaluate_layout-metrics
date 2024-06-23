@@ -7,11 +7,11 @@ A collection of metrics to evaluate layout generation that can be easily used in
 
 | 📊 Metric | 🤗 Space |
 |:---------:|:---------:|
-| [![FID](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_generative_model_scores.yaml/badge.svg)](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_generative_model_scores.yaml) | [`pytorch-layout-generation/layout-generative-model-scores`](https://huggingface.co/spaces/pytorch-layout-generation/layout-generative-model-scores) |
-| [![Max. IoU](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_maximum_iou.yaml/badge.svg)](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_maximum_iou.yaml) | [`pytorch-layout-generation/layout-maximum-iou`](https://huggingface.co/spaces/pytorch-layout-generation/layout-maximum-iou) |
-| [![Avg. IoU](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_average_iou.yaml/badge.svg)](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_average_iou.yaml) | [`pytorch-layout-generation/layout-average-iou`](https://huggingface.co/spaces/pytorch-layout-generation/layout-average-iou) |
-| [![Alignment](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_alignment.yaml/badge.svg)](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_alignment.yaml) | [`pytorch-layout-generation/layout-alignment`](https://huggingface.co/spaces/pytorch-layout-generation/layout-alignment) |
-| [![Overlap](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_overlap.yaml/badge.svg)](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_overlap.yaml) | [`pytorch-layout-generation/layout-overlap`](https://huggingface.co/spaces/pytorch-layout-generation/layout-overlap) |
+| [![FID](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_generative_model_scores.yaml/badge.svg)](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_generative_model_scores.yaml) | [`creative-graphic-design/layout-generative-model-scores`](https://huggingface.co/spaces/creative-graphic-design/layout-generative-model-scores) |
+| [![Max. IoU](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_maximum_iou.yaml/badge.svg)](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_maximum_iou.yaml) | [`creative-graphic-design/layout-maximum-iou`](https://huggingface.co/spaces/creative-graphic-design/layout-maximum-iou) |
+| [![Avg. IoU](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_average_iou.yaml/badge.svg)](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_average_iou.yaml) | [`creative-graphic-design/layout-average-iou`](https://huggingface.co/spaces/creative-graphic-design/layout-average-iou) |
+| [![Alignment](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_alignment.yaml/badge.svg)](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_alignment.yaml) | [`creative-graphic-design/layout-alignment`](https://huggingface.co/spaces/creative-graphic-design/layout-alignment) |
+| [![Overlap](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_overlap.yaml/badge.svg)](https://github.com/shunk031/huggingface-evaluate_layout-metrics/actions/workflows/layout_overlap.yaml) | [`creative-graphic-design/layout-overlap`](https://huggingface.co/spaces/creative-graphic-design/layout-overlap) |
 
 # How to use
 
@@ -27,8 +27,8 @@ pip install evaluate
 import evaluate
 import numpy as np
 
-# Load the evaluation metric named "pytorch-layout-generation/layout-alignment"
-alignment_score = evaluate.load("pytorch-layout-generation/layout-alignment")
+# Load the evaluation metric named "creative-graphic-design/layout-alignment"
+alignment_score = evaluate.load("creative-graphic-design/layout-alignment")
 
 # `batch_bbox` is a tensor representing (batch_size, max_num_elements, coordinates) 
 # and `batch_mask` is a boolean tensor representing (batch_size, max_num_elements).

@@ -29,7 +29,7 @@ Returns:
 Examples:
 
     Example 1: Single processing
-        >>> metric = evaluate.load("pytorch-layout-generation/layout-maximum-iou")
+        >>> metric = evaluate.load("creative-graphic-design/layout-maximum-iou")
         >>> num_samples, num_categories = 24, 4
         >>> layout1 = {
         >>>     "bboxes": np.random.rand(num_samples, num_categories),
@@ -43,7 +43,7 @@ Examples:
         >>> print(metric.compute())
 
     Example 2: Batch processing
-        >>> metric = evaluate.load("pytorch-layout-generation/layout-maximum-iou")
+        >>> metric = evaluate.load("creative-graphic-design/layout-maximum-iou")
         >>> batch_size, num_samples, num_categories = 512, 24, 4
         >>> layouts1 = [
         >>>     {

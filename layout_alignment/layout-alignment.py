@@ -20,7 +20,7 @@ Returns:
 Examples:
 
     Example 1: Single processing
-        >>> metric = evaluate.load("pytorch-layout-generation/layout-alignment")
+        >>> metric = evaluate.load("creative-graphic-design/layout-alignment")
         >>> model_max_length, num_coordinates = 25, 4
         >>> bbox = np.random.rand(model_max_length, num_coordinates)
         >>> mask = np.random.choice(a=[True, False], size=(model_max_length,))
@@ -28,7 +28,7 @@ Examples:
         >>> print(metric.compute())
 
     Example 2: Batch processing
-        >>> metric = evaluate.load("pytorch-layout-generation/layout-alignment")
+        >>> metric = evaluate.load("creative-graphic-design/layout-alignment")
         >>> batch_size, model_max_length, num_coordinates = 512, 25, 4
         >>> batch_bbox = np.random.rand(batch_size, model_max_length, num_coordinates)
         >>> batch_mask = np.random.choice(a=[True, False], size=(batch_size, model_max_length))
