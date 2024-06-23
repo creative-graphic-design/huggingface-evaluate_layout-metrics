@@ -19,7 +19,7 @@ Returns:
 Examples:
 
     Example 1: Single processing
-        >>> metric = evaluate.load("pytorch-layout-generation/layout-average-iou")
+        >>> metric = evaluate.load("creative-graphic-design/layout-average-iou")
         >>> num_samples, num_categories = 24, 4
         >>> layout = {
         >>>     "bboxes": np.random.rand(num_samples, num_categories),
@@ -29,7 +29,7 @@ Examples:
         >>> print(metric.compute())
     
     Example 2: Batch processing
-        >>> metric = evaluate.load("pytorch-layout-generation/layout-average-iou")
+        >>> metric = evaluate.load("creative-graphic-design/layout-average-iou")
         >>> batch_size, num_samples, num_categories = 512, 24, 4
         >>> layouts = [
         >>>     {

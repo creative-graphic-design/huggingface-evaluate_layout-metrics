@@ -22,7 +22,7 @@ Returns:
 Examples:
 
     Example 1: Single processing
-        >>> metric = evaluate.load("pytorch-layout-generation/layout-generative-model-scores")
+        >>> metric = evaluate.load("creative-graphic-design/layout-generative-model-scores")
         >> feat_size = 256
         >>> feats_real = np.random.rand(feat_size)
         >>> feats_fake = np.random.rand(feat_size)
@@ -30,7 +30,7 @@ Examples:
         >>> print(metric.compute())
     
     Example 2: Batch processing
-        >>> metric = evaluate.load("pytorch-layout-generation/layout-generative-model-scores")
+        >>> metric = evaluate.load("creative-graphic-design/layout-generative-model-scores")
         >>> batch_size, feat_size = 512, 256
         >>> feats_real = np.random.rand(batch_size, feat_size)
         >>> feats_fake = np.random.rand(batch_size, feat_size)
