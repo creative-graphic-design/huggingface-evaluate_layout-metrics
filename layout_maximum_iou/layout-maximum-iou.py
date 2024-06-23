@@ -149,7 +149,7 @@ def _compute_maximum_iou_for_layout(layout1: Layout, layout2: Layout):
 
 
 def _compute_maximum_iou(
-    layouts_1_and_2: Tuple[List[Layout], List[Layout]]
+    layouts_1_and_2: Tuple[List[Layout], List[Layout]],
 ) -> npt.NDArray[np.float64]:
     assert len(layouts_1_and_2) == 2
     layouts1, layouts2 = layouts_1_and_2
@@ -194,7 +194,6 @@ def compute_maximum_iou(args):
 
 
 class LayoutMaximumIoU(evaluate.Metric):
-
     def _info(self) -> evaluate.EvaluationModuleInfo:
         return evaluate.EvaluationModuleInfo(
             description=_DESCRIPTION,

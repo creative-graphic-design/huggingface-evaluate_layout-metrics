@@ -77,7 +77,6 @@ class LayoutOverlap(evaluate.Metric):
         )
 
     def __calculate_a1_ai(self, batch_bbox: npt.NDArray[np.float64]) -> A:
-
         l1, t1, r1, b1 = convert_xywh_to_ltrb(batch_bbox[:, :, :, None])
         l2, t2, r2, b2 = convert_xywh_to_ltrb(batch_bbox[:, :, None, :])
         a1 = (r1 - l1) * (b1 - t1)
@@ -99,7 +98,6 @@ class LayoutOverlap(evaluate.Metric):
         a1: npt.NDArray[np.float64],
         batch_mask: npt.NDArray[np.bool_],
     ) -> npt.NDArray[np.float64]:
-
         # shape: (B, S) -> (B, S, S)
         batch_mask = ~batch_mask[:, None, :] | ~batch_mask[:, :, None]
         indices = np.arange(S)
@@ -117,7 +115,6 @@ class LayoutOverlap(evaluate.Metric):
         score_ac_layout_gan: npt.NDArray[np.float64],
         batch_mask: npt.NDArray[np.bool_],
     ) -> npt.NDArray[np.float64]:
-
         # shape: (B, S) -> (B,)
         batch_mask = batch_mask.sum(axis=1)
 
@@ -130,7 +127,6 @@ class LayoutOverlap(evaluate.Metric):
     def _compute_layout_gan(
         self, S: int, B: int, ai: npt.NDArray[np.float64]
     ) -> npt.NDArray[np.float64]:
-
         indices = np.arange(S)
         ii, jj = np.meshgrid(indices, indices, indexing="ij")
 
@@ -149,7 +145,6 @@ class LayoutOverlap(evaluate.Metric):
         bbox: Union[npt.NDArray[np.float64], List[List[int]]],
         mask: Union[npt.NDArray[np.bool_], List[List[bool]]],
     ) -> Dict[str, npt.NDArray[np.float64]]:
-
         # shape: (B, model_max_length, C)
         bbox = np.array(bbox)
         # shape: (B, model_max_length)
