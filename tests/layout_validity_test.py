@@ -1,0 +1,54 @@
+import os
+import pathlib
+
+import evaluate
+import pytest
+import torch
+
+
+@pytest.fixture
+def base_dir() -> str:
+    return "layout_validity"
+
+
+@pytest.fixture
+def metric_path(base_dir: str) -> str:
+    return os.path.join(base_dir, "layout-validity.py")
+
+
+@pytest.fixture
+def test_fixture_dir() -> pathlib.Path:
+    return pathlib.Path(__file__).parents[1] / "test_fixtures"
+
+
+@pytest.fixture
+def poster_width() -> int:
+    return 513
+
+
+@pytest.fixture
+def poster_height() -> int:
+    return 750
+
+
+def test_metric(
+    metric_path: str,
+    test_fixture_dir: pathlib.Path,
+    poster_width: int,
+    poster_height: int,
+    # https://github.com/PKU-ICST-MIPL/PosterLayout-CVPR2023/blob/main/output/results.txt#L2C14-L2C31
+    expected_score: float = 0.878844169246646,
+):
+    # shape: (batch_size, max_elements, 4)
+    bboxes = torch.load(test_fixture_dir / "poster_layout_boxes.pt")
+    # shape: (batch_size, max_elements, 1)
+    labels = torch.load(test_fixture_dir / "poster_layout_clses.pt")
+
+    metric = evaluate.load(
+        path=metric_path,
+        canvas_width=poster_width,
+        canvas_height=poster_height,
+    )
+    metric.add_batch(bbox=bboxes, label=labels)
+    score = metric.compute()
+    assert score is not None and score == expected_score
