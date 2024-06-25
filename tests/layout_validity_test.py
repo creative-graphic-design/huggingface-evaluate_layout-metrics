@@ -40,15 +40,15 @@ def test_metric(
     expected_score: float = 0.878844169246646,
 ):
     # shape: (batch_size, max_elements, 4)
-    bboxes = torch.load(test_fixture_dir / "poster_layout_boxes.pt")
+    predictions = torch.load(test_fixture_dir / "poster_layout_boxes.pt")
     # shape: (batch_size, max_elements, 1)
-    labels = torch.load(test_fixture_dir / "poster_layout_clses.pt")
+    gold_labels = torch.load(test_fixture_dir / "poster_layout_clses.pt")
 
     metric = evaluate.load(
         path=metric_path,
         canvas_width=poster_width,
         canvas_height=poster_height,
     )
-    metric.add_batch(bbox=bboxes, label=labels)
+    metric.add_batch(predictions=predictions, gold_labels=gold_labels)
     score = metric.compute()
     assert score is not None and score == expected_score

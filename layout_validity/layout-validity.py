@@ -1,6 +1,9 @@
+from typing import List, Union
+
 import datasets as ds
 import evaluate
 import numpy as np
+import numpy.typing as npt
 
 _DESCRIPTION = r"""\
 Computes the ratio of valid elements to all elements in the layout, where the area within the canvas of a valid element must be greater than 0.1% of the canvas.
@@ -38,8 +41,8 @@ class LayoutValidity(evaluate.Metric):
             inputs_description=_KWARGS_DESCRIPTION,
             features=ds.Features(
                 {
-                    "bbox": ds.Sequence(ds.Sequence(ds.Value("float64"))),
-                    "label": ds.Sequence(ds.Sequence(ds.Value("int64"))),
+                    "predictions": ds.Sequence(ds.Sequence(ds.Value("float64"))),
+                    "gold_labels": ds.Sequence(ds.Sequence(ds.Value("int64"))),
                 }
             ),
             codebase_urls=[
@@ -50,25 +53,25 @@ class LayoutValidity(evaluate.Metric):
     def _compute(
         self,
         *,
-        bbox,
-        label,
+        predictions: Union[npt.NDArray[np.float64], List[List[float]]],
+        gold_labels: Union[npt.NDArray[np.int64], List[int]],
     ) -> float:
-        bbox = np.array(bbox)
-        label = np.array(label)
+        predictions = np.array(predictions)
+        gold_labels = np.array(gold_labels)
 
-        bbox[:, :, ::2] *= self.canvas_width
-        bbox[:, :, 1::2] *= self.canvas_height
+        predictions[:, :, ::2] *= self.canvas_width
+        predictions[:, :, 1::2] *= self.canvas_height
 
         total_elements, empty_elements = 0, 0
 
         w = self.canvas_width / 100
         h = self.canvas_height / 100
 
-        assert len(bbox) == len(label)
+        assert len(predictions) == len(gold_labels)
 
-        for cls, box in zip(label, bbox):
-            mask = (cls > 0).reshape(-1)
-            mask_box = box[mask]
+        for gold_label, prediction in zip(gold_labels, predictions):
+            mask = (gold_label > 0).reshape(-1)
+            mask_box = prediction[mask]
             total_elements += len(mask_box)
             for mb in mask_box:
                 xl, yl, xr, yr = mb
