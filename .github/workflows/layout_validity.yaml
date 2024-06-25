@@ -44,4 +44,4 @@ jobs:
           HF_EMAIL: ${{ secrets.HF_EMAIL }}
         run: |
           makefile_path=${SRC_DIR}/Makefile
-          make -f ${makefile} deploy REPO_NAME=${REPO_NAME} DIR_NAME=${DIR_NAME}
+          make -f ${makefile_path} deploy REPO_NAME=${REPO_NAME} DIR_NAME=${DIR_NAME}
