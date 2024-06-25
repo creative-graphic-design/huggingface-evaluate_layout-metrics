@@ -8,8 +8,8 @@ function main() {
     cp ${SRC_DIR}/${DIR_NAME}/README.md ${DST_DIR}/README.md
     cp ${SRC_DIR}/${DIR_NAME}/${script_name} ${DST_DIR}/${script_name}
 
-    git -C ${DST_DIR} config user.name $(HF_USERNAME)
-    git -C ${DST_DIR} config user.email $(HF_EMAIL)
+    git -C ${DST_DIR} config user.name ${HF_USERNAME}
+    git -C ${DST_DIR} config user.email ${HF_EMAIL}
 
     git -C ${DST_DIR} add README.md requirements.txt ${script_name}
 
