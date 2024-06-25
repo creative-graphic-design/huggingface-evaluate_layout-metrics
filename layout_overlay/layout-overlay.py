@@ -1,13 +1,9 @@
-import os
-from typing import List, Literal, Optional, Union
+from typing import List, Union
 
-import cv2
 import datasets as ds
 import evaluate
 import numpy as np
 import numpy.typing as npt
-from PIL import Image
-from PIL.Image import Image as PilImage
 
 _DESCRIPTION = r"""\
 Computes the average IoU of all pairs of elements except for underlay.

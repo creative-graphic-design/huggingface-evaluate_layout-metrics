@@ -1,13 +1,9 @@
-import os
-from typing import Dict, List, Literal, Optional, Union
+from typing import Dict, List, Union
 
-import cv2
 import datasets as ds
 import evaluate
 import numpy as np
 import numpy.typing as npt
-from PIL import Image
-from PIL.Image import Image as PilImage
 
 _DESCRIPTION = r"""\
 Computes the non-flatness of regions that text elements are solely put on, referring to CGL-GAN.
