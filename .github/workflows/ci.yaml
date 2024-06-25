@@ -42,4 +42,4 @@ jobs:
 
       - name: Run tests
         run: |
-          poetry run pytest --color=yes -rf
+          poetry run pytest -n auto

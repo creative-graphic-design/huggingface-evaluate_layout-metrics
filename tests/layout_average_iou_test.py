@@ -21,11 +21,6 @@ def metric_path(base_dir: str) -> str:
 
 
 @pytest.fixture
-def test_fixture_dir() -> pathlib.Path:
-    return pathlib.Path(__file__).parents[1] / "test_fixtures"
-
-
-@pytest.fixture
 def layouts(test_fixture_dir: pathlib.Path):
     layouts1_path = test_fixture_dir / "layouts_sub.pkl"
     with layouts1_path.open("rb") as rf:

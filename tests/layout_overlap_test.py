@@ -19,11 +19,6 @@ def metric_path(base_dir: str) -> str:
     return os.path.join(base_dir, "layout-overlap.py")
 
 
-@pytest.fixture
-def test_fixture_dir() -> pathlib.Path:
-    return pathlib.Path(__file__).parents[1] / "test_fixtures"
-
-
 def test_metric_random(metric_path: str):
     metric = evaluate.load(path=metric_path)
 

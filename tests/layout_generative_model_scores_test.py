@@ -19,11 +19,6 @@ def metric_path(base_dir: str) -> str:
 
 
 @pytest.fixture
-def test_fixture_dir() -> pathlib.Path:
-    return pathlib.Path(__file__).parents[1] / "test_fixtures"
-
-
-@pytest.fixture
 def feats_real(test_fixture_dir: pathlib.Path):
     return np.load(test_fixture_dir / "feats_real.npy")
 
