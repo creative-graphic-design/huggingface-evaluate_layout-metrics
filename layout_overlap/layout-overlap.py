@@ -9,6 +9,10 @@ _DESCRIPTION = """\
 Some overlap metrics that are different to each other in previous works.
 """
 
+_KWARGS_DESCRIPTION = """\
+FIXME
+"""
+
 _CITATION = """\
 @inproceedings{li2018layoutgan,
   title={LayoutGAN: Generating Graphic Layouts with Wireframe Discriminators},
@@ -64,6 +68,7 @@ class LayoutOverlap(evaluate.Metric):
         return evaluate.MetricInfo(
             description=_DESCRIPTION,
             citation=_CITATION,
+            inputs_description=_KWARGS_DESCRIPTION,
             features=ds.Features(
                 {
                     "bbox": ds.Sequence(ds.Sequence(ds.Value("float64"))),

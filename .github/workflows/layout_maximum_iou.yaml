@@ -1,6 +1,9 @@
 name: Max. IoU
 
 on:
+  pull_request:
+    branches:
+      - main
   workflow_run:
     workflows:
       - CI
@@ -42,6 +45,7 @@ jobs:
         env:
           HF_USERNAME: ${{ secrets.HF_USERNAME }}
           HF_EMAIL: ${{ secrets.HF_EMAIL }}
+          SCRIPTS_DIR: ${{ env.SRC_DIR }}/scripts
         run: |
           makefile_path=${SRC_DIR}/Makefile
           make -f ${makefile_path} deploy REPO_NAME=${REPO_NAME} DIR_NAME=${DIR_NAME}

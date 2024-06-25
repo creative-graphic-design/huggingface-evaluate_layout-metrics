@@ -1,6 +1,9 @@
 name: Unreadability
 
 on:
+  pull_request:
+    branches:
+      - main
   workflow_run:
     workflows:
       - CI
@@ -46,6 +49,7 @@ jobs:
         env:
           HF_USERNAME: ${{ secrets.HF_USERNAME }}
           HF_EMAIL: ${{ secrets.HF_EMAIL }}
+          SCRIPTS_DIR: ${{ env.SRC_DIR }}/scripts
         run: |
           SCRIPT_NAME=${REPO_NAME}.py
 
