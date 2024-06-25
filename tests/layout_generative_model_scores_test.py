@@ -9,12 +9,12 @@ import pytest
 
 
 @pytest.fixture
-def base_dir() -> str:
-    return "layout_generative_model_scores"
+def base_dir(metrics_dir: pathlib.Path) -> pathlib.Path:
+    return metrics_dir / "layout_generative_model_scores"
 
 
 @pytest.fixture
-def metric_path(base_dir: str) -> str:
+def metric_path(base_dir: pathlib.Path) -> str:
     return os.path.join(base_dir, "layout-generative-model-scores.py")
 
 

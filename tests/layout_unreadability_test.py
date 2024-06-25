@@ -8,12 +8,12 @@ import torch
 
 
 @pytest.fixture
-def base_dir() -> str:
-    return "layout_unreadability"
+def base_dir(metrics_dir: pathlib.Path) -> pathlib.Path:
+    return metrics_dir / "layout_unreadability"
 
 
 @pytest.fixture
-def metric_path(base_dir: str) -> str:
+def metric_path(base_dir: pathlib.Path) -> str:
     return os.path.join(base_dir, "layout-unreadability.py")
 
 
