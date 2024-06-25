@@ -43,20 +43,5 @@ jobs:
           HF_USERNAME: ${{ secrets.HF_USERNAME }}
           HF_EMAIL: ${{ secrets.HF_EMAIL }}
         run: |
-          SCRIPT_NAME=${REPO_NAME}.py
-
-          cp ${SRC_DIR}/${DIR_NAME}/README.md ${DST_DIR}/README.md
-          cp ${SRC_DIR}/${DIR_NAME}/${SCRIPT_NAME} ${DST_DIR}/${SCRIPT_NAME}
-
-          git -C ${DST_DIR} config user.name "${HF_USERNAME}"
-          git -C ${DST_DIR} config user.email "${HF_EMAIL}"
-
-          git -C ${DST_DIR} add README.md requirements.txt ${SCRIPT_NAME}
-
-          if git -C ${DST_DIR} diff --cached --quiet; then
-              echo "No changes to commit"
-          else
-              msg=$(git -C ${SRC_DIR} rev-parse HEAD)
-              git -C ${DST_DIR} commit -m "deploy: ${msg}"
-              git -C ${DST_DIR} push -u origin main
-          fi
+          makefile_path=${SRC_DIR}/Makefile
+          make -f ${makefile_path} deploy REPO_NAME=${REPO_NAME} DIR_NAME=${DIR_NAME}
