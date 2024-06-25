@@ -1,6 +1,9 @@
 name: Unreadability
 
 on:
+  pull_request:
+    branches:
+      - main
   workflow_run:
     workflows:
       - CI
