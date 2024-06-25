@@ -8,10 +8,11 @@ import numpy.typing as npt
 from PIL import Image
 
 _DESCRIPTION = r"""\
-Computes the utilization rate of space suitable for arranging elements, implemented by the negative image S′ of the compounded saliency map S
+Computes the utilization rate of space suitable for arranging elements, implemented by the negative image S' of the compounded saliency map S.
 """
 
 _KWARGS_DESCRIPTION = """\
+FIXME
 """
 
 _CITATION = """\

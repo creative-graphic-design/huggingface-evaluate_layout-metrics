@@ -12,6 +12,7 @@ Computes the average pixel value of areas covered by elements in S.
 """
 
 _KWARGS_DESCRIPTION = """\
+FIXME
 """
 
 _CITATION = """\
