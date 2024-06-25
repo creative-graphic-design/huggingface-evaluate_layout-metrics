@@ -71,10 +71,10 @@ class LayoutValidity(evaluate.Metric):
 
         for gold_label, prediction in zip(gold_labels, predictions):
             mask = (gold_label > 0).reshape(-1)
-            mask_box = prediction[mask]
-            total_elements += len(mask_box)
-            for mb in mask_box:
-                xl, yl, xr, yr = mb
+            mask_prediction = prediction[mask]
+            total_elements += len(mask_prediction)
+            for mp in mask_prediction:
+                xl, yl, xr, yr = mp
                 xl = max(0, xl)
                 yl = max(0, yl)
                 xr = min(self.canvas_width, xr)
