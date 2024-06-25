@@ -86,15 +86,15 @@ class LayoutUnderlayEffectiveness(evaluate.Metric):
         xl_1, yl_1, xr_1, yr_1 = bb1
         xl_2, yl_2, xr_2, yr_2 = bb2
 
-        w_1 = xr_1 - xl_1
+        # w_1 = xr_1 - xl_1
         w_2 = xr_2 - xl_2
-        h_1 = yr_1 - yl_1
+        # h_1 = yr_1 - yl_1
         h_2 = yr_2 - yl_2
 
         w_inter = min(xr_1, xr_2) - max(xl_1, xl_2)
         h_inter = min(yr_1, yr_2) - max(yl_1, yl_2)
 
-        a_1 = w_1 * h_1
+        # a_1 = w_1 * h_1
         a_2 = w_2 * h_2
         a_inter = w_inter * h_inter
         if w_inter <= 0 or h_inter <= 0:
