@@ -1,4 +1,4 @@
-SRC_DIR := ./github-repo
+SRC_DIR := ./github-repo/metrics
 DST_DIR := ./huggingface-repo
 
 SCRIPTS_DIR ?= ./scripts

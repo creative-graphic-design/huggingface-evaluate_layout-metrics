@@ -20,7 +20,7 @@ jobs:
       REPO_NAME: "layout-non-alignment"
       DIR_NAME: "layout_non_alignment"
 
-      SRC_DIR: ./github-repo
+      SRC_DIR: ./github-repo/metrics
       DST_DIR: ./huggingface-repo
 
     steps:

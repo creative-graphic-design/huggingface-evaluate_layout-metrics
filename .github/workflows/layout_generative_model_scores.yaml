@@ -20,7 +20,7 @@ jobs:
       REPO_NAME: "layout-generative-model-scores"
       DIR_NAME: "layout_generative_model_scores"
 
-      SRC_DIR: ./github-repo
+      SRC_DIR: ./github-repo/metrics
       DST_DIR: ./huggingface-repo
 
     steps:
