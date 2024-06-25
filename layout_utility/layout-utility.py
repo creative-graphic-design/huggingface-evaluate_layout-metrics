@@ -110,7 +110,7 @@ class LayoutUtility(evaluate.Metric):
             predictions=predictions, gold_labels=gold_labels
         )
 
-        score: float = 0
+        score = 0
 
         assert (
             len(predictions)

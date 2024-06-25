@@ -139,7 +139,7 @@ class LayoutNonAlignment(evaluate.Metric):
                 continue
 
             n = len(mask_box)
-            for i in range(n):
+            for _ in range(n):
                 g_val = []
                 for j in range(6):
                     xys = theda_arr[:, j]

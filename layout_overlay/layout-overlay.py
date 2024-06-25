@@ -109,7 +109,7 @@ class LayoutOverlay(evaluate.Metric):
             predictions=predictions, gold_labels=gold_labels
         )
 
-        score: float = 0.0
+        score = 0.0
 
         for gold_label, prediction in zip(gold_labels, predictions):
             ove = 0.0

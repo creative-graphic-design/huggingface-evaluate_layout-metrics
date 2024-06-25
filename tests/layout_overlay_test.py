@@ -1,5 +1,4 @@
 import os
-import pathlib
 
 import evaluate
 import pytest
@@ -17,38 +16,27 @@ def metric_path(base_dir: str) -> str:
 
 
 @pytest.fixture
-def test_fixture_dir() -> pathlib.Path:
-    return pathlib.Path(__file__).parents[1] / "test_fixtures"
-
-
-@pytest.fixture
-def poster_width() -> int:
-    return 513
-
-
-@pytest.fixture
-def poster_height() -> int:
-    return 750
+def expected_score(is_CI: bool) -> float:
+    # https://github.com/PKU-ICST-MIPL/PosterLayout-CVPR2023/blob/main/output/results.txt#L3C14-L3C34
+    return 0.020658400935720658 if is_CI else 0.022033710565543454
 
 
 def test_metric(
     metric_path: str,
-    test_fixture_dir: pathlib.Path,
+    poster_predictions: torch.Tensor,
+    poster_gold_labels: torch.Tensor,
     poster_width: int,
     poster_height: int,
-    # https://github.com/PKU-ICST-MIPL/PosterLayout-CVPR2023/blob/main/output/results.txt#L3C14-L3C34
-    expected_score: float = 0.022033710565543454,
+    expected_score: float,
 ):
-    # shape: (batch_size, max_elements, 4)
-    predictions = torch.load(test_fixture_dir / "poster_layout_boxes.pt")
-    # shape: (batch_size, max_elements, 1)
-    gold_labels = torch.load(test_fixture_dir / "poster_layout_clses.pt")
-
     metric = evaluate.load(
         path=metric_path,
         canvas_width=poster_width,
         canvas_height=poster_height,
     )
-    metric.add_batch(predictions=predictions, gold_labels=gold_labels)
+    metric.add_batch(
+        predictions=poster_predictions,
+        gold_labels=poster_gold_labels,
+    )
     score = metric.compute()
     assert score is not None and score == pytest.approx(expected_score, 1e-5)

@@ -147,7 +147,7 @@ class LayoutUnreadability(evaluate.Metric):
         gold_labels = self.get_rid_of_invalid(
             predictions=predictions, gold_labels=gold_labels
         )
-        score: float = 0.0
+        score = 0.0
 
         assert len(predictions) == len(gold_labels) == len(image_canvases)
         num_predictions = len(predictions)

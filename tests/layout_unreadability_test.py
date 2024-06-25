@@ -1,5 +1,6 @@
 import os
 import pathlib
+from typing import List
 
 import evaluate
 import pytest
@@ -17,43 +18,24 @@ def metric_path(base_dir: str) -> str:
 
 
 @pytest.fixture
-def test_fixture_dir() -> pathlib.Path:
-    return pathlib.Path(__file__).parents[1] / "test_fixtures"
-
-
-@pytest.fixture
-def poster_width() -> int:
-    return 513
-
-
-@pytest.fixture
-def poster_height() -> int:
-    return 750
-
-
-@pytest.fixture
-def image_canvas_dir(test_fixture_dir: pathlib.Path):
-    return test_fixture_dir / "PKU_PosterLayout" / "test" / "image_canvas"
+def expected_score(is_CI: bool) -> float:
+    # https://github.com/PKU-ICST-MIPL/PosterLayout-CVPR2023/blob/main/output/results.txt#L9C14-L9C33
+    return 0.2119157190596277 if is_CI else 0.18741514749764512
 
 
 def test_metric(
     metric_path: str,
-    test_fixture_dir: pathlib.Path,
+    poster_predictions: torch.Tensor,
+    poster_gold_labels: torch.Tensor,
     poster_width: int,
     poster_height: int,
-    image_canvas_dir: pathlib.Path,
-    # https://github.com/PKU-ICST-MIPL/PosterLayout-CVPR2023/blob/main/output/results.txt#L9C14-L9C33
-    expected_score: float = 0.18741514749764512,
+    poster_image_canvas_filepaths: List[pathlib.Path],
+    expected_score: float,
 ):
-    image_names = torch.load(test_fixture_dir / "poster_layout_test_order.pt")
-
-    image_canvas_filepaths = [image_canvas_dir / name for name in image_names]
-    image_canvas_filepaths = [[str(path)] for path in image_canvas_filepaths]
-
-    # shape: (batch_size, max_elements, 4)
-    predictions = torch.load(test_fixture_dir / "poster_layout_boxes.pt")
-    # shape: (batch_size, max_elements, 1)
-    gold_labels = torch.load(test_fixture_dir / "poster_layout_clses.pt")
+    poster_image_canvas_filepaths = [
+        [str(path)]  # type: ignore
+        for path in poster_image_canvas_filepaths
+    ]
 
     metric = evaluate.load(
         path=metric_path,
@@ -61,9 +43,9 @@ def test_metric(
         canvas_height=poster_height,
     )
     metric.add_batch(
-        predictions=predictions,
-        gold_labels=gold_labels,
-        image_canvases=image_canvas_filepaths,
+        predictions=poster_predictions,
+        gold_labels=poster_gold_labels,
+        image_canvases=poster_image_canvas_filepaths,
     )
     score = metric.compute()
     assert score is not None and score == expected_score

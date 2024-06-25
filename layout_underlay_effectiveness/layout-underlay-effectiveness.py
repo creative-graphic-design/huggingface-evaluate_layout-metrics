@@ -113,19 +113,20 @@ class LayoutUnderlayEffectiveness(evaluate.Metric):
             mask_other = (gold_label > 0).reshape(-1) & (gold_label != 3).reshape(-1)
             box_deco = prediction[mask_deco]
             box_other = prediction[mask_other]
-            n1 = len(box_deco)
-            n2 = len(box_other)
-            if n1:
-                avali += 1
-                for i in range(n1):
-                    max_ios = 0
-                    bb1 = box_deco[i]
-                    for j in range(n2):
-                        bb2 = box_other[j]
-                        ios = self.metrics_inter_oneside(bb1, bb2)
-                        max_ios = max(max_ios, ios)
-                    und += max_ios
-                metrics += und / n1
+            n1, n2 = len(box_deco), len(box_other)
+            if not n1:
+                continue
+
+            avali += 1
+            for i in range(n1):
+                max_ios = 0
+                bb1 = box_deco[i]
+                for j in range(n2):
+                    bb2 = box_other[j]
+                    ios = self.metrics_inter_oneside(bb1, bb2)
+                    max_ios = max(max_ios, ios)
+                und += max_ios
+            metrics += und / n1
 
         return metrics / avali if avali > 0 else 0.0
 
@@ -151,19 +152,19 @@ class LayoutUnderlayEffectiveness(evaluate.Metric):
             mask_other = (gold_label > 0).reshape(-1) & (gold_label != 3).reshape(-1)
             box_deco = prediction[mask_deco]
             box_other = prediction[mask_other]
-            n1 = len(box_deco)
-            n2 = len(box_other)
+            n1, n2 = len(box_deco), len(box_other)
+            if not n1:
+                continue
 
-            if n1:
-                avali += 1
-                for i in range(n1):
-                    bb1 = box_deco[i]
-                    for j in range(n2):
-                        bb2 = box_other[j]
-                        if is_contain(bb1, bb2):
-                            und += 1
-                            break
-                metrics += und / n1
+            avali += 1
+            for i in range(n1):
+                bb1 = box_deco[i]
+                for j in range(n2):
+                    bb2 = box_other[j]
+                    if is_contain(bb1, bb2):
+                        und += 1
+                        break
+            metrics += und / n1
 
         return metrics / avali if avali > 0 else 0.0
 

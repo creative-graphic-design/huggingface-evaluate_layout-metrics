@@ -1,5 +1,4 @@
 import os
-import pathlib
 
 import evaluate
 import pytest
@@ -17,42 +16,33 @@ def metric_path(base_dir: str) -> str:
 
 
 @pytest.fixture
-def test_fixture_dir() -> pathlib.Path:
-    return pathlib.Path(__file__).parents[1] / "test_fixtures"
+def expected_und_l_score(is_CI: bool) -> float:
+    return 0.8025722887508048 if is_CI else 0.8314594966165644
 
 
 @pytest.fixture
-def poster_width() -> int:
-    return 513
-
-
-@pytest.fixture
-def poster_height() -> int:
-    return 750
+def expected_und_s_score(is_CI: bool) -> float:
+    return 0.21428571428571427 if is_CI else 0.43197278911564624
 
 
 def test_metric(
     metric_path: str,
-    test_fixture_dir: pathlib.Path,
+    poster_predictions: torch.Tensor,
+    poster_gold_labels: torch.Tensor,
     poster_width: int,
     poster_height: int,
     # https://github.com/PKU-ICST-MIPL/PosterLayout-CVPR2023/blob/main/output/results.txt#L5-L6
-    expected_und_l_score: float = 0.8314594966165644,
-    expected_und_s_score: float = 0.43197278911564624,
+    expected_und_l_score: float,
+    expected_und_s_score: float,
 ):
-    # shape: (batch_size, max_elements, 4)
-    predictions = torch.load(test_fixture_dir / "poster_layout_boxes.pt")
-    # shape: (batch_size, max_elements, 1)
-    gold_labels = torch.load(test_fixture_dir / "poster_layout_clses.pt")
-
     metric = evaluate.load(
         path=metric_path,
         canvas_width=poster_width,
         canvas_height=poster_height,
     )
     metric.add_batch(
-        predictions=predictions,
-        gold_labels=gold_labels,
+        predictions=poster_predictions,
+        gold_labels=poster_gold_labels,
     )
     score = metric.compute()
     assert score is not None

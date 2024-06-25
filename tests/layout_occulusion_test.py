@@ -1,5 +1,6 @@
 import os
 import pathlib
+from typing import List
 
 import evaluate
 import pytest
@@ -17,56 +18,26 @@ def metric_path(base_dir: str) -> str:
 
 
 @pytest.fixture
-def test_fixture_dir() -> pathlib.Path:
-    return pathlib.Path(__file__).parents[1] / "test_fixtures"
-
-
-@pytest.fixture
-def poster_width() -> int:
-    return 513
-
-
-@pytest.fixture
-def poster_height() -> int:
-    return 750
-
-
-@pytest.fixture
-def saliency_maps_1_dir(test_fixture_dir: pathlib.Path):
-    return test_fixture_dir / "PKU_PosterLayout" / "test" / "saliencymaps_pfpn"
-
-
-@pytest.fixture
-def saliency_maps_2_dir(test_fixture_dir: pathlib.Path):
-    return test_fixture_dir / "PKU_PosterLayout" / "test" / "saliencymaps_basnet"
+def expected_score(is_CI: bool) -> float:
+    # https://github.com/PKU-ICST-MIPL/PosterLayout-CVPR2023/blob/main/output/results.txt#L8
+    return 0.15746160746433283 if is_CI else 0.20880194364379892
 
 
 def test_metric(
     metric_path: str,
-    test_fixture_dir: pathlib.Path,
+    poster_predictions: torch.Tensor,
+    poster_gold_labels: torch.Tensor,
     poster_width: int,
     poster_height: int,
-    saliency_maps_1_dir: pathlib.Path,
-    saliency_maps_2_dir: pathlib.Path,
-    # https://github.com/PKU-ICST-MIPL/PosterLayout-CVPR2023/blob/main/output/results.txt#L8
-    expected_score: float = 0.20880194364379892,
+    saliency_map_filepaths_1: List[pathlib.Path],
+    saliency_map_filepaths_2: List[pathlib.Path],
+    expected_score: float,
 ):
-    image_names = torch.load(test_fixture_dir / "poster_layout_test_order.pt")
-
-    saliency_map_filepaths_1 = [
-        saliency_maps_1_dir / name.replace(".", "_pred.") for name in image_names
-    ]
-    saliency_map_filepaths_2 = [saliency_maps_2_dir / name for name in image_names]
     assert len(saliency_map_filepaths_1) == len(saliency_map_filepaths_2)
 
     # Convert pathlib.Path to str
-    saliency_map_filepaths_1 = [[str(path)] for path in saliency_map_filepaths_1]
-    saliency_map_filepaths_2 = [[str(path)] for path in saliency_map_filepaths_2]
-
-    # shape: (batch_size, max_elements, 4)
-    predictions = torch.load(test_fixture_dir / "poster_layout_boxes.pt")
-    # shape: (batch_size, max_elements, 1)
-    gold_labels = torch.load(test_fixture_dir / "poster_layout_clses.pt")
+    saliency_map_filepaths_1 = [[str(path)] for path in saliency_map_filepaths_1]  # type: ignore
+    saliency_map_filepaths_2 = [[str(path)] for path in saliency_map_filepaths_2]  # type: ignore
 
     metric = evaluate.load(
         path=metric_path,
@@ -74,8 +45,8 @@ def test_metric(
         canvas_height=poster_height,
     )
     metric.add_batch(
-        predictions=predictions,
-        gold_labels=gold_labels,
+        predictions=poster_predictions,
+        gold_labels=poster_gold_labels,
         saliency_maps_1=saliency_map_filepaths_1,
         saliency_maps_2=saliency_map_filepaths_2,
     )
