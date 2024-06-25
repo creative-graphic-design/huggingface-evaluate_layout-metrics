@@ -3,19 +3,19 @@ DST_DIR := ./huggingface-repo
 
 .PHONY: check-vars
 check-vars:
-ifndef ($(REPO_NAME),)
+ifndef REPO_NAME
 	$(error REPO_NAME is not set)
 endif
 
-ifndef ($(DIR_NAME),)
+ifndef DIR_NAME
 	$(error DIR_NAME is not set)
 endif
 
-ifndef ($(HF_USERNAME),)
+ifndef HF_USERNAME
 	$(error HF_USERNAME is not set)
 endif
 
-ifndef ($(HF_EMAIL),)
+ifndef HF_EMAIL
 	$(error HF_EMAIL is not set)
 endif
 
