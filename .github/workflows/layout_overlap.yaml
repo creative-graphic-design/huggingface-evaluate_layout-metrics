@@ -14,6 +14,9 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
+      REPO_NAME: "layout-overlap"
+      DIR_NAME: "layout_overlap"
+
       SRC_DIR: ./github-repo
       DST_DIR: ./huggingface-repo
 
@@ -28,7 +31,7 @@ jobs:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           HF_USERNAME: ${{ secrets.HF_USERNAME }}
         run: |
-          git clone https://${HF_USERNAME}:${HF_TOKEN}@huggingface.co/spaces/${HF_USERNAME}/layout-overlap ${DST_DIR}
+          git clone https://${HF_USERNAME}:${HF_TOKEN}@huggingface.co/spaces/${HF_USERNAME}/${REPO_NAME} ${DST_DIR}
 
       - name: Export requirements.txt
         run: |
@@ -39,9 +42,9 @@ jobs:
         env:
           HF_USERNAME: ${{ secrets.HF_USERNAME }}
           HF_EMAIL: ${{ secrets.HF_EMAIL }}
-          DIR_NAME: "layout_overlap"
-          SCRIPT_NAME: "layout-overlap.py"
         run: |
+          SCRIPT_NAME=${REPO_NAME}.py
+
           cp ${SRC_DIR}/${DIR_NAME}/README.md ${DST_DIR}/README.md
           cp ${SRC_DIR}/${DIR_NAME}/${SCRIPT_NAME} ${DST_DIR}/${SCRIPT_NAME}
 
