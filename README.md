@@ -51,3 +51,4 @@ alignment_score.compute()
 - Kikuchi, Kotaro, et al. "[Constrained graphic layout generation via latent optimization.](https://arxiv.org/abs/2108.00871)" Proceedings of the 29th ACM International Conference on Multimedia. 2021.
 - Arroyo, Diego Martin, Janis Postels, and Federico Tombari. "[Variational transformer networks for layout generation.](https://arxiv.org/abs/2104.02416)" Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. 2021.
 - Kong, Xiang, et al. "[BLT: bidirectional layout transformer for controllable layout generation.](https://arxiv.org/abs/2112.05112)" European Conference on Computer Vision. Cham: Springer Nature Switzerland, 2022.
+- Hsu, Hsiao Yuan, et al. "[Posterlayout: A new benchmark and approach for content-aware visual-textual presentation layout.](https://arxiv.org/abs/2303.15937)" Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. 2023.
