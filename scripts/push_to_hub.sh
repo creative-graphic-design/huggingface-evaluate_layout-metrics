@@ -4,6 +4,8 @@ set -eux
 
 function main() {
     script_name=${REPO_NAME}.py
+
+    ls ${SRC_DIR}/${DIR_NAME}
     
     # Copy the script to the destination directory
     cp ${SRC_DIR}/${DIR_NAME}/README.md ${DST_DIR}/README.md
