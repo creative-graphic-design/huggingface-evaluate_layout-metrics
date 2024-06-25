@@ -1,6 +1,8 @@
 SRC_DIR := ./github-repo
 DST_DIR := ./huggingface-repo
 
+SCRIPTS_DIR ?= .
+
 .PHONY: check-vars
 check-vars:
 ifndef REPO_NAME
@@ -21,4 +23,4 @@ endif
 
 .PHONY: deploy
 deploy: check-vars
-	./scripts/push_to_hub.sh
+	$(SCRIPTS_DIR)/scripts/push_to_hub.sh
