@@ -20,7 +20,7 @@ jobs:
       REPO_NAME: "layout-unreadability"
       DIR_NAME: "layout_unreadability"
 
-      SRC_DIR: ./github-repo/metrics
+      SRC_DIR: ./github-repo
       DST_DIR: ./huggingface-repo
 
     steps:

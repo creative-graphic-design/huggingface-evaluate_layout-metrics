@@ -20,7 +20,7 @@ jobs:
       REPO_NAME: "layout-validity"
       DIR_NAME: "layout_validity"
 
-      SRC_DIR: ./github-repo/metrics
+      SRC_DIR: ./github-repo
       DST_DIR: ./huggingface-repo
 
     steps:

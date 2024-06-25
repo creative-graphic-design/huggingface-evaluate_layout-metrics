@@ -5,11 +5,9 @@ set -eux
 function main() {
     script_name=${REPO_NAME}.py
 
-    ls ${SRC_DIR}/${DIR_NAME}
-    
     # Copy the script to the destination directory
-    cp ${SRC_DIR}/${DIR_NAME}/README.md ${DST_DIR}/README.md
-    cp ${SRC_DIR}/${DIR_NAME}/${script_name} ${DST_DIR}/${script_name}
+    cp ${SRC_DIR}/metrics/${DIR_NAME}/README.md ${DST_DIR}/README.md
+    cp ${SRC_DIR}/metrics/${DIR_NAME}/${script_name} ${DST_DIR}/${script_name}
     
     # Set configuration for git
     git -C ${DST_DIR} config user.name ${HF_USERNAME}

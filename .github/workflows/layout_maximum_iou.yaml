@@ -20,7 +20,7 @@ jobs:
       REPO_NAME: "layout-maximum-iou"
       DIR_NAME: "layout_maximum_iou"
 
-      SRC_DIR: ./github-repo/metrics
+      SRC_DIR: ./github-repo
       DST_DIR: ./huggingface-repo
 
     steps:

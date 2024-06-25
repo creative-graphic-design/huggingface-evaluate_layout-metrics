@@ -20,7 +20,7 @@ jobs:
       REPO_NAME: "layout-utility"
       DIR_NAME: "layout_utility"
 
-      SRC_DIR: ./github-repo/metrics
+      SRC_DIR: ./github-repo
       DST_DIR: ./huggingface-repo
 
     steps:
