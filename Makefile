@@ -23,7 +23,7 @@ endif
 deploy: check-vars
 	script_name=$(REPO_NAME).py
 
-	cp $(SRC_DIR)/$(DIR_NAME)/README.md $(DST_DIR)/README.md
+	cp $(SRC_DIR)/$(DIR_NAME)/README.md $(DST_DIR)/README.md | true
 	cp $(SRC_DIR)/$(DIR_NAME)/${script_name} $(DST_DIR)/${script_name}
 
 	git -C $(DST_DIR) config user.name $(HF_USERNAME)
