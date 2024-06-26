@@ -27,6 +27,26 @@ def poster_height() -> int:
 
 
 @pytest.fixture
+def batch_size() -> int:
+    return 512
+
+
+@pytest.fixture
+def max_layout_elements() -> int:
+    return 25
+
+
+@pytest.fixture
+def num_coordinates() -> int:
+    return 4
+
+
+@pytest.fixture
+def num_class_labels() -> int:
+    return 10
+
+
+@pytest.fixture
 def is_CI() -> bool:
     return bool(os.environ.get("CI", False))
 

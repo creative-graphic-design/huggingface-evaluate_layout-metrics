@@ -12,7 +12,18 @@ Computes the average pixel value of areas covered by elements in S.
 """
 
 _KWARGS_DESCRIPTION = """\
-FIXME
+Args:
+    predictions (`list` of `lists` of `float`): A list of lists of floats representing bounding boxes.
+    gold_labels (`list` of `lists` of `int`): A list of lists of integers representing class labels.
+    saliency_maps_1 (`list` of `str`): A list of strings representing path to saliency maps 1.
+    saliency_maps_2 (`list` of `str`): A list of strings representing path to saliency maps 2.
+
+Returns:
+    float: Average saliency of areas covered by elements. Lower values are generally better (in 0.0 - 1.0 range).
+
+Examples:
+    Examples 1: Single processing
+        >>> metric = evaluate.load("creative-graphic-design/layout-occlusion")
 """
 
 _CITATION = """\
