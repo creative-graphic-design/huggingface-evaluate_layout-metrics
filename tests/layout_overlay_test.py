@@ -1,4 +1,5 @@
 import os
+import pathlib
 
 import evaluate
 import pytest
@@ -6,12 +7,12 @@ import torch
 
 
 @pytest.fixture
-def base_dir() -> str:
-    return "layout_overlay"
+def base_dir(metrics_dir: pathlib.Path) -> pathlib.Path:
+    return metrics_dir / "layout_overlay"
 
 
 @pytest.fixture
-def metric_path(base_dir: str) -> str:
+def metric_path(base_dir: pathlib.Path) -> str:
     return os.path.join(base_dir, "layout-overlay.py")
 
 

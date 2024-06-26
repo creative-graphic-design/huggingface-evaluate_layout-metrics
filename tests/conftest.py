@@ -7,6 +7,11 @@ import torch
 
 
 @pytest.fixture
+def metrics_dir() -> pathlib.Path:
+    return pathlib.Path(__file__).parents[1] / "metrics"
+
+
+@pytest.fixture
 def test_fixture_dir() -> pathlib.Path:
     return pathlib.Path(__file__).parents[1] / "test_fixtures"
 
