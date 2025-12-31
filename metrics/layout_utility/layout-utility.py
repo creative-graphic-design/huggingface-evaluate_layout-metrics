@@ -121,7 +121,6 @@ class LayoutUtility(evaluate.Metric):
             == len(saliency_maps_1)
             == len(saliency_maps_2)
         )
-        num_predictions = len(predictions)
         it = zip(predictions, gold_labels, saliency_maps_1, saliency_maps_2)
 
         for prediction, gold_label, smap_1, smap_2 in it:
