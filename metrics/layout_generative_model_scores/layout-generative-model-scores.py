@@ -86,7 +86,11 @@ class LayoutGenerativeModelScores(evaluate.Metric):
         *,
         feats_real: Union[List[List[float]], npt.NDArray[np.float64]],
         feats_fake: Union[List[List[float]], npt.NDArray[np.float64]],
+        nearest_k: int | None = None,
     ) -> Dict[str, float]:
+        # パラメータの優先順位処理
+        nearest_k = nearest_k if nearest_k is not None else self.nearest_k
+
         # shape: (N, 256)
         feats_real = np.asarray(feats_real)
         feats_fake = np.asarray(feats_fake)
@@ -100,7 +104,7 @@ class LayoutGenerativeModelScores(evaluate.Metric):
         sigma_fake = np.cov(feats_fake, rowvar=False)
 
         results_prdc = compute_prdc(
-            real_features=feats_real, fake_features=feats_fake, nearest_k=self.nearest_k
+            real_features=feats_real, fake_features=feats_fake, nearest_k=nearest_k
         )
         result_fid = calculate_frechet_distance(
             mu1=mu_real, sigma1=sigma_real, mu2=mu_fake, sigma2=sigma_fake

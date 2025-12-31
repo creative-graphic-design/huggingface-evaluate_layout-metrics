@@ -16,14 +16,32 @@ Computes the ratio of valid underlay elements to total underlay elements used in
 
 _KWARGS_DESCRIPTION = """\
 Args:
-    predictions (`list` of `lists` of `float`): A list of lists of floats representing normalized `ltrb`-format bounding boxes.
-    gold_labels (`list` of `lists` of `int`): A list of lists of integers representing class labels.
+    predictions (`list` of `list` of `float`): A list of lists of floats representing normalized `ltrb`-format bounding boxes.
+    gold_labels (`list` of `list` of `int`): A list of lists of integers representing class labels.
+    canvas_width (`int`, *optional*): Width of the canvas in pixels. Can be provided at initialization or during computation.
+    canvas_height (`int`, *optional*): Height of the canvas in pixels. Can be provided at initialization or during computation.
+    text_label_index (`int`, *optional*, defaults to 1): The label index for text elements.
+    decoration_label_index (`int`, *optional*, defaults to 3): The label index for decoration (underlay) elements.
 
 Returns:
-    float: The ratio of valid underlay elements to total underlay elements.
+    dict: A dictionary containing two underlay effectiveness metrics:
+        - `und_l` (loose): The average ratio of intersection area between underlay and other elements to underlay area. Higher values indicate better underlay effectiveness.
+        - `und_s` (strict): The ratio of underlay elements that completely contain at least one non-underlay element. Higher values indicate better underlay effectiveness.
 
 Examples:
-    FIXME
+    >>> import evaluate
+    >>> metric = evaluate.load("creative-graphic-design/layout-underlay-effectiveness")
+    >>> # Underlay box with text box on top
+    >>> predictions = [[[0.1, 0.1, 0.5, 0.5], [0.2, 0.2, 0.4, 0.4]]]
+    >>> gold_labels = [[3, 1]]  # 3 is decoration (underlay), 1 is text
+    >>> result = metric.compute(
+    ...     predictions=predictions,
+    ...     gold_labels=gold_labels,
+    ...     canvas_width=512,
+    ...     canvas_height=512
+    ... )
+    >>> print(f"Loose underlay effectiveness: {result['und_l']:.4f}")
+    >>> print(f"Strict underlay effectiveness: {result['und_s']:.4f}")
 """
 
 _CITATION = """\
@@ -41,8 +59,8 @@ _CITATION = """\
 class LayoutUnderlayEffectiveness(evaluate.Metric):
     def __init__(
         self,
-        canvas_width: int,
-        canvas_height: int,
+        canvas_width: int | None = None,
+        canvas_height: int | None = None,
         text_label_index: int = 1,
         decoration_label_index: int = 3,
         **kwargs,
@@ -72,20 +90,24 @@ class LayoutUnderlayEffectiveness(evaluate.Metric):
         )
 
     def get_rid_of_invalid(
-        self, predictions: npt.NDArray[np.float64], gold_labels: npt.NDArray[np.int64]
+        self,
+        predictions: npt.NDArray[np.float64],
+        gold_labels: npt.NDArray[np.int64],
+        canvas_width: int,
+        canvas_height: int,
     ) -> npt.NDArray[np.int64]:
         assert len(predictions) == len(gold_labels)
 
-        w = self.canvas_width / 100
-        h = self.canvas_height / 100
+        w = canvas_width / 100
+        h = canvas_height / 100
 
         for i, prediction in enumerate(predictions):
             for j, b in enumerate(prediction):
                 xl, yl, xr, yr = b
                 xl = max(0, xl)
                 yl = max(0, yl)
-                xr = min(self.canvas_width, xr)
-                yr = min(self.canvas_height, yr)
+                xr = min(canvas_width, xr)
+                yr = min(canvas_height, yr)
                 if abs((xr - xl) * (yr - yl)) < w * h * 10:
                     if gold_labels[i, j]:
                         gold_labels[i, j] = 0
@@ -191,15 +213,42 @@ class LayoutUnderlayEffectiveness(evaluate.Metric):
         *,
         predictions: Union[npt.NDArray[np.float64], List[List[float]]],
         gold_labels: Union[npt.NDArray[np.int64], List[int]],
+        canvas_width: int | None = None,
+        canvas_height: int | None = None,
+        text_label_index: int | None = None,
+        decoration_label_index: int | None = None,
     ) -> Dict[str, float]:
+        # パラメータの優先順位処理
+        canvas_width = canvas_width if canvas_width is not None else self.canvas_width
+        canvas_height = (
+            canvas_height if canvas_height is not None else self.canvas_height
+        )
+        text_label_index = (
+            text_label_index if text_label_index is not None else self.text_label_index
+        )
+        decoration_label_index = (
+            decoration_label_index
+            if decoration_label_index is not None
+            else self.decoration_label_index
+        )
+
+        if canvas_width is None or canvas_height is None:
+            raise ValueError(
+                "canvas_width and canvas_height must be provided either "
+                "at initialization or during computation"
+            )
+
         predictions = np.array(predictions)
         gold_labels = np.array(gold_labels)
 
-        predictions[:, :, ::2] *= self.canvas_width
-        predictions[:, :, 1::2] *= self.canvas_height
+        predictions[:, :, ::2] *= canvas_width
+        predictions[:, :, 1::2] *= canvas_height
 
         gold_labels = self.get_rid_of_invalid(
-            predictions=predictions, gold_labels=gold_labels
+            predictions=predictions,
+            gold_labels=gold_labels,
+            canvas_width=canvas_width,
+            canvas_height=canvas_height,
         )
         return {
             "und_l": self._compute_und_l(

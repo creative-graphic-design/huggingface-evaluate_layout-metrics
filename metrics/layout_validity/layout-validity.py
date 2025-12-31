@@ -11,7 +11,25 @@ Computes the ratio of valid elements to all elements in the layout, where the ar
 """
 
 _KWARGS_DESCRIPTION = """\
-FIXME
+Args:
+    predictions (`list` of `list` of `float`): A list of lists of floats representing normalized `ltrb`-format bounding boxes.
+    gold_labels (`list` of `list` of `int`): A list of lists of integers representing class labels.
+    canvas_width (`int`, *optional*): Width of the canvas in pixels. Can be provided at initialization or during computation.
+    canvas_height (`int`, *optional*): Height of the canvas in pixels. Can be provided at initialization or during computation.
+
+Returns:
+    float: The ratio of valid elements to all elements (0.0 to 1.0). An element is considered valid if its area within the canvas is greater than 0.1% of the canvas area.
+
+Examples:
+    >>> import evaluate
+    >>> import numpy as np
+    >>> metric = evaluate.load("creative-graphic-design/layout-validity")
+    >>> # Normalized bounding boxes (left, top, right, bottom)
+    >>> predictions = [[[0.1, 0.1, 0.5, 0.5], [0.6, 0.6, 0.9, 0.9]]]
+    >>> gold_labels = [[1, 2]]  # Non-zero labels indicate valid elements
+    >>> result = metric.compute(predictions=predictions, gold_labels=gold_labels, canvas_width=512, canvas_height=512)
+    >>> print(result)
+    1.0
 """
 
 _CITATION = """\
@@ -29,8 +47,8 @@ _CITATION = """\
 class LayoutValidity(evaluate.Metric):
     def __init__(
         self,
-        canvas_width: int,
-        canvas_height: int,
+        canvas_width: int | None = None,
+        canvas_height: int | None = None,
         **kwargs,
     ) -> None:
         super().__init__(**kwargs)
@@ -58,17 +76,31 @@ class LayoutValidity(evaluate.Metric):
         *,
         predictions: Union[npt.NDArray[np.float64], List[List[float]]],
         gold_labels: Union[npt.NDArray[np.int64], List[int]],
+        canvas_width: int | None = None,
+        canvas_height: int | None = None,
     ) -> float:
+        # パラメータの優先順位処理
+        canvas_width = canvas_width if canvas_width is not None else self.canvas_width
+        canvas_height = (
+            canvas_height if canvas_height is not None else self.canvas_height
+        )
+
+        if canvas_width is None or canvas_height is None:
+            raise ValueError(
+                "canvas_width and canvas_height must be provided either "
+                "at initialization or during computation"
+            )
+
         predictions = np.array(predictions)
         gold_labels = np.array(gold_labels)
 
-        predictions[:, :, ::2] *= self.canvas_width
-        predictions[:, :, 1::2] *= self.canvas_height
+        predictions[:, :, ::2] *= canvas_width
+        predictions[:, :, 1::2] *= canvas_height
 
         total_elements, empty_elements = 0, 0
 
-        w = self.canvas_width / 100
-        h = self.canvas_height / 100
+        w = canvas_width / 100
+        h = canvas_height / 100
 
         assert len(predictions) == len(gold_labels)
 
@@ -80,8 +112,8 @@ class LayoutValidity(evaluate.Metric):
                 xl, yl, xr, yr = mp
                 xl = max(0, xl)
                 yl = max(0, yl)
-                xr = min(self.canvas_width, xr)
-                yr = min(self.canvas_height, yr)
+                xr = min(canvas_width, xr)
+                yr = min(canvas_height, yr)
 
                 if abs((xr - xl) * (yr - yl)) < w * h * 10:
                     empty_elements += 1

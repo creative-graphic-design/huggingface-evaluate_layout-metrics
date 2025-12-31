@@ -11,7 +11,27 @@ Some overlap metrics that are different to each other in previous works.
 """
 
 _KWARGS_DESCRIPTION = """\
-FIXME
+Args:
+    bbox (`list` of `list` of `float`): A list of lists of floats representing bounding boxes in `xywh` format (center_x, center_y, width, height), all normalized to [0, 1].
+    mask (`list` of `list` of `bool`): A list of lists of boolean values indicating which bounding boxes are valid (True) or padding (False).
+
+Returns:
+    dict: A dictionary containing three overlap metrics from different papers:
+        - `overlap-ACLayoutGAN`: Overlap metric from AC-LayoutGAN (Li et al., 2020)
+        - `overlap-LayoutGAN++`: Normalized overlap metric from LayoutGAN++
+        - `overlap-LayoutGAN`: Overlap metric from LayoutGAN (Li et al., 2019)
+    Each metric returns an array of scores per batch. Lower values indicate less overlap between elements.
+
+Examples:
+    >>> import evaluate
+    >>> metric = evaluate.load("creative-graphic-design/layout-overlap")
+    >>> # Bounding boxes in xywh format (center_x, center_y, width, height)
+    >>> bbox = [[[0.25, 0.25, 0.3, 0.3], [0.75, 0.75, 0.3, 0.3]]]  # Two non-overlapping boxes
+    >>> mask = [[True, True]]  # Both boxes are valid
+    >>> result = metric.compute(bbox=bbox, mask=mask)
+    >>> print(f"AC-LayoutGAN overlap: {result['overlap-ACLayoutGAN']}")
+    >>> print(f"LayoutGAN++ overlap: {result['overlap-LayoutGAN++']}")
+    >>> print(f"LayoutGAN overlap: {result['overlap-LayoutGAN']}")
 """
 
 _CITATION = """\
