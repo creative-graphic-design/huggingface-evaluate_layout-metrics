@@ -19,7 +19,6 @@ jobs:
       repo_name: "layout-generative-model-scores"
       dir_name: "layout_generative_model_scores"
       workflow_display_name: "FID"
-      poetry_extras: "generative-model-scores"
     secrets:
       HF_TOKEN: ${{ secrets.HF_TOKEN }}
       HF_USERNAME: ${{ secrets.HF_USERNAME }}

@@ -15,11 +15,6 @@ on:
         description: 'Display name for the workflow (e.g., Alignment)'
         required: true
         type: string
-      poetry_extras:
-        description: 'Optional poetry extras to include (e.g., generative-model-scores)'
-        required: false
-        type: string
-        default: ''
     secrets:
       HF_TOKEN:
         required: true
@@ -51,14 +46,13 @@ jobs:
         run: |
           git clone https://${HF_USERNAME}:${HF_TOKEN}@huggingface.co/spaces/${HF_USERNAME}/${REPO_NAME} ${DST_DIR}
 
+      - name: Install the latest version of uv
+        uses: astral-sh/setup-uv@v7
+
       - name: Export requirements.txt
         run: |
-          pip install poetry
-          if [ -n "${{ inputs.poetry_extras }}" ]; then
-            poetry -C ${SRC_DIR} export -f requirements.txt --output ${DST_DIR}/requirements.txt --with ${{ inputs.poetry_extras }} --without-hashes
-          else
-            poetry -C ${SRC_DIR} export -f requirements.txt --output ${DST_DIR}/requirements.txt --without-hashes
-          fi
+          cd ${SRC_DIR}
+          uv export --package ${DIR_NAME} --no-dev --no-hashes --format requirements-txt > ${DST_DIR}/requirements.txt
 
       - name: Copy files to Huggingface repository
         env:

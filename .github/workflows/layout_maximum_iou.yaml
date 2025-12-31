@@ -19,7 +19,6 @@ jobs:
       repo_name: "layout-maximum-iou"
       dir_name: "layout_maximum_iou"
       workflow_display_name: "Max. IoU"
-      poetry_extras: "miou"
     secrets:
       HF_TOKEN: ${{ secrets.HF_TOKEN }}
       HF_USERNAME: ${{ secrets.HF_USERNAME }}

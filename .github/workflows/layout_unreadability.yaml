@@ -19,7 +19,6 @@ jobs:
       repo_name: "layout-unreadability"
       dir_name: "layout_unreadability"
       workflow_display_name: "Unreadability"
-      poetry_extras: "unreadability"
     secrets:
       HF_TOKEN: ${{ secrets.HF_TOKEN }}
       HF_USERNAME: ${{ secrets.HF_USERNAME }}
