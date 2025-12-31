@@ -5,6 +5,7 @@ import datasets as ds
 import evaluate
 import numpy as np
 import numpy.typing as npt
+from evaluate.utils.file_utils import add_start_docstrings
 from PIL import Image
 
 _DESCRIPTION = r"""\
@@ -26,6 +27,7 @@ _CITATION = """\
 """
 
 
+@add_start_docstrings(_DESCRIPTION, _KWARGS_DESCRIPTION)
 class LayoutUtility(evaluate.Metric):
     def __init__(
         self,
@@ -111,7 +113,7 @@ class LayoutUtility(evaluate.Metric):
             predictions=predictions, gold_labels=gold_labels
         )
 
-        score = 0
+        score = []
 
         assert (
             len(predictions)
@@ -145,5 +147,8 @@ class LayoutUtility(evaluate.Metric):
             total_utils = np.sum(c_smap * cal_mask)
 
             if total_not_sal and total_utils:
-                score += total_utils / total_not_sal
-        return score / num_predictions
+                # score += total_utils / total_not_sal
+                score.append(total_utils / total_not_sal)
+
+        # return score / num_predictions
+        return np.mean(score)

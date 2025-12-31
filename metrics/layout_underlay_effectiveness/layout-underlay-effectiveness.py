@@ -4,10 +4,9 @@ import datasets as ds
 import evaluate
 import numpy as np
 import numpy.typing as npt
+from evaluate.utils.file_utils import add_start_docstrings
 
 _DESCRIPTION = r"""\
-Computes the non-flatness of regions that text elements are solely put on, referring to CGL-GAN.
-
 Computes the ratio of valid underlay elements to total underlay elements used in PosterLayout. Intuitively, underlay should be placed under other non-underlay elements.
 - strict: scoring the underlay as:
     - 1: there is a non-underlay element completely inside
@@ -16,7 +15,15 @@ Computes the ratio of valid underlay elements to total underlay elements used in
 """
 
 _KWARGS_DESCRIPTION = """\
-FIXME
+Args:
+    predictions (`list` of `lists` of `float`): A list of lists of floats representing normalized `ltrb`-format bounding boxes.
+    gold_labels (`list` of `lists` of `int`): A list of lists of integers representing class labels.
+
+Returns:
+    float: The ratio of valid underlay elements to total underlay elements.
+
+Examples:
+    FIXME
 """
 
 _CITATION = """\
@@ -30,6 +37,7 @@ _CITATION = """\
 """
 
 
+@add_start_docstrings(_DESCRIPTION, _KWARGS_DESCRIPTION)
 class LayoutUnderlayEffectiveness(evaluate.Metric):
     def __init__(
         self,
@@ -106,7 +114,9 @@ class LayoutUnderlayEffectiveness(evaluate.Metric):
     def _compute_und_l(
         self, predictions: npt.NDArray[np.float64], gold_labels: npt.NDArray[np.int64]
     ) -> float:
-        metrics, avali = 0.0, 0
+        # metrics, avali = 0.0, 0
+        metrics = []
+        avali = 0
 
         for gold_label, prediction in zip(gold_labels, predictions):
             und = 0
@@ -127,9 +137,12 @@ class LayoutUnderlayEffectiveness(evaluate.Metric):
                     ios = self.metrics_inter_oneside(bb1, bb2)
                     max_ios = max(max_ios, ios)
                 und += max_ios
-            metrics += und / n1
+            # metrics += und / n1
+            metrics.append(und / n1)
 
-        return metrics / avali if avali > 0 else 0.0
+        # return metrics / avali if avali > 0 else 0.0
+        # return {"mean": np.mean(metrics), "std": np.std(metrics)}
+        return np.mean(metrics)
 
     def _compute_und_s(
         self, predictions: npt.NDArray[np.float64], gold_labels: npt.NDArray[np.int64]
@@ -145,7 +158,9 @@ class LayoutUnderlayEffectiveness(evaluate.Metric):
 
             return c1 and c2 and c3 and c4
 
-        metrics, avali = 0.0, 0
+        # metrics, avali = 0.0, 0
+        metrics = []
+        avali = 0
 
         for gold_label, prediction in zip(gold_labels, predictions):
             und = 0
@@ -165,9 +180,11 @@ class LayoutUnderlayEffectiveness(evaluate.Metric):
                     if is_contain(bb1, bb2):
                         und += 1
                         break
-            metrics += und / n1
+            # metrics += und / n1
+            metrics.append(und / n1)
 
-        return metrics / avali if avali > 0 else 0.0
+        # return metrics / avali if avali > 0 else 0.0
+        return np.mean(metrics)
 
     def _compute(
         self,

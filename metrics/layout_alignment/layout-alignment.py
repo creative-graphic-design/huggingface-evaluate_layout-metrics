@@ -4,6 +4,7 @@ import datasets as ds
 import evaluate
 import numpy as np
 import numpy.typing as npt
+from evaluate.utils.file_utils import add_start_docstrings
 
 _DESCRIPTION = """\
 Computes some alignment metrics that are different to each other in previous works.
@@ -83,6 +84,7 @@ def convert_xywh_to_ltrb(
     return (x1, y1, x2, y2)
 
 
+@add_start_docstrings(_DESCRIPTION, _KWARGS_DESCRIPTION)
 class LayoutAlignment(evaluate.Metric):
     def _info(self) -> evaluate.EvaluationModuleInfo:
         return evaluate.MetricInfo(

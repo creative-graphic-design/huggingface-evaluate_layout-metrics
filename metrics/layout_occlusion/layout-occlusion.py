@@ -5,6 +5,7 @@ import datasets as ds
 import evaluate
 import numpy as np
 import numpy.typing as npt
+from evaluate.utils.file_utils import add_start_docstrings
 from PIL import Image
 
 _DESCRIPTION = r"""\
@@ -37,6 +38,7 @@ _CITATION = """\
 """
 
 
+@add_start_docstrings(_DESCRIPTION, _KWARGS_DESCRIPTION)
 class LayoutOcculusion(evaluate.Metric):
     def __init__(
         self,

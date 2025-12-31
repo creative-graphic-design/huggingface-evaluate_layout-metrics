@@ -6,6 +6,7 @@ import datasets as ds
 import evaluate
 import numpy as np
 import numpy.typing as npt
+from evaluate.utils.file_utils import add_start_docstrings
 from PIL import Image
 from PIL.Image import Image as PilImage
 
@@ -30,6 +31,7 @@ _CITATION = """\
 ReqType = Literal["pil2cv", "cv2pil"]
 
 
+@add_start_docstrings(_DESCRIPTION, _KWARGS_DESCRIPTION)
 class LayoutUnreadability(evaluate.Metric):
     def __init__(
         self,
