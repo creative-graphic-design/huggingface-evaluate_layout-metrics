@@ -4,16 +4,16 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = [
-    "evaluate[template]>=0.4.6",
-    "huggingface-hub<1.0.0",
-]
+dependencies = ["evaluate[template]"]
 
 [dependency-groups]
 dev = ["mypy>=1.0.0", "pytest>=6.0.0", "ruff>=0.1.5", "torch>=2.0.0"]
 
 [tool.uv.workspace]
 members = ["metrics/*"]
+
+[tool.uv.sources]
+evaluate = { git = "https://github.com/huggingface/evaluate", rev = "7c4656a407213b71cb7e6f6634b7935c18f5140d" }
 
 [tool.mypy]
 python_version = "3.11"
