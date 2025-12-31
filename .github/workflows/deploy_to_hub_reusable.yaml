@@ -51,8 +51,9 @@ jobs:
 
       - name: Export requirements.txt
         run: |
+          DST_ABS=$(realpath ${DST_DIR})
           cd ${SRC_DIR}
-          uv export --package ${DIR_NAME} --no-dev --no-hashes --format requirements-txt > ${DST_DIR}/requirements.txt
+          uv export --package ${DIR_NAME} --no-dev --no-hashes --format requirements-txt > ${DST_ABS}/requirements.txt
 
       - name: Copy files to Huggingface repository
         env:
