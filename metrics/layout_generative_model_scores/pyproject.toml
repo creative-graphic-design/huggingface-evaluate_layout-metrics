@@ -7,4 +7,4 @@ authors = [
     { name = "Shunsuke KITADA", email = "shunsuke.kitada.0831@gmail.com" },
 ]
 requires-python = ">=3.11"
-dependencies = ["prdc>=0.2", "pytorch-fid>=0.3.0"]
+dependencies = ["evaluate", "prdc>=0.2", "pytorch-fid>=0.3.0"]

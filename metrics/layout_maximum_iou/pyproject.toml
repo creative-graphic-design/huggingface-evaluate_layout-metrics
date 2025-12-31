@@ -7,4 +7,4 @@ authors = [
     { name = "Shunsuke KITADA", email = "shunsuke.kitada.0831@gmail.com" },
 ]
 requires-python = ">=3.11"
-dependencies = ["scipy>=1.16.3"]
+dependencies = ["evaluate", "scipy>=1.16.3"]

@@ -892,23 +892,37 @@ wheels = [
 name = "layout-alignment"
 version = "0.1.0"
 source = { virtual = "metrics/layout_alignment" }
+dependencies = [
+    { name = "evaluate" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "evaluate" }]
 
 [[package]]
 name = "layout-average-iou"
 version = "0.1.0"
 source = { virtual = "metrics/layout_average_iou" }
+dependencies = [
+    { name = "evaluate" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "evaluate" }]
 
 [[package]]
 name = "layout-generative-model-scores"
 version = "0.1.0"
 source = { virtual = "metrics/layout_generative_model_scores" }
 dependencies = [
+    { name = "evaluate" },
     { name = "prdc" },
     { name = "pytorch-fid" },
 ]
 
 [package.metadata]
 requires-dist = [
+    { name = "evaluate" },
     { name = "prdc", specifier = ">=0.2" },
     { name = "pytorch-fid", specifier = ">=0.3.0" },
 ]
@@ -918,54 +932,88 @@ name = "layout-maximum-iou"
 version = "0.1.0"
 source = { virtual = "metrics/layout_maximum_iou" }
 dependencies = [
+    { name = "evaluate" },
     { name = "scipy" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "scipy", specifier = ">=1.16.3" }]
+requires-dist = [
+    { name = "evaluate" },
+    { name = "scipy", specifier = ">=1.16.3" },
+]
 
 [[package]]
 name = "layout-non-alignment"
 version = "0.1.0"
 source = { virtual = "metrics/layout_non_alignment" }
+dependencies = [
+    { name = "evaluate" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "evaluate" }]
 
 [[package]]
 name = "layout-occlusion"
 version = "0.1.0"
 source = { virtual = "metrics/layout_occlusion" }
 dependencies = [
+    { name = "evaluate" },
     { name = "pillow" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "pillow", specifier = ">=10.0.0" }]
+requires-dist = [
+    { name = "evaluate" },
+    { name = "pillow", specifier = ">=10.0.0" },
+]
 
 [[package]]
 name = "layout-overlap"
 version = "0.1.0"
 source = { virtual = "metrics/layout_overlap" }
+dependencies = [
+    { name = "evaluate" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "evaluate" }]
 
 [[package]]
 name = "layout-overlay"
 version = "0.1.0"
 source = { virtual = "metrics/layout_overlay" }
+dependencies = [
+    { name = "evaluate" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "evaluate" }]
 
 [[package]]
 name = "layout-underlay-effectiveness"
 version = "0.1.0"
 source = { virtual = "metrics/layout_underlay_effectiveness" }
+dependencies = [
+    { name = "evaluate" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "evaluate" }]
 
 [[package]]
 name = "layout-unreadability"
 version = "0.1.0"
 source = { virtual = "metrics/layout_unreadability" }
 dependencies = [
+    { name = "evaluate" },
     { name = "opencv-python" },
     { name = "pillow" },
 ]
 
 [package.metadata]
 requires-dist = [
+    { name = "evaluate" },
     { name = "opencv-python", specifier = ">=4.12.0.88" },
     { name = "pillow", specifier = ">=10.0.0" },
 ]
@@ -975,16 +1023,26 @@ name = "layout-utility"
 version = "0.1.0"
 source = { virtual = "metrics/layout_utility" }
 dependencies = [
+    { name = "evaluate" },
     { name = "pillow" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "pillow", specifier = ">=10.0.0" }]
+requires-dist = [
+    { name = "evaluate" },
+    { name = "pillow", specifier = ">=10.0.0" },
+]
 
 [[package]]
 name = "layout-validity"
 version = "0.1.0"
 source = { virtual = "metrics/layout_validity" }
+dependencies = [
+    { name = "evaluate" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "evaluate" }]
 
 [[package]]
 name = "librt"
