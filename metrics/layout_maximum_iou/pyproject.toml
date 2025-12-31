@@ -4,13 +4,7 @@ version = "0.1.0"
 description = "HuggingFace Evaluate metric for layout maximum IoU"
 readme = "README.md"
 authors = [
-    { name = "Shunsuke KITADA", email = "shunsuke.kitada.0831@gmail.com" }
+    { name = "Shunsuke KITADA", email = "shunsuke.kitada.0831@gmail.com" },
 ]
 requires-python = ">=3.11"
-dependencies = [
-    "scipy>=1.16.3",
-]
-
-[build-system]
-requires = ["uv_build>=0.9.18,<0.10.0"]
-build-backend = "uv_build"
+dependencies = ["scipy>=1.16.3"]
