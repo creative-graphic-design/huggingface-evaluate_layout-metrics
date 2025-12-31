@@ -41,7 +41,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          make setup
+          make install
 
       - name: Format
         run: |
