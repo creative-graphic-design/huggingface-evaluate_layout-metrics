@@ -1,6 +1,6 @@
-import io
 import os
 import pathlib
+import tempfile
 from typing import List
 
 import evaluate
@@ -26,44 +26,25 @@ def expected_score(is_CI: bool) -> float:
     return 0.15746160746433283 if is_CI else 0.20880194364379892
 
 
-def create_in_memory_saliency_maps(
-    batch_size: int, poster_width: int, poster_height: int
-):
-    def _create_random_gaussian_image(w, h):
-        """Create a random black image with a white Gaussian."""
-        # Generate random parameters for Gaussian
-        x, y = np.meshgrid(np.linspace(-1, 1, w), np.linspace(-1, 1, h))
+def create_random_gaussian_image(w: int, h: int) -> Image.Image:
+    """Create a random black image with a white Gaussian."""
+    # Generate random parameters for Gaussian
+    x, y = np.meshgrid(np.linspace(-1, 1, w), np.linspace(-1, 1, h))
 
-        # Generate random center for Gaussian
-        mu_x = np.random.rand() - 0.5
-        mu_y = np.random.rand() - 0.5
-        d = np.sqrt((x - mu_x) ** 2 + (y - mu_y) ** 2)
+    # Generate random center for Gaussian
+    mu_x = np.random.rand() - 0.5
+    mu_y = np.random.rand() - 0.5
+    d = np.sqrt((x - mu_x) ** 2 + (y - mu_y) ** 2)
 
-        # Generate random sigma for Gaussian
-        sigma = 0.2 + np.random.rand() * 0.4
+    # Generate random sigma for Gaussian
+    sigma = 0.2 + np.random.rand() * 0.4
 
-        g = np.exp(-((d) ** 2 / (2.0 * sigma**2)))
+    g = np.exp(-((d) ** 2 / (2.0 * sigma**2)))
 
-        # Create a new image with black background
-        image = Image.fromarray(g * 255).convert("L")
+    # Create a new image with black background
+    image = Image.fromarray(g * 255).convert("L")
 
-        return image
-
-    def _create_in_memory_saliency_maps(batch_size: int):
-        images = [
-            _create_random_gaussian_image(w=poster_width, h=poster_height)
-            for _ in range(batch_size)
-        ]
-
-        image_filepaths = []
-        for image in images:
-            image_io = io.BytesIO()
-            image.save(image_io, format="PNG")
-            image_io.seek(0)
-            image_filepaths.append(image_io)
-        return image_filepaths
-
-    return _create_in_memory_saliency_maps(batch_size)
+    return image
 
 
 def test_metric_random(
@@ -93,22 +74,35 @@ def test_metric_random(
             1,
         ),
     )
-    metric.add_batch(
-        predictions=batch_predictions,
-        gold_labels=batch_gold_labels,
-        saliency_maps_1=create_in_memory_saliency_maps(
-            batch_size=batch_size,
-            poster_width=poster_width,
-            poster_height=poster_height,
-        ),
-        saliency_maps_2=create_in_memory_saliency_maps(
-            batch_size=batch_size,
-            poster_width=poster_width,
-            poster_height=poster_height,
-        ),
-    )
-    score = metric.compute()
-    assert score is not None
+
+    # Create random saliency maps and save as temporary files
+    with tempfile.TemporaryDirectory() as tmpdir:
+        saliency_maps_1_paths = []
+        saliency_maps_2_paths = []
+
+        for i in range(batch_size):
+            # Create random gaussian images
+            smap1 = create_random_gaussian_image(w=poster_width, h=poster_height)
+            smap2 = create_random_gaussian_image(w=poster_width, h=poster_height)
+
+            # Save directly to temporary files
+            path1 = os.path.join(tmpdir, f"smap1_{i}.png")
+            path2 = os.path.join(tmpdir, f"smap2_{i}.png")
+            smap1.save(path1)
+            smap2.save(path2)
+
+            # Wrap paths in lists to match expected format
+            saliency_maps_1_paths.append([path1])
+            saliency_maps_2_paths.append([path2])
+
+        metric.add_batch(
+            predictions=batch_predictions,
+            gold_labels=batch_gold_labels,
+            saliency_maps_1=saliency_maps_1_paths,
+            saliency_maps_2=saliency_maps_2_paths,
+        )
+        score = metric.compute()
+        assert score is not None
 
 
 def test_metric(

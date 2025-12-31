@@ -5,6 +5,7 @@ import datasets as ds
 import evaluate
 import numpy as np
 import numpy.typing as npt
+from evaluate.utils.file_utils import add_start_docstrings
 from PIL import Image
 
 _DESCRIPTION = r"""\
@@ -37,6 +38,7 @@ _CITATION = """\
 """
 
 
+@add_start_docstrings(_DESCRIPTION, _KWARGS_DESCRIPTION)
 class LayoutOcculusion(evaluate.Metric):
     def __init__(
         self,
@@ -75,10 +77,10 @@ class LayoutOcculusion(evaluate.Metric):
             filepath = filepath[0]
 
         map_pil = Image.open(filepath)  # type: ignore
-        map_pil = map_pil.convert("L")
+        map_pil = map_pil.convert("L")  # type: ignore
 
         if map_pil.size != (self.canvas_width, self.canvas_height):
-            map_pil = map_pil.resize((self.canvas_width, self.canvas_height))
+            map_pil = map_pil.resize((self.canvas_width, self.canvas_height))  # type: ignore
 
         map_arr = np.array(map_pil)
         map_arr = map_arr / 255.0

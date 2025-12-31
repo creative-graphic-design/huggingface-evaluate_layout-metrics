@@ -1,0 +1,10 @@
+[project]
+name = "layout-average-iou"
+version = "0.1.0"
+description = "HuggingFace Evaluate metric for layout average IoU"
+readme = "README.md"
+authors = [
+    { name = "Shunsuke KITADA", email = "shunsuke.kitada.0831@gmail.com" },
+]
+requires-python = ">=3.11"
+dependencies = ["evaluate"]

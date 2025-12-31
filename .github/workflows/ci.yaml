@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.9", "3.10"]
+        python-version: ["3.10", "3.11"]
 
     steps:
       - uses: actions/checkout@v3
@@ -32,27 +32,29 @@ jobs:
           fi
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Install the latest version of uv
+        uses: astral-sh/setup-uv@v7
+
       - name: Install dependencies
         run: |
-          pip install -U pip setuptools wheel poetry
-          poetry install
+          make install
 
       - name: Format
         run: |
-          poetry run ruff format --check --diff .
+          make format
 
       - name: Lint
         run: |
-          poetry run ruff check --output-format=github .
+          make lint
 
       - name: Type check
         run: |
-          poetry run mypy .
+          make typecheck
 
       - name: Run tests
         run: |
-          poetry run pytest -n auto
+          make test

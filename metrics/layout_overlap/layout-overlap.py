@@ -4,6 +4,7 @@ import datasets as ds
 import evaluate
 import numpy as np
 import numpy.typing as npt
+from evaluate.utils.file_utils import add_start_docstrings
 
 _DESCRIPTION = """\
 Some overlap metrics that are different to each other in previous works.
@@ -63,6 +64,7 @@ class A(TypedDict):
     ai: npt.NDArray[np.float64]
 
 
+@add_start_docstrings(_DESCRIPTION, _KWARGS_DESCRIPTION)
 class LayoutOverlap(evaluate.Metric):
     def _info(self) -> evaluate.EvaluationModuleInfo:
         return evaluate.MetricInfo(

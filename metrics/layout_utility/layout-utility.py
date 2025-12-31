@@ -5,6 +5,7 @@ import datasets as ds
 import evaluate
 import numpy as np
 import numpy.typing as npt
+from evaluate.utils.file_utils import add_start_docstrings
 from PIL import Image
 
 _DESCRIPTION = r"""\
@@ -26,6 +27,7 @@ _CITATION = """\
 """
 
 
+@add_start_docstrings(_DESCRIPTION, _KWARGS_DESCRIPTION)
 class LayoutUtility(evaluate.Metric):
     def __init__(
         self,
@@ -64,10 +66,10 @@ class LayoutUtility(evaluate.Metric):
             filepath = filepath[0]
 
         map_pil = Image.open(filepath)  # type: ignore
-        map_pil = map_pil.convert("L")
+        map_pil = map_pil.convert("L")  # type: ignore
 
         if map_pil.size != (self.canvas_width, self.canvas_height):
-            map_pil = map_pil.resize((self.canvas_width, self.canvas_height))
+            map_pil = map_pil.resize((self.canvas_width, self.canvas_height))  # type: ignore
 
         map_arr = np.array(map_pil)
         map_arr = map_arr / 255.0
@@ -111,7 +113,7 @@ class LayoutUtility(evaluate.Metric):
             predictions=predictions, gold_labels=gold_labels
         )
 
-        score = 0
+        score = []
 
         assert (
             len(predictions)
@@ -119,7 +121,6 @@ class LayoutUtility(evaluate.Metric):
             == len(saliency_maps_1)
             == len(saliency_maps_2)
         )
-        num_predictions = len(predictions)
         it = zip(predictions, gold_labels, saliency_maps_1, saliency_maps_2)
 
         for prediction, gold_label, smap_1, smap_2 in it:
@@ -145,5 +146,8 @@ class LayoutUtility(evaluate.Metric):
             total_utils = np.sum(c_smap * cal_mask)
 
             if total_not_sal and total_utils:
-                score += total_utils / total_not_sal
-        return score / num_predictions
+                # score += total_utils / total_not_sal
+                score.append(total_utils / total_not_sal)
+
+        # return score / num_predictions
+        return np.mean(score)

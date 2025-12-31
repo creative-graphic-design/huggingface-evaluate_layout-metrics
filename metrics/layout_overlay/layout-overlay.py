@@ -4,13 +4,22 @@ import datasets as ds
 import evaluate
 import numpy as np
 import numpy.typing as npt
+from evaluate.utils.file_utils import add_start_docstrings
 
 _DESCRIPTION = r"""\
 Computes the average IoU of all pairs of elements except for underlay.
 """
 
 _KWARGS_DESCRIPTION = """\
-FIXME
+Args:
+    predictions (`list` of `lists` of `float`): A list of lists of floats representing normalized `ltrb`-format bounding boxes.
+    gold_labels (`list` of `lists` of `int`): A list of lists of integers representing class labels.
+
+Ruturns:
+    float: Average IoU except decoration (i.e., underlay) elements (used in PosterLayout).
+
+Examples::
+    FIXME
 """
 
 _CITATION = """\
@@ -24,16 +33,19 @@ _CITATION = """\
 """
 
 
+@add_start_docstrings(_DESCRIPTION, _KWARGS_DESCRIPTION)
 class LayoutOverlay(evaluate.Metric):
     def __init__(
         self,
         canvas_width: int,
         canvas_height: int,
+        decoration_label_index: int = 3,
         **kwargs,
     ) -> None:
         super().__init__(**kwargs)
         self.canvas_width = canvas_width
         self.canvas_height = canvas_height
+        self.decoration_label_index = decoration_label_index
 
     def _info(self) -> evaluate.EvaluationModuleInfo:
         return evaluate.MetricInfo(
@@ -114,8 +126,13 @@ class LayoutOverlay(evaluate.Metric):
 
         for gold_label, prediction in zip(gold_labels, predictions):
             ove = 0.0
-            mask = (gold_label > 0).reshape(-1) & (gold_label != 3).reshape(-1)
+
+            cond1 = (gold_label > 0).reshape(-1)
+            cond2 = (gold_label != self.decoration_label_index).reshape(-1)
+
+            mask = cond1 & cond2
             mask_box = prediction[mask]
+
             n = len(mask_box)
             for i in range(n):
                 bb1 = mask_box[i]

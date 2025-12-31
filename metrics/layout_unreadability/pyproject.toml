@@ -1,0 +1,10 @@
+[project]
+name = "layout-unreadability"
+version = "0.1.0"
+description = "HuggingFace Evaluate metric for layout unreadability"
+readme = "README.md"
+authors = [
+    { name = "Shunsuke KITADA", email = "shunsuke.kitada.0831@gmail.com" },
+]
+requires-python = ">=3.11"
+dependencies = ["evaluate", "opencv-python>=4.12.0.88", "Pillow>=10.0.0"]

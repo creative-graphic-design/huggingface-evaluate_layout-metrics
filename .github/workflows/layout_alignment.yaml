@@ -13,39 +13,13 @@ on:
       - completed
 
 jobs:
-  push_to_hub:
-    runs-on: ubuntu-latest
-
-    env:
-      REPO_NAME: "layout-alignment"
-      DIR_NAME: "layout_alignment"
-
-      SRC_DIR: ./github-repo
-      DST_DIR: ./huggingface-repo
-
-    steps:
-      - name: Checkout GitHub repository
-        uses: actions/checkout@v3
-        with:
-          path: ${{ env.SRC_DIR }}
-
-      - name: Checkout Huggingface repository
-        env:
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
-          HF_USERNAME: ${{ secrets.HF_USERNAME }}
-        run: |
-          git clone https://${HF_USERNAME}:${HF_TOKEN}@huggingface.co/spaces/${HF_USERNAME}/${REPO_NAME} ${DST_DIR}
-
-      - name: Export requirements.txt
-        run: |
-          pip install poetry
-          poetry -C ${SRC_DIR} export -f requirements.txt --output ${DST_DIR}/requirements.txt --without-hashes
-
-      - name: Copy files to Huggingface repository
-        env:
-          HF_USERNAME: ${{ secrets.HF_USERNAME }}
-          HF_EMAIL: ${{ secrets.HF_EMAIL }}
-          SCRIPTS_DIR: ${{ env.SRC_DIR }}/scripts
-        run: |
-          makefile_path=${SRC_DIR}/Makefile
-          make -f ${makefile_path} deploy REPO_NAME=${REPO_NAME} DIR_NAME=${DIR_NAME}
+  deploy:
+    uses: ./.github/workflows/deploy_to_hub_reusable.yaml
+    with:
+      repo_name: "layout-alignment"
+      dir_name: "layout_alignment"
+      workflow_display_name: "Alignment"
+    secrets:
+      HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      HF_USERNAME: ${{ secrets.HF_USERNAME }}
+      HF_EMAIL: ${{ secrets.HF_EMAIL }}
