@@ -9,7 +9,7 @@ SCRIPTS_DIR ?= ./scripts
 
 .PHONY: install
 install:
-	uv sync --all-extras
+	uv sync --all-packages
 
 #
 # linter/formatter/typecheck
