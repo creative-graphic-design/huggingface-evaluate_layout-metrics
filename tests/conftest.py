@@ -86,7 +86,9 @@ def num_small_test_samples() -> int:
 def poster_image_names(
     test_fixture_dir: pathlib.Path, is_CI: bool, num_small_test_samples: int
 ) -> List[str]:
-    image_names = torch.load(test_fixture_dir / "poster_layout_test_order.pt")
+    image_names = torch.load(
+        test_fixture_dir / "poster_layout_test_order.pt", weights_only=False
+    )
     return image_names[:num_small_test_samples] if is_CI else image_names
 
 
@@ -120,7 +122,9 @@ def poster_predictions(
     test_fixture_dir: pathlib.Path, is_CI: bool, num_small_test_samples: int
 ) -> torch.Tensor:
     # shape: (batch_size, max_elements, 4)
-    predictions = torch.load(test_fixture_dir / "poster_layout_boxes.pt")
+    predictions = torch.load(
+        test_fixture_dir / "poster_layout_boxes.pt", weights_only=False
+    )
     return predictions[:num_small_test_samples] if is_CI else predictions
 
 
@@ -129,5 +133,7 @@ def poster_gold_labels(
     test_fixture_dir: pathlib.Path, is_CI: bool, num_small_test_samples: int
 ) -> torch.Tensor:
     # shape: (batch_size, max_elements, 1)
-    gold_labels = torch.load(test_fixture_dir / "poster_layout_clses.pt")
+    gold_labels = torch.load(
+        test_fixture_dir / "poster_layout_clses.pt", weights_only=False
+    )
     return gold_labels[:num_small_test_samples] if is_CI else gold_labels
