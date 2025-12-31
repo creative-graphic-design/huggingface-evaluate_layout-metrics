@@ -1,0 +1,70 @@
+name: Deploy to HuggingFace Hub (Reusable)
+
+on:
+  workflow_call:
+    inputs:
+      repo_name:
+        description: 'HuggingFace repository name (kebab-case, e.g., layout-alignment)'
+        required: true
+        type: string
+      dir_name:
+        description: 'Source directory name (snake_case, e.g., layout_alignment)'
+        required: true
+        type: string
+      workflow_display_name:
+        description: 'Display name for the workflow (e.g., Alignment)'
+        required: true
+        type: string
+      poetry_extras:
+        description: 'Optional poetry extras to include (e.g., generative-model-scores)'
+        required: false
+        type: string
+        default: ''
+    secrets:
+      HF_TOKEN:
+        required: true
+      HF_USERNAME:
+        required: true
+      HF_EMAIL:
+        required: true
+
+jobs:
+  push_to_hub:
+    runs-on: ubuntu-latest
+
+    env:
+      REPO_NAME: ${{ inputs.repo_name }}
+      DIR_NAME: ${{ inputs.dir_name }}
+      SRC_DIR: ./github-repo
+      DST_DIR: ./huggingface-repo
+
+    steps:
+      - name: Checkout GitHub repository
+        uses: actions/checkout@v3
+        with:
+          path: ${{ env.SRC_DIR }}
+
+      - name: Checkout Huggingface repository
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_USERNAME: ${{ secrets.HF_USERNAME }}
+        run: |
+          git clone https://${HF_USERNAME}:${HF_TOKEN}@huggingface.co/spaces/${HF_USERNAME}/${REPO_NAME} ${DST_DIR}
+
+      - name: Export requirements.txt
+        run: |
+          pip install poetry
+          if [ -n "${{ inputs.poetry_extras }}" ]; then
+            poetry -C ${SRC_DIR} export -f requirements.txt --output ${DST_DIR}/requirements.txt --with ${{ inputs.poetry_extras }} --without-hashes
+          else
+            poetry -C ${SRC_DIR} export -f requirements.txt --output ${DST_DIR}/requirements.txt --without-hashes
+          fi
+
+      - name: Copy files to Huggingface repository
+        env:
+          HF_USERNAME: ${{ secrets.HF_USERNAME }}
+          HF_EMAIL: ${{ secrets.HF_EMAIL }}
+          SCRIPTS_DIR: ${{ env.SRC_DIR }}/scripts
+        run: |
+          makefile_path=${SRC_DIR}/Makefile
+          make -f ${makefile_path} deploy REPO_NAME=${REPO_NAME} DIR_NAME=${DIR_NAME}
