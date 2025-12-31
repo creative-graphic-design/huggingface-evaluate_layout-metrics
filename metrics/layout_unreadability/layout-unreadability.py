@@ -74,7 +74,7 @@ class LayoutUnreadability(evaluate.Metric):
         if req == "pil2cv":
             assert isinstance(img, PilImage)
             color_code = color_code or cv2.COLOR_RGB2BGR
-            return cv2.cvtColor(np.asarray(img), color_code)
+            return cv2.cvtColor(np.asarray(img), color_code)  # type: ignore
         elif req == "cv2pil":
             assert isinstance(img, np.ndarray)
             color_code = color_code or cv2.COLOR_BGR2RGB
@@ -104,9 +104,9 @@ class LayoutUnreadability(evaluate.Metric):
             filepath = filepath[0]
 
         canvas_pil = Image.open(filepath)  # type: ignore
-        canvas_pil = canvas_pil.convert("RGB")
+        canvas_pil = canvas_pil.convert("RGB")  # type: ignore
         if canvas_pil.size != (self.canvas_width, self.canvas_height):
-            canvas_pil = canvas_pil.resize((self.canvas_width, self.canvas_height))
+            canvas_pil = canvas_pil.resize((self.canvas_width, self.canvas_height))  # type: ignore
 
         canvas_pil = self.img_to_g_xy(canvas_pil)
         assert isinstance(canvas_pil, PilImage)

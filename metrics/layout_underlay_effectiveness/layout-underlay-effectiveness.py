@@ -142,7 +142,7 @@ class LayoutUnderlayEffectiveness(evaluate.Metric):
 
         # return metrics / avali if avali > 0 else 0.0
         # return {"mean": np.mean(metrics), "std": np.std(metrics)}
-        return np.mean(metrics)
+        return float(np.mean(metrics))
 
     def _compute_und_s(
         self, predictions: npt.NDArray[np.float64], gold_labels: npt.NDArray[np.int64]
@@ -184,7 +184,7 @@ class LayoutUnderlayEffectiveness(evaluate.Metric):
             metrics.append(und / n1)
 
         # return metrics / avali if avali > 0 else 0.0
-        return np.mean(metrics)
+        return float(np.mean(metrics))
 
     def _compute(
         self,

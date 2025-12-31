@@ -66,10 +66,10 @@ class LayoutUtility(evaluate.Metric):
             filepath = filepath[0]
 
         map_pil = Image.open(filepath)  # type: ignore
-        map_pil = map_pil.convert("L")
+        map_pil = map_pil.convert("L")  # type: ignore
 
         if map_pil.size != (self.canvas_width, self.canvas_height):
-            map_pil = map_pil.resize((self.canvas_width, self.canvas_height))
+            map_pil = map_pil.resize((self.canvas_width, self.canvas_height))  # type: ignore
 
         map_arr = np.array(map_pil)
         map_arr = map_arr / 255.0
