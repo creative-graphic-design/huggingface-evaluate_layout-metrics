@@ -15,7 +15,32 @@ Computes the non-flatness of regions that text elements are solely put on, refer
 """
 
 _KWARGS_DESCRIPTION = """\
-FIXME
+Args:
+    predictions (`list` of `list` of `float`): A list of lists of floats representing normalized `ltrb`-format bounding boxes.
+    gold_labels (`list` of `list` of `int`): A list of lists of integers representing class labels.
+    image_canvases (`list` of `str`): A list of file paths to canvas images (background images).
+    canvas_width (`int`, *optional*): Width of the canvas in pixels. Can be provided at initialization or during computation.
+    canvas_height (`int`, *optional*): Height of the canvas in pixels. Can be provided at initialization or during computation.
+    text_label_index (`int`, *optional*, defaults to 1): The label index for text elements.
+    decoration_label_index (`int`, *optional*, defaults to 3): The label index for decoration (underlay) elements.
+
+Returns:
+    float: The unreadability score measuring the non-flatness of regions where text elements are placed. Computed using gradient analysis (Sobel operator) on the canvas image. Lower values indicate better readability (text on flatter/cleaner backgrounds).
+
+Examples:
+    >>> import evaluate
+    >>> metric = evaluate.load("creative-graphic-design/layout-unreadability")
+    >>> predictions = [[[0.1, 0.1, 0.5, 0.3], [0.6, 0.6, 0.9, 0.8]]]
+    >>> gold_labels = [[1, 2]]  # 1 is text, 2 is other element
+    >>> image_canvases = ["/path/to/canvas.png"]
+    >>> result = metric.compute(
+    ...     predictions=predictions,
+    ...     gold_labels=gold_labels,
+    ...     image_canvases=image_canvases,
+    ...     canvas_width=512,
+    ...     canvas_height=512
+    ... )
+    >>> print(f"Unreadability score: {result:.4f}")
 """
 
 _CITATION = """\
@@ -35,8 +60,8 @@ ReqType = Literal["pil2cv", "cv2pil"]
 class LayoutUnreadability(evaluate.Metric):
     def __init__(
         self,
-        canvas_width: int,
-        canvas_height: int,
+        canvas_width: int | None = None,
+        canvas_height: int | None = None,
         text_label_index: int = 1,
         decoration_label_index: int = 3,
         **kwargs,
@@ -98,6 +123,8 @@ class LayoutUnreadability(evaluate.Metric):
     def load_image_canvas(
         self,
         filepath: Union[os.PathLike, List[os.PathLike]],
+        canvas_width: int,
+        canvas_height: int,
     ) -> npt.NDArray[np.float64]:
         if isinstance(filepath, list):
             assert len(filepath) == 1, filepath
@@ -105,8 +132,8 @@ class LayoutUnreadability(evaluate.Metric):
 
         canvas_pil = Image.open(filepath)  # type: ignore
         canvas_pil = canvas_pil.convert("RGB")  # type: ignore
-        if canvas_pil.size != (self.canvas_width, self.canvas_height):
-            canvas_pil = canvas_pil.resize((self.canvas_width, self.canvas_height))  # type: ignore
+        if canvas_pil.size != (canvas_width, canvas_height):
+            canvas_pil = canvas_pil.resize((canvas_width, canvas_height))  # type: ignore
 
         canvas_pil = self.img_to_g_xy(canvas_pil)
         assert isinstance(canvas_pil, PilImage)
@@ -115,20 +142,24 @@ class LayoutUnreadability(evaluate.Metric):
         return canvas_arr
 
     def get_rid_of_invalid(
-        self, predictions: npt.NDArray[np.float64], gold_labels: npt.NDArray[np.int64]
+        self,
+        predictions: npt.NDArray[np.float64],
+        gold_labels: npt.NDArray[np.int64],
+        canvas_width: int,
+        canvas_height: int,
     ) -> npt.NDArray[np.int64]:
         assert len(predictions) == len(gold_labels)
 
-        w = self.canvas_width / 100
-        h = self.canvas_height / 100
+        w = canvas_width / 100
+        h = canvas_height / 100
 
         for i, prediction in enumerate(predictions):
             for j, b in enumerate(prediction):
                 xl, yl, xr, yr = b
                 xl = max(0, xl)
                 yl = max(0, yl)
-                xr = min(self.canvas_width, xr)
-                yr = min(self.canvas_height, yr)
+                xr = min(canvas_width, xr)
+                yr = min(canvas_height, yr)
                 if abs((xr - xl) * (yr - yl)) < w * h * 10:
                     if gold_labels[i, j]:
                         gold_labels[i, j] = 0
@@ -140,15 +171,42 @@ class LayoutUnreadability(evaluate.Metric):
         predictions: Union[npt.NDArray[np.float64], List[List[float]]],
         gold_labels: Union[npt.NDArray[np.int64], List[int]],
         image_canvases: List[os.PathLike],
+        canvas_width: int | None = None,
+        canvas_height: int | None = None,
+        text_label_index: int | None = None,
+        decoration_label_index: int | None = None,
     ):
+        # パラメータの優先順位処理
+        canvas_width = canvas_width if canvas_width is not None else self.canvas_width
+        canvas_height = (
+            canvas_height if canvas_height is not None else self.canvas_height
+        )
+        text_label_index = (
+            text_label_index if text_label_index is not None else self.text_label_index
+        )
+        decoration_label_index = (
+            decoration_label_index
+            if decoration_label_index is not None
+            else self.decoration_label_index
+        )
+
+        if canvas_width is None or canvas_height is None:
+            raise ValueError(
+                "canvas_width and canvas_height must be provided either "
+                "at initialization or during computation"
+            )
+
         predictions = np.array(predictions)
         gold_labels = np.array(gold_labels)
 
-        predictions[:, :, ::2] *= self.canvas_width
-        predictions[:, :, 1::2] *= self.canvas_height
+        predictions[:, :, ::2] *= canvas_width
+        predictions[:, :, 1::2] *= canvas_height
 
         gold_labels = self.get_rid_of_invalid(
-            predictions=predictions, gold_labels=gold_labels
+            predictions=predictions,
+            gold_labels=gold_labels,
+            canvas_width=canvas_width,
+            canvas_height=canvas_height,
         )
         score = 0.0
 
@@ -159,16 +217,18 @@ class LayoutUnreadability(evaluate.Metric):
         for prediction, gold_label, image_canvas in it:
             canvas_arr = self.load_image_canvas(
                 image_canvas,
+                canvas_width,
+                canvas_height,
             )
             cal_mask = np.zeros_like(canvas_arr)
 
             prediction = np.array(prediction, dtype=int)
             gold_label = np.array(gold_label, dtype=int)
 
-            is_text = (gold_label == self.text_label_index).reshape(-1)
+            is_text = (gold_label == text_label_index).reshape(-1)
             prediction_text = prediction[is_text]
 
-            is_decoration = (gold_label == self.decoration_label_index).reshape(-1)
+            is_decoration = (gold_label == decoration_label_index).reshape(-1)
             prediction_deco = prediction[is_decoration]
 
             for mp in prediction_text:

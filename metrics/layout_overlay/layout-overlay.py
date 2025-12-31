@@ -12,14 +12,23 @@ Computes the average IoU of all pairs of elements except for underlay.
 
 _KWARGS_DESCRIPTION = """\
 Args:
-    predictions (`list` of `lists` of `float`): A list of lists of floats representing normalized `ltrb`-format bounding boxes.
-    gold_labels (`list` of `lists` of `int`): A list of lists of integers representing class labels.
+    predictions (`list` of `list` of `float`): A list of lists of floats representing normalized `ltrb`-format bounding boxes.
+    gold_labels (`list` of `list` of `int`): A list of lists of integers representing class labels.
+    canvas_width (`int`, *optional*): Width of the canvas in pixels. Can be provided at initialization or during computation.
+    canvas_height (`int`, *optional*): Height of the canvas in pixels. Can be provided at initialization or during computation.
+    decoration_label_index (`int`, *optional*, defaults to 3): The label index for decoration (underlay) elements to exclude from overlay computation.
 
-Ruturns:
-    float: Average IoU except decoration (i.e., underlay) elements (used in PosterLayout).
+Returns:
+    float: Average IoU (Intersection over Union) of all pairs of elements except decoration (underlay) elements. Higher values indicate more overlap between elements.
 
-Examples::
-    FIXME
+Examples:
+    >>> import evaluate
+    >>> metric = evaluate.load("creative-graphic-design/layout-overlay")
+    >>> # Normalized bounding boxes (left, top, right, bottom)
+    >>> predictions = [[[0.1, 0.1, 0.5, 0.5], [0.3, 0.3, 0.7, 0.7]]]  # Overlapping elements
+    >>> gold_labels = [[1, 2]]  # Both are non-decoration elements
+    >>> result = metric.compute(predictions=predictions, gold_labels=gold_labels, canvas_width=512, canvas_height=512)
+    >>> print(f"Overlay score: {result:.4f}")
 """
 
 _CITATION = """\
@@ -37,8 +46,8 @@ _CITATION = """\
 class LayoutOverlay(evaluate.Metric):
     def __init__(
         self,
-        canvas_width: int,
-        canvas_height: int,
+        canvas_width: int | None = None,
+        canvas_height: int | None = None,
         decoration_label_index: int = 3,
         **kwargs,
     ) -> None:
@@ -64,20 +73,24 @@ class LayoutOverlay(evaluate.Metric):
         )
 
     def get_rid_of_invalid(
-        self, predictions: npt.NDArray[np.float64], gold_labels: npt.NDArray[np.int64]
+        self,
+        predictions: npt.NDArray[np.float64],
+        gold_labels: npt.NDArray[np.int64],
+        canvas_width: int,
+        canvas_height: int,
     ) -> npt.NDArray[np.int64]:
         assert len(predictions) == len(gold_labels)
 
-        w = self.canvas_width / 100
-        h = self.canvas_height / 100
+        w = canvas_width / 100
+        h = canvas_height / 100
 
         for i, prediction in enumerate(predictions):
             for j, b in enumerate(prediction):
                 xl, yl, xr, yr = b
                 xl = max(0, xl)
                 yl = max(0, yl)
-                xr = min(self.canvas_width, xr)
-                yr = min(self.canvas_height, yr)
+                xr = min(canvas_width, xr)
+                yr = min(canvas_height, yr)
                 if abs((xr - xl) * (yr - yl)) < w * h * 10:
                     if gold_labels[i, j]:
                         gold_labels[i, j] = 0
@@ -111,15 +124,38 @@ class LayoutOverlay(evaluate.Metric):
         *,
         predictions: Union[npt.NDArray[np.float64], List[List[float]]],
         gold_labels: Union[npt.NDArray[np.int64], List[int]],
+        canvas_width: int | None = None,
+        canvas_height: int | None = None,
+        decoration_label_index: int | None = None,
     ) -> float:
+        # パラメータの優先順位処理
+        canvas_width = canvas_width if canvas_width is not None else self.canvas_width
+        canvas_height = (
+            canvas_height if canvas_height is not None else self.canvas_height
+        )
+        decoration_label_index = (
+            decoration_label_index
+            if decoration_label_index is not None
+            else self.decoration_label_index
+        )
+
+        if canvas_width is None or canvas_height is None:
+            raise ValueError(
+                "canvas_width and canvas_height must be provided either "
+                "at initialization or during computation"
+            )
+
         predictions = np.array(predictions)
         gold_labels = np.array(gold_labels)
 
-        predictions[:, :, ::2] *= self.canvas_width
-        predictions[:, :, 1::2] *= self.canvas_height
+        predictions[:, :, ::2] *= canvas_width
+        predictions[:, :, 1::2] *= canvas_height
 
         gold_labels = self.get_rid_of_invalid(
-            predictions=predictions, gold_labels=gold_labels
+            predictions=predictions,
+            gold_labels=gold_labels,
+            canvas_width=canvas_width,
+            canvas_height=canvas_height,
         )
 
         score = 0.0
@@ -128,7 +164,7 @@ class LayoutOverlay(evaluate.Metric):
             ove = 0.0
 
             cond1 = (gold_label > 0).reshape(-1)
-            cond2 = (gold_label != self.decoration_label_index).reshape(-1)
+            cond2 = (gold_label != decoration_label_index).reshape(-1)
 
             mask = cond1 & cond2
             mask_box = prediction[mask]

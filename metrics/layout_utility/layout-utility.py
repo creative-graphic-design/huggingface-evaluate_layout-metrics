@@ -13,7 +13,33 @@ Computes the utilization rate of space suitable for arranging elements, implemen
 """
 
 _KWARGS_DESCRIPTION = """\
-FIXME
+Args:
+    predictions (`list` of `list` of `float`): A list of lists of floats representing normalized `ltrb`-format bounding boxes.
+    gold_labels (`list` of `list` of `int`): A list of lists of integers representing class labels.
+    saliency_maps_1 (`list` of `str`): A list of file paths to the first set of saliency maps (grayscale images).
+    saliency_maps_2 (`list` of `str`): A list of file paths to the second set of saliency maps (grayscale images).
+    canvas_width (`int`, *optional*): Width of the canvas in pixels. Can be provided at initialization or during computation.
+    canvas_height (`int`, *optional*): Height of the canvas in pixels. Can be provided at initialization or during computation.
+
+Returns:
+    float: The utilization rate of space suitable for arranging elements. Computed as the ratio of elements placed in non-salient regions (the inverse of the saliency map). Higher values indicate better utilization of appropriate space.
+
+Examples:
+    >>> import evaluate
+    >>> metric = evaluate.load("creative-graphic-design/layout-utility")
+    >>> predictions = [[[0.1, 0.1, 0.3, 0.3], [0.6, 0.6, 0.9, 0.9]]]
+    >>> gold_labels = [[1, 2]]
+    >>> saliency_maps_1 = ["/path/to/saliency_map1.png"]
+    >>> saliency_maps_2 = ["/path/to/saliency_map2.png"]
+    >>> result = metric.compute(
+    ...     predictions=predictions,
+    ...     gold_labels=gold_labels,
+    ...     saliency_maps_1=saliency_maps_1,
+    ...     saliency_maps_2=saliency_maps_2,
+    ...     canvas_width=512,
+    ...     canvas_height=512
+    ... )
+    >>> print(f"Utility score: {result:.4f}")
 """
 
 _CITATION = """\
@@ -31,8 +57,8 @@ _CITATION = """\
 class LayoutUtility(evaluate.Metric):
     def __init__(
         self,
-        canvas_width: int,
-        canvas_height: int,
+        canvas_width: int | None = None,
+        canvas_height: int | None = None,
         **kwargs,
     ) -> None:
         super().__init__(**kwargs)
@@ -60,6 +86,8 @@ class LayoutUtility(evaluate.Metric):
     def load_saliency_map(
         self,
         filepath: Union[os.PathLike, List[os.PathLike]],
+        canvas_width: int,
+        canvas_height: int,
     ) -> npt.NDArray[np.float64]:
         if isinstance(filepath, list):
             assert len(filepath) == 1, filepath
@@ -68,28 +96,32 @@ class LayoutUtility(evaluate.Metric):
         map_pil = Image.open(filepath)  # type: ignore
         map_pil = map_pil.convert("L")  # type: ignore
 
-        if map_pil.size != (self.canvas_width, self.canvas_height):
-            map_pil = map_pil.resize((self.canvas_width, self.canvas_height))  # type: ignore
+        if map_pil.size != (canvas_width, canvas_height):
+            map_pil = map_pil.resize((canvas_width, canvas_height))  # type: ignore
 
         map_arr = np.array(map_pil)
         map_arr = map_arr / 255.0
         return map_arr
 
     def get_rid_of_invalid(
-        self, predictions: npt.NDArray[np.float64], gold_labels: npt.NDArray[np.int64]
+        self,
+        predictions: npt.NDArray[np.float64],
+        gold_labels: npt.NDArray[np.int64],
+        canvas_width: int,
+        canvas_height: int,
     ) -> npt.NDArray[np.int64]:
         assert len(predictions) == len(gold_labels)
 
-        w = self.canvas_width / 100
-        h = self.canvas_height / 100
+        w = canvas_width / 100
+        h = canvas_height / 100
 
         for i, prediction in enumerate(predictions):
             for j, b in enumerate(prediction):
                 xl, yl, xr, yr = b
                 xl = max(0, xl)
                 yl = max(0, yl)
-                xr = min(self.canvas_width, xr)
-                yr = min(self.canvas_height, yr)
+                xr = min(canvas_width, xr)
+                yr = min(canvas_height, yr)
                 if abs((xr - xl) * (yr - yl)) < w * h * 10:
                     if gold_labels[i, j]:
                         gold_labels[i, j] = 0
@@ -102,15 +134,32 @@ class LayoutUtility(evaluate.Metric):
         gold_labels: Union[npt.NDArray[np.int64], List[int]],
         saliency_maps_1: List[os.PathLike],
         saliency_maps_2: List[os.PathLike],
+        canvas_width: int | None = None,
+        canvas_height: int | None = None,
     ) -> float:
+        # パラメータの優先順位処理
+        canvas_width = canvas_width if canvas_width is not None else self.canvas_width
+        canvas_height = (
+            canvas_height if canvas_height is not None else self.canvas_height
+        )
+
+        if canvas_width is None or canvas_height is None:
+            raise ValueError(
+                "canvas_width and canvas_height must be provided either "
+                "at initialization or during computation"
+            )
+
         predictions = np.array(predictions)
         gold_labels = np.array(gold_labels)
 
-        predictions[:, :, ::2] *= self.canvas_width
-        predictions[:, :, 1::2] *= self.canvas_height
+        predictions[:, :, ::2] *= canvas_width
+        predictions[:, :, 1::2] *= canvas_height
 
         gold_labels = self.get_rid_of_invalid(
-            predictions=predictions, gold_labels=gold_labels
+            predictions=predictions,
+            gold_labels=gold_labels,
+            canvas_width=canvas_width,
+            canvas_height=canvas_height,
         )
 
         score = []
@@ -124,8 +173,8 @@ class LayoutUtility(evaluate.Metric):
         it = zip(predictions, gold_labels, saliency_maps_1, saliency_maps_2)
 
         for prediction, gold_label, smap_1, smap_2 in it:
-            smap_arr_1 = self.load_saliency_map(smap_1)
-            smap_arr_2 = self.load_saliency_map(smap_2)
+            smap_arr_1 = self.load_saliency_map(smap_1, canvas_width, canvas_height)
+            smap_arr_2 = self.load_saliency_map(smap_2, canvas_width, canvas_height)
 
             smap_arr = np.maximum(smap_arr_1, smap_arr_2)
             c_smap = np.ones_like(smap_arr) - smap_arr
