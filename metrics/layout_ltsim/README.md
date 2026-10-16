@@ -39,7 +39,7 @@ print(metric.compute())
 - `bboxes` (`list` of `list` of `float`): Normalized center-x, center-y, width, height boxes in `[0, 1]` coordinates.
 - `categories` (`list` of `int`): One integer category label per box.
 
-The collections must have equal length for this metric's aligned pairwise output; each layout may contain a different number of elements. The underlying LTSim-MMD calculation supports asymmetric collection lengths, as covered by the parity tests.
+The collections must have equal length for this metric's aligned pairwise output; each layout may contain a different number of elements.
 
 ## Returns
 

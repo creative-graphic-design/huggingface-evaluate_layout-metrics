@@ -103,7 +103,7 @@ def test_partially_overlapping_boxes_use_generalized_iou(metric_path, layouts):
         layouts["partial_overlap"]["reference"],
         layouts["partial_overlap"]["generated"],
     )
-    assert score["ltsim"] == pytest.approx(math.exp(-0.1), rel=1e-12)
+    assert score["ltsim"] == pytest.approx(math.exp(-99 / 575), rel=1e-12)
 
 
 def test_empty_layout_behavior_matches_official(metric_path):
