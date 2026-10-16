@@ -174,6 +174,7 @@ Returns a dictionary containing:
 ## Limitations
 
 layout-dm's `compute_generative_model_scores` accepts a list of tensor batches and fixes `nearest_k=5`; this published metric accepts array-like batches and preserves its existing configurable `nearest_k` parameter. Parity tests use the default `nearest_k=5` and convert one array batch to a one-item tensor-batch list for the reference call.
+For other `nearest_k` values, layout-dm has no reference; the published result is the direct `prdc.compute_prdc` result at that same `nearest_k`.
 
 ## Related Metrics
 

@@ -6,6 +6,7 @@ import evaluate
 import numpy as np
 import pytest
 import torch
+from prdc import compute_prdc
 from tests.conftest import load_vendor_package
 from trainer.helpers.metric import (
     compute_alignment,
@@ -145,6 +146,45 @@ def test_maximum_iou_matches_layout_dm_seeded_random(metrics_dir):
     assert actual == expected
 
 
+def test_maximum_iou_matches_layout_dm_seeded_mixed_categories_and_counts(
+    metrics_dir,
+):
+    generator = np.random.default_rng(26435)
+    layouts1, layouts2 = [], []
+    for _ in range(40):
+        count1 = int(generator.integers(1, 7))
+        count2 = int(generator.integers(1, 7))
+        layouts1.append(
+            {
+                "bboxes": generator.random((count1, 4)),
+                "categories": generator.integers(0, 3, count1, dtype=np.int64),
+            }
+        )
+        layouts2.append(
+            {
+                "bboxes": generator.random((count2, 4)),
+                "categories": generator.integers(0, 3, count2, dtype=np.int64),
+            }
+        )
+
+    conditions1 = {tuple(sorted(layout["categories"].tolist())) for layout in layouts1}
+    conditions2 = {tuple(sorted(layout["categories"].tolist())) for layout in layouts2}
+    assert conditions1 & conditions2
+    assert conditions1 ^ conditions2
+    assert any(
+        len(layout1["categories"]) != len(layout2["categories"])
+        for layout1, layout2 in zip(layouts1, layouts2)
+    )
+
+    actual = evaluate.load(
+        path=_metric_path(metrics_dir, "layout_maximum_iou")
+    ).compute(layouts1=_layout_dicts(layouts1), layouts2=_layout_dicts(layouts2))
+    expected = compute_maximum_iou(
+        _layout_tuples(layouts1), _layout_tuples(layouts2), disable_parallel=True
+    )
+    assert actual == expected
+
+
 def test_average_iou_matches_layout_dm_fixture(
     metrics_dir: pathlib.Path, test_fixture_dir: pathlib.Path
 ):
@@ -197,3 +237,27 @@ def test_generative_model_scores_match_layout_dm_seeded_random(metrics_dir):
         [torch.from_numpy(feats_real)], [torch.from_numpy(feats_fake)]
     )
     assert actual == expected
+
+
+@pytest.mark.parametrize("nearest_k", (3, 10))
+def test_generative_model_scores_nearest_k_matches_prdc(
+    metrics_dir: pathlib.Path,
+    test_fixture_dir: pathlib.Path,
+    nearest_k: int,
+):
+    feats_real = np.load(test_fixture_dir / "feats_real.npy")[:64].astype(np.float64)
+    feats_fake = np.load(test_fixture_dir / "feats_fake.npy")[:64].astype(np.float64)
+    actual = evaluate.load(
+        path=_metric_path(metrics_dir, "layout_generative_model_scores")
+    ).compute(
+        feats_real=feats_real,
+        feats_fake=feats_fake,
+        nearest_k=nearest_k,
+    )
+    expected = compute_prdc(
+        real_features=feats_real,
+        fake_features=feats_fake,
+        nearest_k=nearest_k,
+    )
+    for key, value in expected.items():
+        assert actual[key] == value
