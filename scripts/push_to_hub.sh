@@ -7,6 +7,9 @@ set -euo pipefail
 MODE="${MODE:-validate}"
 SRC_DIR="${SRC_DIR:-.}"
 REPO_NAME="${DIR_NAME//_/-}"
+if [[ "${MODE}" == "deploy" ]]; then
+  : "${HF_TOKEN:?HF_TOKEN secret is required for deploy}"
+fi
 PAYLOAD_DIR="$(mktemp -d "${RUNNER_TEMP:-/tmp}/space-payload.XXXXXX")"
 trap 'rm -rf "${PAYLOAD_DIR}"' EXIT
 
@@ -56,14 +59,12 @@ api.create_repo(
     repo_type="space",
     space_sdk="gradio",
     exist_ok=True,
-    token=token,
 )
 api.upload_folder(
     repo_id=repo_id,
     repo_type="space",
     folder_path=payload_dir,
     commit_message=f"deploy: {source_sha}",
-    token=token,
 )
 print(f"Deployed {repo_id} from {source_sha}")
 PY

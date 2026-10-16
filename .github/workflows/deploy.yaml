@@ -7,6 +7,13 @@ on:
     workflows: [CI]
     branches: [main]
     types: [completed]
+  workflow_dispatch:
+    inputs:
+      all_metrics:
+        description: Redeploy all metrics
+        required: false
+        default: true
+        type: boolean
 
 permissions:
   contents: read
@@ -17,7 +24,20 @@ env:
 jobs:
   changed-metrics:
     name: list changed metrics
-    if: github.event_name == 'pull_request' || github.event.workflow_run.conclusion == 'success'
+    # A fork can also name a branch main; only trust successful push runs from this repository's main.
+    if: >-
+      github.event_name == 'pull_request' ||
+      (
+        github.event_name == 'workflow_dispatch' &&
+        github.ref == 'refs/heads/main'
+      ) ||
+      (
+        github.event_name == 'workflow_run' &&
+        github.event.workflow_run.conclusion == 'success' &&
+        github.event.workflow_run.event == 'push' &&
+        github.event.workflow_run.head_repository.full_name == github.repository &&
+        github.event.workflow_run.head_branch == 'main'
+      )
     runs-on: ubuntu-latest
     outputs:
       metrics: ${{ steps.matrix.outputs.metrics }}
@@ -26,20 +46,24 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}
-          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.event.workflow_run.head_sha }}
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Build changed metric matrix
         id: matrix
         env:
           EVENT_NAME: ${{ github.event_name }}
-          HEAD_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.event.workflow_run.head_sha }}
+          HEAD_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          ALL_METRICS: ${{ inputs.all_metrics }}
         run: |
           set -euo pipefail
 
           if [[ "${EVENT_NAME}" == "pull_request" ]]; then
             changed=$(git diff --name-only "${BASE_SHA}" "${HEAD_SHA}" | jq -Rsc 'split("\n") | map(select(length > 0))')
+          elif [[ "${EVENT_NAME}" == "workflow_dispatch" && "${ALL_METRICS}" == "true" ]]; then
+            changed='[".github/workflows/deploy.yaml"]'
           else
             changed=$(git diff --name-only "${HEAD_SHA}^" "${HEAD_SHA}" | jq -Rsc 'split("\n") | map(select(length > 0))')
           fi
@@ -81,9 +105,27 @@ jobs:
 
   deploy:
     name: deploy (${{ matrix.metric }})
-    if: github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && needs.changed-metrics.result == 'success' && needs.changed-metrics.outputs.metrics != '[]'
+    if: >-
+      needs.changed-metrics.result == 'success' &&
+      needs.changed-metrics.outputs.metrics != '[]' &&
+      (
+        (
+          github.event_name == 'workflow_dispatch' &&
+          github.ref == 'refs/heads/main'
+        ) ||
+        (
+          github.event_name == 'workflow_run' &&
+          github.event.workflow_run.conclusion == 'success' &&
+          github.event.workflow_run.event == 'push' &&
+          github.event.workflow_run.head_repository.full_name == github.repository &&
+          github.event.workflow_run.head_branch == 'main'
+        )
+      )
     needs: changed-metrics
     runs-on: ubuntu-latest
+    concurrency:
+      group: deploy-${{ matrix.metric }}
+      cancel-in-progress: false
     strategy:
       fail-fast: false
       matrix:
@@ -92,7 +134,8 @@ jobs:
       - name: Check out source
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.workflow_run.head_sha }}
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+          persist-credentials: false
 
       - name: Install uv
         uses: astral-sh/setup-uv@v7
@@ -101,6 +144,6 @@ jobs:
         env:
           DIR_NAME: ${{ matrix.metric }}
           MODE: deploy
-          SOURCE_SHA: ${{ github.event.workflow_run.head_sha }}
+          SOURCE_SHA: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: scripts/push_to_hub.sh
