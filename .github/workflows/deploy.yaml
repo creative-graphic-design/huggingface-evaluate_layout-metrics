@@ -1,0 +1,106 @@
+name: Deploy spaces
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_run:
+    workflows: [CI]
+    branches: [main]
+    types: [completed]
+
+permissions:
+  contents: read
+
+env:
+  SPACE_NAMESPACE: creative-graphic-design
+
+jobs:
+  changed-metrics:
+    name: list changed metrics
+    if: github.event_name == 'pull_request' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    outputs:
+      metrics: ${{ steps.matrix.outputs.metrics }}
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.event.workflow_run.head_sha }}
+          fetch-depth: 0
+
+      - name: Build changed metric matrix
+        id: matrix
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          HEAD_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.event.workflow_run.head_sha }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          set -euo pipefail
+
+          if [[ "${EVENT_NAME}" == "pull_request" ]]; then
+            changed=$(git diff --name-only "${BASE_SHA}" "${HEAD_SHA}" | jq -Rsc 'split("\n") | map(select(length > 0))')
+          else
+            changed=$(git diff --name-only "${HEAD_SHA}^" "${HEAD_SHA}" | jq -Rsc 'split("\n") | map(select(length > 0))')
+          fi
+
+          metrics=$(find metrics -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort | jq -Rsc 'split("\n") | map(select(length > 0))')
+          selected=$(jq -cn --argjson metrics "${metrics}" --argjson changed "${changed}" '
+            if any($changed[]; . == "uv.lock" or . == "pyproject.toml" or . == "scripts/push_to_hub.sh" or . == ".github/workflows/deploy.yaml") then
+              $metrics
+            else
+              [$metrics[] as $metric | select(any($changed[]; . == ("metrics/" + $metric) or startswith("metrics/" + $metric + "/"))) | $metric] | unique
+            end
+          ')
+          echo "metrics=${selected}" >> "${GITHUB_OUTPUT}"
+
+  validate-space:
+    name: validate-space (${{ matrix.metric }})
+    if: github.event_name == 'pull_request' && needs.changed-metrics.result == 'success' && needs.changed-metrics.outputs.metrics != '[]'
+    needs: changed-metrics
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        metric: ${{ fromJSON(needs.changed-metrics.outputs.metrics) }}
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+
+      - name: Validate Space payload
+        env:
+          DIR_NAME: ${{ matrix.metric }}
+          MODE: validate
+        run: scripts/push_to_hub.sh
+
+  deploy:
+    name: deploy (${{ matrix.metric }})
+    if: github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && needs.changed-metrics.result == 'success' && needs.changed-metrics.outputs.metrics != '[]'
+    needs: changed-metrics
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        metric: ${{ fromJSON(needs.changed-metrics.outputs.metrics) }}
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+
+      - name: Deploy Space
+        env:
+          DIR_NAME: ${{ matrix.metric }}
+          MODE: deploy
+          SOURCE_SHA: ${{ github.event.workflow_run.head_sha }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: scripts/push_to_hub.sh
