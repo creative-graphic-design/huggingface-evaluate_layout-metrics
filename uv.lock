@@ -862,7 +862,6 @@ dependencies = [
 dev = [
     { name = "einops" },
     { name = "mypy" },
-    { name = "prdc" },
     { name = "pytest" },
     { name = "ruff" },
     { name = "torch" },
@@ -879,7 +878,6 @@ requires-dist = [
 dev = [
     { name = "einops", specifier = "==0.8.1" },
     { name = "mypy", specifier = ">=1.0.0" },
-    { name = "prdc", specifier = "==0.2" },
     { name = "pytest", specifier = ">=6.0.0" },
     { name = "ruff", specifier = ">=0.1.5" },
     { name = "torch", specifier = ">=2.0.0" },

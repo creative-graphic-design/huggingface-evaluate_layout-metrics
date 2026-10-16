@@ -10,7 +10,6 @@ dependencies = ["evaluate[template]", "huggingface_hub"]
 dev = [
     "einops==0.8.1",
     "mypy>=1.0.0",
-    "prdc==0.2",
     "pytest>=6.0.0",
     "ruff>=0.1.5",
     "torch>=2.0.0",
