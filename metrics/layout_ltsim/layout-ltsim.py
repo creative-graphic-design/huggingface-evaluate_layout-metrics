@@ -12,6 +12,9 @@ The implementation follows the pinned ``mayu-ot/ltsim`` tag
   ``src/layout_eval/measures/mmd.py`` lines 47-55. The reference evaluation
   selects sigma as the strict-upper-triangle real-real EMD median in
   ``src/experiments/eval_unconditional.py`` lines 40-43.
+* the paper's Dataflow evaluation uses a different empty-layout order in
+  ``dataflow/src/comp_pair/ltsim.py`` lines 52-59; this module deliberately
+  follows the library variant above.
 
 Line-anchored source links at the pinned revision:
 
@@ -20,12 +23,13 @@ Line-anchored source links at the pinned revision:
 * https://github.com/mayu-ot/ltsim/blob/544b8bccfce4630591589cdec5c5473392190039/src/layout_eval/measures/utils.py#L19-L75
 * https://github.com/mayu-ot/ltsim/blob/544b8bccfce4630591589cdec5c5473392190039/src/layout_eval/measures/mmd.py#L47-L55
 * https://github.com/mayu-ot/ltsim/blob/544b8bccfce4630591589cdec5c5473392190039/src/experiments/eval_unconditional.py#L40-L43
+* https://github.com/mayu-ot/ltsim/blob/544b8bccfce4630591589cdec5c5473392190039/dataflow/src/comp_pair/ltsim.py#L52-L59
 
 Reference source:
 https://github.com/mayu-ot/ltsim/tree/544b8bccfce4630591589cdec5c5473392190039
 """
 
-from typing import Dict, List, Union
+from typing import Dict, List, TypedDict
 
 import datasets as ds
 import evaluate
@@ -38,17 +42,24 @@ _DESCRIPTION = """\
 Computes pairwise LTSim and collection-level LTSim-MMD for layout generation.
 """
 
+
+class Layout(TypedDict):
+    bboxes: List[List[float]]
+    categories: List[int]
+
+
+class InternalLayout(TypedDict):
+    bbox: List[List[float]]
+    category: List[int]
+
+
 _KWARGS_DESCRIPTION = """\
 Args:
-    bbox1 (`list` of `lists` of `lists` of `float`): Reference layout boxes in
-        normalized center-x, center-y, width, height format.
-    mask1 (`list` of `lists` of `bool`): Valid-element mask for reference
-        layouts.
-    labels1 (`list` of `lists` of `int`): Reference element labels.
-    bbox2 (`list` of `lists` of `lists` of `float`): Generated layout boxes.
-    mask2 (`list` of `lists` of `bool`): Valid-element mask for generated
-        layouts.
-    labels2 (`list` of `lists` of `int`): Generated element labels.
+    layouts1 (`list` of `dict`): First layout collection. Each layout has
+        `bboxes` in normalized center-x, center-y, width, height format and
+        integer `categories`.
+    layouts2 (`list` of `dict`): Second layout collection with the same
+        structure as `layouts1`.
 
 Returns:
     dict: Mean pairwise LTSim and collection-level LTSim-MMD.
@@ -111,25 +122,20 @@ def _compute_giou(
     return giou
 
 
-def _layout(
-    bbox: Union[npt.NDArray[np.float64], List[List[float]]],
-    mask: Union[npt.NDArray[np.bool_], List[bool]],
-    labels: Union[npt.NDArray[np.int64], List[int]],
-) -> Dict[str, List]:
-    boxes = np.asarray(bbox, dtype=np.float64)
+def _layout(layout: Layout) -> InternalLayout:
+    boxes = np.asarray(layout["bboxes"], dtype=np.float64)
     if boxes.size == 0:
         boxes = np.empty((0, 4), dtype=np.float64)
     if boxes.ndim != 2 or boxes.shape[1] != 4:
-        raise ValueError("bbox must have shape (num_elements, 4)")
-    valid = np.asarray(mask, dtype=bool).reshape(-1)
-    categories = np.asarray(labels, dtype=np.int64).reshape(-1)
-    if len(boxes) != len(valid) or len(boxes) != len(categories):
-        raise ValueError("bbox, mask, and labels must have the same length")
-    return {"bbox": boxes[valid].tolist(), "category": categories[valid].tolist()}
+        raise ValueError("bboxes must have shape (num_elements, 4)")
+    categories = np.asarray(layout["categories"], dtype=np.int64).reshape(-1)
+    if len(boxes) != len(categories):
+        raise ValueError("bboxes and categories must have the same length")
+    return {"bbox": boxes.tolist(), "category": categories.tolist()}
 
 
 def _cost_matrix(
-    layout1: Dict[str, List], layout2: Dict[str, List]
+    layout1: InternalLayout, layout2: InternalLayout
 ) -> npt.NDArray[np.float64]:
     bbox1 = np.asarray(layout1["bbox"], dtype=np.float64)
     bbox2 = np.asarray(layout2["bbox"], dtype=np.float64)
@@ -141,7 +147,7 @@ def _cost_matrix(
     return spatial_cost * 0.5 + label_cost * 0.5
 
 
-def _emd(layout1: Dict[str, List], layout2: Dict[str, List]) -> float:
+def _emd(layout1: InternalLayout, layout2: InternalLayout) -> float:
     if layout1 == layout2:
         return 0.0
     n_elem = len(layout1["category"])
@@ -155,25 +161,27 @@ def _emd(layout1: Dict[str, List], layout2: Dict[str, List]) -> float:
     return float(np.sum(plan * cost))
 
 
-def _ltsim(layout1: Dict[str, List], layout2: Dict[str, List]) -> float:
+def _ltsim(layout1: InternalLayout, layout2: InternalLayout) -> float:
     return float(np.exp(-_emd(layout1, layout2)))
 
 
 def _emd_matrix(
-    layouts1: List[Dict[str, List]], layouts2: List[Dict[str, List]]
+    layouts1: List[InternalLayout], layouts2: List[InternalLayout]
 ) -> npt.NDArray[np.float64]:
     return np.asarray(
         [[_emd(x, y) for y in layouts2] for x in layouts1], dtype=np.float64
     )
 
 
-def _ltsim_mmd(
-    layouts1: List[Dict[str, List]], layouts2: List[Dict[str, List]]
-) -> float:
+def _ltsim_mmd(layouts1: List[InternalLayout], layouts2: List[InternalLayout]) -> float:
+    if len(layouts1) < 2:
+        return float("nan")
     emd11 = _emd_matrix(layouts1, layouts1)
     emd22 = _emd_matrix(layouts2, layouts2)
     emd12 = _emd_matrix(layouts1, layouts2)
     sigma = np.median(emd11[np.triu_indices(len(emd11), k=1)])
+    if sigma == 0.0:
+        return float("nan")
     with np.errstate(divide="ignore", invalid="ignore", over="ignore"):
         affinity11 = np.exp(-emd11 / sigma)
         affinity22 = np.exp(-emd22 / sigma)
@@ -196,12 +204,14 @@ class LayoutLTSim(evaluate.Metric):
             inputs_description=_KWARGS_DESCRIPTION,
             features=ds.Features(
                 {
-                    "bbox1": ds.Sequence(ds.Sequence(ds.Value("float64"))),
-                    "mask1": ds.Sequence(ds.Value("bool")),
-                    "labels1": ds.Sequence(ds.Value("int64")),
-                    "bbox2": ds.Sequence(ds.Sequence(ds.Value("float64"))),
-                    "mask2": ds.Sequence(ds.Value("bool")),
-                    "labels2": ds.Sequence(ds.Value("int64")),
+                    "layouts1": {
+                        "bboxes": ds.Sequence(ds.Sequence(ds.Value("float64"))),
+                        "categories": ds.Sequence(ds.Value("int64")),
+                    },
+                    "layouts2": {
+                        "bboxes": ds.Sequence(ds.Sequence(ds.Value("float64"))),
+                        "categories": ds.Sequence(ds.Value("int64")),
+                    },
                 }
             ),
             codebase_urls=[
@@ -213,32 +223,17 @@ class LayoutLTSim(evaluate.Metric):
     def _compute(
         self,
         *,
-        bbox1,
-        mask1,
-        labels1,
-        bbox2,
-        mask2,
-        labels2,
+        layouts1: List[Layout],
+        layouts2: List[Layout],
     ) -> Dict[str, float]:
-        if not (
-            len(bbox1)
-            == len(mask1)
-            == len(labels1)
-            == len(bbox2)
-            == len(mask2)
-            == len(labels2)
-        ):
+        if len(layouts1) != len(layouts2):
             raise ValueError("all LTSim inputs must have the same batch length")
-        layouts1 = [
-            _layout(boxes, valid, categories)
-            for boxes, valid, categories in zip(bbox1, mask1, labels1)
-        ]
-        layouts2 = [
-            _layout(boxes, valid, categories)
-            for boxes, valid, categories in zip(bbox2, mask2, labels2)
-        ]
-        pairwise = np.asarray([_ltsim(x, y) for x, y in zip(layouts1, layouts2)])
+        normalised_layouts1 = [_layout(layout) for layout in layouts1]
+        normalised_layouts2 = [_layout(layout) for layout in layouts2]
+        pairwise = np.asarray(
+            [_ltsim(x, y) for x, y in zip(normalised_layouts1, normalised_layouts2)]
+        )
         return {
             "ltsim": float(pairwise.mean()),
-            "ltsim_mmd": _ltsim_mmd(layouts1, layouts2),
+            "ltsim_mmd": _ltsim_mmd(normalised_layouts1, normalised_layouts2),
         }
