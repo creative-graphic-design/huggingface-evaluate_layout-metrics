@@ -181,6 +181,10 @@ Each score is an array with one value per layout in the batch.
 - **Reference Implementation (layout-dm)**: [layout-dm metric](https://github.com/CyberAgentAILab/layout-dm/blob/main/src/trainer/trainer/helpers/metric.py#L150-L203)
 - **Hugging Face Space**: [creative-graphic-design/layout-overlap](https://huggingface.co/spaces/creative-graphic-design/layout-overlap)
 
+## Limitations
+
+The layout-dm reference uses PyTorch while this published metric uses NumPy. Parity tests therefore allow `atol=1e-12` for floating-point roundoff; the largest observed absolute difference across the three fixture batches and the seeded random batch was `1.42e-14`.
+
 ## Related Metrics
 
 - [Layout Average IoU](../layout_average_iou/): Measures overlap using IoU metric

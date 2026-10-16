@@ -8,20 +8,35 @@ import pytest
 import torch
 
 
-_OFFICIAL_LTSIM_PACKAGE = (
-    pathlib.Path(__file__).parents[1] / "vendor" / "ltsim" / "src" / "layout_eval"
+def load_vendor_package(name: str, package_path: pathlib.Path):
+    """Load one package from a vendored source tree without exposing its parent tree."""
+    if not package_path.is_dir():
+        raise RuntimeError(
+            f"vendored package '{name}' is missing; initialize its submodule with "
+            "'git submodule update --init --recursive'"
+        )
+
+    init_path = package_path / "__init__.py"
+    spec = importlib.util.spec_from_file_location(
+        name,
+        init_path if init_path.is_file() else None,
+        submodule_search_locations=[str(package_path)],
+    )
+    if spec is None:
+        raise RuntimeError(f"could not load the vendored package '{name}'")
+
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[name] = module
+    if spec.loader is not None:
+        spec.loader.exec_module(module)
+    return module
+
+
+_VENDOR_DIR = pathlib.Path(__file__).parents[1] / "vendor"
+load_vendor_package("layout_eval", _VENDOR_DIR / "ltsim" / "src" / "layout_eval")
+load_vendor_package(
+    "trainer", _VENDOR_DIR / "layout-dm" / "src" / "trainer" / "trainer"
 )
-# Load only the official package so its unrelated top-level source namespaces stay hidden.
-_OFFICIAL_LTSIM_SPEC = importlib.util.spec_from_file_location(
-    "layout_eval",
-    _OFFICIAL_LTSIM_PACKAGE / "__init__.py",
-    submodule_search_locations=[str(_OFFICIAL_LTSIM_PACKAGE)],
-)
-if _OFFICIAL_LTSIM_SPEC is None or _OFFICIAL_LTSIM_SPEC.loader is None:
-    raise RuntimeError("could not load the vendored official LTSim package")
-_OFFICIAL_LTSIM_MODULE = importlib.util.module_from_spec(_OFFICIAL_LTSIM_SPEC)
-sys.modules["layout_eval"] = _OFFICIAL_LTSIM_MODULE
-_OFFICIAL_LTSIM_SPEC.loader.exec_module(_OFFICIAL_LTSIM_MODULE)
 
 
 @pytest.fixture

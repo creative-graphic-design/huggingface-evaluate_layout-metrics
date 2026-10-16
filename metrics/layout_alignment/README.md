@@ -150,6 +150,10 @@ Returns a dictionary containing multiple alignment scores from different methods
 - **Paper**: [Constrained Graphic Layout Generation (Kikuchi et al., ACM MM 2021)](https://arxiv.org/abs/2108.00871)
 - **Hugging Face Space**: [creative-graphic-design/layout-alignment](https://huggingface.co/spaces/creative-graphic-design/layout-alignment)
 
+## Limitations
+
+The layout-dm reference uses PyTorch while this published metric uses NumPy. Parity tests therefore allow `atol=1e-12` for floating-point roundoff; the largest observed absolute difference across the three fixture batches and the seeded random batch was `1.39e-17`.
+
 ## Related Metrics
 
 - [Layout Non-Alignment](../layout_non_alignment/): Measures spatial non-alignment between elements
