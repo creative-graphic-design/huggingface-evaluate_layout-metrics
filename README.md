@@ -73,7 +73,7 @@ Space names are derived by replacing underscores with hyphens, so `metrics/layou
 
 The deploy job uses only the repository secret `HF_TOKEN`, passed to `huggingface_hub` over HTTP; `HF_USERNAME` and `HF_EMAIL` are not needed. The namespace is fixed in the workflow.
 
-The owner must create this Hugging Face token configuration: token type: fine-grained; organization: creative-graphic-design; under "Repositories", check exactly these three: "Read contents of repos in selected orgs", "Create repos in selected orgs and read/write/manage repos created by this token", and "Write contents/settings of repos in selected orgs"; leave every other box (Inference, Org settings, Billing, Collections, Resource Groups, Jobs, Audit log, Service accounts, access requests, discussions/PRs) unchecked.
+The owner must configure the Hugging Face token as follows: token type: fine-grained; organization: creative-graphic-design; check exactly these three under "Repositories": "Read contents of repos in selected orgs", "Create repos in selected orgs and read/write/manage repos created by this token", "Write contents/settings of repos in selected orgs"; leave every other box (Inference, Org settings, Billing, Collections, Resource Groups, Jobs, Audit log, Service accounts, access requests, discussions/PRs) unchecked.
 
 "Read contents of repos in selected orgs" and "Write contents/settings of repos in selected orgs" are required for `upload_folder` to the 12 existing Spaces.
 
