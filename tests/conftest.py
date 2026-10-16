@@ -1,9 +1,27 @@
+import importlib.util
 import os
 import pathlib
+import sys
 from typing import List
 
 import pytest
 import torch
+
+
+_OFFICIAL_LTSIM_PACKAGE = (
+    pathlib.Path(__file__).parents[1] / "vendor" / "ltsim" / "src" / "layout_eval"
+)
+# Load only the official package so its unrelated top-level source namespaces stay hidden.
+_OFFICIAL_LTSIM_SPEC = importlib.util.spec_from_file_location(
+    "layout_eval",
+    _OFFICIAL_LTSIM_PACKAGE / "__init__.py",
+    submodule_search_locations=[str(_OFFICIAL_LTSIM_PACKAGE)],
+)
+if _OFFICIAL_LTSIM_SPEC is None or _OFFICIAL_LTSIM_SPEC.loader is None:
+    raise RuntimeError("could not load the vendored official LTSim package")
+_OFFICIAL_LTSIM_MODULE = importlib.util.module_from_spec(_OFFICIAL_LTSIM_SPEC)
+sys.modules["layout_eval"] = _OFFICIAL_LTSIM_MODULE
+_OFFICIAL_LTSIM_SPEC.loader.exec_module(_OFFICIAL_LTSIM_MODULE)
 
 
 @pytest.fixture

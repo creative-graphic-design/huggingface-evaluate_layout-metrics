@@ -17,6 +17,7 @@ A collection of metrics to evaluate layout generation that can be easily used in
 | 📊 Metric | 🤗 Space                                                                                                                 | 📝 Paper                                                 |
 | :-------- | :----------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------- |
 | Max. IoU  | [`creative-graphic-design/layout-maximum-iou`](https://huggingface.co/spaces/creative-graphic-design/layout-maximum-iou) | Kikuchi+ ACMMM'21[^6]                                    |
+| LTSim     | [`creative-graphic-design/layout-ltsim`](https://huggingface.co/spaces/creative-graphic-design/layout-ltsim)             | Otani+ arXiv'24[^10]                                     |
 | Avg. IoU  | [`creative-graphic-design/layout-average-iou`](https://huggingface.co/spaces/creative-graphic-design/layout-average-iou) | Arroyo+ CVPR'21[^7], Kong+ ECCV'22[^8]                   |
 | Alignment | [`creative-graphic-design/layout-alignment`](https://huggingface.co/spaces/creative-graphic-design/layout-alignment)     | Lee+ ECCV'20[^3], Li+ TVCG'21[^5], Kikuchi+ ACMMM'21[^6] |
 | Overlap   | [`creative-graphic-design/layout-overlap`](https://huggingface.co/spaces/creative-graphic-design/layout-overlap)         | Li+ ICLR'19[^2], Li+ TVCG'21[^5], Kikuchi+ ACMMM'21[^6]  |
@@ -62,6 +63,10 @@ alignment_score.add_batch(batch_bbox=batch_bbox, batch_mask=batch_mask)
 alignment_score.compute()
 ```
 
+## Vendor references
+
+Official implementations are vendored read-only under `vendor/<name>` as git submodules pinned to a release tag or commit and used only by parity tests; the published metrics never import them.
+
 ## Contributing and deployment
 
 Add a metric under `metrics/<metric_name>` with its README, hyphenated module, `app.py`, and `pyproject.toml`; the deployment workflow discovers the directory automatically, so a new metric needs no workflow copy.
@@ -101,3 +106,4 @@ To roll back a deployment, revert the source commit on `main`; CI then redeploys
 [^7]: Arroyo, Diego Martin, Janis Postels, and Federico Tombari. "[Variational transformer networks for layout generation.](https://arxiv.org/abs/2104.02416)" Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. 2021.
 [^8]: Kong, Xiang, et al. "[BLT: bidirectional layout transformer for controllable layout generation.](https://arxiv.org/abs/2112.05112)" European Conference on Computer Vision. Cham: Springer Nature Switzerland, 2022.
 [^9]: Hsu, Hsiao Yuan, et al. "[Posterlayout: A new benchmark and approach for content-aware visual-textual presentation layout.](https://arxiv.org/abs/2303.15937)" Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. 2023.
+[^10]: Otani, Mayu, et al. "[LTSim: Layout Transportation-based Similarity Measure for Evaluating Layout Generation.](https://arxiv.org/abs/2407.12356)" arXiv preprint arXiv:2407.12356. 2024.

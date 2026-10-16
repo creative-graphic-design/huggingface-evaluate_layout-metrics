@@ -7,7 +7,12 @@ requires-python = ">=3.11"
 dependencies = ["evaluate[template]", "huggingface_hub"]
 
 [dependency-groups]
-dev = ["mypy>=1.0.0", "pytest>=6.0.0", "ruff>=0.1.5", "torch>=2.0.0"]
+dev = [
+    "mypy>=1.0.0",
+    "pytest>=6.0.0",
+    "ruff>=0.1.5",
+    "torch>=2.0.0",
+]
 
 [tool.uv.workspace]
 members = ["metrics/*"]
@@ -15,7 +20,14 @@ members = ["metrics/*"]
 [tool.uv.sources]
 evaluate = { git = "https://github.com/huggingface/evaluate", rev = "7c4656a407213b71cb7e6f6634b7935c18f5140d" }
 
+[tool.ruff]
+extend-exclude = ["vendor"]
+
 [tool.mypy]
 python_version = "3.11"
+exclude = "^vendor/"
 ignore_missing_imports = true
 explicit_package_bases = true
+
+[tool.pytest.ini_options]
+norecursedirs = ["vendor"]

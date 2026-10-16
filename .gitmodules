@@ -1,0 +1,3 @@
+[submodule "vendor/ltsim"]
+	path = vendor/ltsim
+	url = https://github.com/mayu-ot/ltsim.git
