@@ -21,7 +21,6 @@ members = ["metrics/*"]
 evaluate = { git = "https://github.com/huggingface/evaluate", rev = "7c4656a407213b71cb7e6f6634b7935c18f5140d" }
 
 [tool.ruff]
-exclude = ["vendor"]
 extend-exclude = ["vendor"]
 
 [tool.mypy]
