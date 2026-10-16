@@ -94,7 +94,7 @@ def validate_metadata(payload_dir: Path) -> None:
 
 
 def ensure_space(api: HfApi, repo_id: str) -> None:
-    """Create a missing Space, or explain how its owner must create it."""
+    """Create a missing Space, or explain the owner's publication options."""
     if api.repo_exists(repo_id, repo_type="space"):
         return
 
@@ -110,7 +110,8 @@ def ensure_space(api: HfApi, repo_id: str) -> None:
         raise SystemExit(
             f"Unable to create Space {repo_id}. "
             f"Hub message: {hub_message!r}. "
-            "The Space must be created by the owner (plan or manual)."
+            "The owner must upgrade the organization plan, choose paid hardware "
+            "for this Space, or decide not to publish it under the organization."
         ) from None
 
 

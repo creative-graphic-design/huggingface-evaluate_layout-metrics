@@ -111,6 +111,12 @@ def test_deploy_existing_space_skips_creation(
     deploy_payload(tmp_path, "creative-graphic-design", "layout-example", "sha")
 
     assert [name for name, _ in api.calls] == ["repo_exists", "upload_folder"]
+    assert api.calls[1][1] == {
+        "repo_id": "creative-graphic-design/layout-example",
+        "repo_type": "space",
+        "folder_path": tmp_path,
+        "commit_message": "deploy: sha",
+    }
 
 
 def test_deploy_missing_space_creates_before_upload(
@@ -153,5 +159,7 @@ def test_deploy_creation_failure_exits_with_owner_message(
         deploy_payload(tmp_path, "creative-graphic-design", "layout-example", "sha")
 
     assert "Space hosting plan required" in str(error.value)
-    assert "must be created by the owner (plan or manual)" in str(error.value)
+    assert "upgrade the organization plan" in str(error.value)
+    assert "choose paid hardware" in str(error.value)
+    assert "not to publish it under the organization" in str(error.value)
     assert [name for name, _ in api.calls] == ["repo_exists", "create_repo"]
