@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Mapping
 
 from huggingface_hub import HfApi
+from huggingface_hub.errors import HfHubHTTPError
 from huggingface_hub.repocard import metadata_load
 
 
@@ -92,6 +93,28 @@ def validate_metadata(payload_dir: Path) -> None:
         raise ValueError("README.md must declare app_file: app.py")
 
 
+def ensure_space(api: HfApi, repo_id: str) -> None:
+    """Create a missing Space, or explain the owner's publication options."""
+    if api.repo_exists(repo_id, repo_type="space"):
+        return
+
+    try:
+        api.create_repo(
+            repo_id=repo_id,
+            repo_type="space",
+            space_sdk="gradio",
+            exist_ok=True,
+        )
+    except HfHubHTTPError as error:
+        hub_message = error.server_message or str(error)
+        raise SystemExit(
+            f"Unable to create Space {repo_id}. "
+            f"Hub message: {hub_message!r}. "
+            "The owner must upgrade the organization plan, choose paid hardware "
+            "for this Space, or decide not to publish it under the organization."
+        ) from None
+
+
 def deploy_payload(
     payload_dir: Path,
     namespace: str,
@@ -105,12 +128,7 @@ def deploy_payload(
 
     repo_id = f"{namespace}/{repo_name}"
     api = HfApi(token=token)
-    api.create_repo(
-        repo_id=repo_id,
-        repo_type="space",
-        space_sdk="gradio",
-        exist_ok=True,
-    )
+    ensure_space(api, repo_id)
     api.upload_folder(
         repo_id=repo_id,
         repo_type="space",
