@@ -8,7 +8,6 @@ dependencies = ["evaluate[template]"]
 
 [dependency-groups]
 dev = [
-    "layout-eval @ git+https://github.com/mayu-ot/ltsim.git@544b8bccfce4630591589cdec5c5473392190039",
     "mypy>=1.0.0",
     "pytest>=6.0.0",
     "ruff>=0.1.5",
@@ -21,12 +20,15 @@ members = ["metrics/*"]
 [tool.uv.sources]
 evaluate = { git = "https://github.com/huggingface/evaluate", rev = "7c4656a407213b71cb7e6f6634b7935c18f5140d" }
 
-[[tool.uv.dependency-metadata]]
-name = "layout-eval"
-version = "0.1.0"
-requires-dist = ["numpy", "pot>=0.9.1,<0.10.0", "tqdm>=4.66.1,<5.0.0"]
+[tool.ruff]
+exclude = ["vendor"]
+extend-exclude = ["vendor"]
 
 [tool.mypy]
 python_version = "3.11"
+exclude = "^vendor/"
 ignore_missing_imports = true
 explicit_package_bases = true
+
+[tool.pytest.ini_options]
+norecursedirs = ["vendor"]

@@ -62,6 +62,10 @@ alignment_score.add_batch(batch_bbox=batch_bbox, batch_mask=batch_mask)
 alignment_score.compute()
 ```
 
+## Vendor references
+
+Official implementations are vendored read-only under `vendor/<name>` as git submodules pinned to a release tag or commit and used only by parity tests; the published metrics never import them.
+
 ## Reference
 
 [^1]: Heusel, Martin, et al. "[Gans trained by a two time-scale update rule converge to a local nash equilibrium.](https://arxiv.org/abs/1706.08500)" Advances in neural information processing systems 30 (2017).

@@ -25,11 +25,6 @@ members = [
     "layout-validity",
 ]
 
-[[manifest.dependency-metadata]]
-name = "layout-eval"
-version = "0.1.0"
-requires-dist = ["numpy", "pot>=0.9.1,<0.10.0", "tqdm>=4.66.1,<5.0.0"]
-
 [[package]]
 name = "aiofiles"
 version = "23.2.1"
@@ -855,7 +850,6 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
-    { name = "layout-eval" },
     { name = "mypy" },
     { name = "pytest" },
     { name = "ruff" },
@@ -867,7 +861,6 @@ requires-dist = [{ name = "evaluate", extras = ["template"], git = "https://gith
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "layout-eval", git = "https://github.com/mayu-ot/ltsim.git?rev=544b8bccfce4630591589cdec5c5473392190039" },
     { name = "mypy", specifier = ">=1.0.0" },
     { name = "pytest", specifier = ">=6.0.0" },
     { name = "ruff", specifier = ">=0.1.5" },
@@ -1070,16 +1063,6 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [{ name = "evaluate", git = "https://github.com/huggingface/evaluate?rev=7c4656a407213b71cb7e6f6634b7935c18f5140d" }]
-
-[[package]]
-name = "layout-eval"
-version = "0.1.0"
-source = { git = "https://github.com/mayu-ot/ltsim.git?rev=544b8bccfce4630591589cdec5c5473392190039#544b8bccfce4630591589cdec5c5473392190039" }
-dependencies = [
-    { name = "numpy" },
-    { name = "pot" },
-    { name = "tqdm" },
-]
 
 [[package]]
 name = "layout-generative-model-scores"

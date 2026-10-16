@@ -1,9 +1,14 @@
 import os
 import pathlib
+import sys
 from typing import List
 
 import pytest
 import torch
+
+
+_OFFICIAL_LTSIM_SRC = pathlib.Path(__file__).parents[1] / "vendor" / "ltsim" / "src"
+sys.path.insert(0, str(_OFFICIAL_LTSIM_SRC))
 
 
 @pytest.fixture
