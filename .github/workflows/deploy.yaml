@@ -98,7 +98,9 @@ jobs:
         uses: astral-sh/setup-uv@v10.3.0
 
       - name: Validate Space payload
-        run: uv run python scripts/deploy_space.py --metric "${{ matrix.metric }}" --mode validate --namespace "${SPACE_NAMESPACE}"
+        env:
+          METRIC: ${{ matrix.metric }}
+        run: uv run --frozen --no-dev python scripts/deploy_space.py --metric "$METRIC" --mode validate --namespace "${SPACE_NAMESPACE}"
 
   deploy:
     name: deploy (${{ matrix.metric }})
@@ -139,11 +141,12 @@ jobs:
 
       - name: Deploy Space
         env:
+          METRIC: ${{ matrix.metric }}
           SOURCE_SHA: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          uv run python scripts/deploy_space.py \
-            --metric "${{ matrix.metric }}" \
+          uv run --frozen --no-dev python scripts/deploy_space.py \
+            --metric "$METRIC" \
             --mode deploy \
             --namespace "${SPACE_NAMESPACE}" \
             --source-sha "${SOURCE_SHA}"

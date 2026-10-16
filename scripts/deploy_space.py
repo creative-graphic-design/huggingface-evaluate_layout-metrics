@@ -101,7 +101,7 @@ def deploy_payload(
     """Create or update a Gradio Space using the repository token."""
     token = os.environ.get("HF_TOKEN")
     if not token:
-        raise ValueError("HF_TOKEN secret is required for deploy")
+        raise SystemExit("HF_TOKEN secret is required for deploy")
 
     repo_id = f"{namespace}/{repo_name}"
     api = HfApi(token=token)
