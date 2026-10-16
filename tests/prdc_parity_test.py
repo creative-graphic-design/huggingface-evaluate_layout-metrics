@@ -34,6 +34,8 @@ def _independent_prdc(
     real_radii = _nearest_neighbour_radii(feats_real, nearest_k)
     fake_radii = _nearest_neighbour_radii(feats_fake, nearest_k)
     distances = _pairwise_distances(feats_real, feats_fake)
+    # The paper describes closed balls; strict < follows prdc and is identical
+    # for these continuous-valued features.
     real_neighbourhoods = distances < real_radii[:, None]
     fake_neighbourhoods = distances < fake_radii[None, :]
     return {
