@@ -65,9 +65,10 @@ alignment_score.compute()
 
 ## Vendor references
 
-Official implementations are vendored read-only under `vendor/<name>` as git submodules pinned to a release tag or commit when no installable release exists; otherwise parity tests use a pinned test-only dependency. The published metrics never import the official implementation.
+Official implementations are vendored as read-only submodules when no installable release exists; otherwise parity tests use a pinned test-only dependency. The published metrics never import the official implementation.
 
 - [`CyberAgentAILab/layout-dm`](https://github.com/CyberAgentAILab/layout-dm), Apache-2.0, tag `v1.0.0` at commit `93630ba8f5b04103f3fa8506732a7702cc837463`, used only by parity tests.
+- [`clovaai/generative-evaluation-prdc`](https://github.com/clovaai/generative-evaluation-prdc), PyPI `prdc==0.2`, MIT, used as a pinned test-only dependency by parity tests.
 - [`mayu-ot/ltsim`](https://github.com/mayu-ot/ltsim), MIT, tag `v1.0.0-alpha` at commit `544b8bccfce4630591589cdec5c5473392190039`, used only by parity tests.
 
 ## Contributing and deployment
