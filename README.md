@@ -64,7 +64,9 @@ alignment_score.compute()
 
 ## Vendor references
 
-Official implementations are vendored read-only under `vendor/<name>` as git submodules pinned to a release tag or commit and used only by parity tests; the published metrics never import them.
+Official implementations are vendored read-only under `vendor/<name>` as git submodules pinned to a release tag or commit when no installable release exists; otherwise parity tests use a pinned test-only dependency. The published metrics never import the official implementation.
+
+- Unit 1: [`CyberAgentAILab/layout-dm`](https://github.com/CyberAgentAILab/layout-dm), Apache-2.0, tag `v1.0.0` at commit `93630ba8f5b04103f3fa8506732a7702cc837463`, used only by parity tests.
 
 ## Reference
 

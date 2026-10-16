@@ -157,6 +157,10 @@ Returns a single `float` value representing:
 - **Reference Implementation**: [layout-dm metric implementation](https://github.com/CyberAgentAILab/layout-dm/blob/main/src/trainer/trainer/helpers/metric.py#L206-L371)
 - **Hugging Face Space**: [creative-graphic-design/layout-maximum-iou](https://huggingface.co/spaces/creative-graphic-design/layout-maximum-iou)
 
+## Limitations
+
+layout-dm's `compute_maximum_iou` accepts `(bboxes, categories)` tuples; this published metric keeps its existing Hugging Face Evaluate API of dictionaries with `bboxes` and `categories`. The parity adapter converts between these representations before comparing the scores.
+
 ## Related Metrics
 
 - [Layout Average IoU](../layout_average_iou/): Measures average overlap within single layouts

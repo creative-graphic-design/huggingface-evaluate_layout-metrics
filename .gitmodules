@@ -1,3 +1,6 @@
 [submodule "vendor/ltsim"]
 	path = vendor/ltsim
 	url = https://github.com/mayu-ot/ltsim.git
+[submodule "vendor/layout-dm"]
+	path = vendor/layout-dm
+	url = https://github.com/CyberAgentAILab/layout-dm.git

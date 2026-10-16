@@ -139,6 +139,10 @@ The two variants (BLT and VTN) may produce slightly different values due to thei
 - **Reference Implementation**: [layout-dm metric implementation](https://github.com/CyberAgentAILab/layout-dm/blob/main/src/trainer/trainer/helpers/metric.py#L399-L431)
 - **Hugging Face Space**: [creative-graphic-design/layout-average-iou](https://huggingface.co/spaces/creative-graphic-design/layout-average-iou)
 
+## Limitations
+
+The layout-dm reference names these outputs `average_iou-BLT` and `average_iou-VTN`; this published metric keeps its existing public names `average-iou_BLT` and `average-iou_VTN`. The parity adapter maps the input dictionaries to layout-dm's `(bboxes, categories)` tuples and checks the corresponding values.
+
 ## Related Metrics
 
 - [Layout Maximum IoU](../layout_maximum_iou/): Measures maximum IoU between two layout sets
