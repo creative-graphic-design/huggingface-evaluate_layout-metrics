@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = ["evaluate[template]"]
+dependencies = ["evaluate[template]", "huggingface_hub"]
 
 [dependency-groups]
 dev = ["mypy>=1.0.0", "pytest>=6.0.0", "ruff>=0.1.5", "torch>=2.0.0"]
