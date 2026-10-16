@@ -66,7 +66,7 @@ alignment_score.compute()
 
 Add a metric under `metrics/<metric_name>` with its README, hyphenated module, `app.py`, and `pyproject.toml`; the deployment workflow discovers the directory automatically, so a new metric needs no workflow copy.
 
-On a pull request, `validate-space (<metric>)` runs only for changed metric directories or shared deployment inputs such as `uv.lock`, `pyproject.toml`, `scripts/push_to_hub.sh`, and `deploy.yaml`; it builds the four-file Space payload and checks its local metadata and exported requirements without Hugging Face credentials.
+On a pull request, `validate-space (<metric>)` runs only for changed metric directories or shared deployment inputs such as `uv.lock`, `pyproject.toml`, `scripts/deploy_space.py`, and `deploy.yaml`; it builds the four-file Space payload and checks its local metadata and exported requirements without Hugging Face credentials.
 
 After CI succeeds on `main`, `deploy (<metric>)` runs for the same changed set, creates a missing Gradio Space in `creative-graphic-design`, and uploads the payload with a commit message containing the source commit.
 

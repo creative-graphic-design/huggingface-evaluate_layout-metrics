@@ -43,7 +43,7 @@ jobs:
       metrics: ${{ steps.matrix.outputs.metrics }}
     steps:
       - name: Check out source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: ${{ github.repository }}
           ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
@@ -70,7 +70,7 @@ jobs:
 
           metrics=$(find metrics -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort | jq -Rsc 'split("\n") | map(select(length > 0))')
           selected=$(jq -cn --argjson metrics "${metrics}" --argjson changed "${changed}" '
-            if any($changed[]; . == "uv.lock" or . == "pyproject.toml" or . == "scripts/push_to_hub.sh" or . == ".github/workflows/deploy.yaml") then
+            if any($changed[]; . == "uv.lock" or . == "pyproject.toml" or . == "scripts/deploy_space.py" or . == ".github/workflows/deploy.yaml") then
               $metrics
             else
               [$metrics[] as $metric | select(any($changed[]; . == ("metrics/" + $metric) or startswith("metrics/" + $metric + "/"))) | $metric] | unique
@@ -89,19 +89,16 @@ jobs:
         metric: ${{ fromJSON(needs.changed-metrics.outputs.metrics) }}
     steps:
       - name: Check out source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: ${{ github.event.pull_request.head.repo.full_name }}
           ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v7
+        uses: astral-sh/setup-uv@v10.3.0
 
       - name: Validate Space payload
-        env:
-          DIR_NAME: ${{ matrix.metric }}
-          MODE: validate
-        run: scripts/push_to_hub.sh
+        run: uv run python scripts/deploy_space.py --metric "${{ matrix.metric }}" --mode validate --namespace "${SPACE_NAMESPACE}"
 
   deploy:
     name: deploy (${{ matrix.metric }})
@@ -132,18 +129,21 @@ jobs:
         metric: ${{ fromJSON(needs.changed-metrics.outputs.metrics) }}
     steps:
       - name: Check out source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
           persist-credentials: false
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v7
+        uses: astral-sh/setup-uv@v10.3.0
 
       - name: Deploy Space
         env:
-          DIR_NAME: ${{ matrix.metric }}
-          MODE: deploy
           SOURCE_SHA: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: scripts/push_to_hub.sh
+        run: |
+          uv run python scripts/deploy_space.py \
+            --metric "${{ matrix.metric }}" \
+            --mode deploy \
+            --namespace "${SPACE_NAMESPACE}" \
+            --source-sha "${SOURCE_SHA}"
