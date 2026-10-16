@@ -1,0 +1,152 @@
+name: Deploy spaces
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_run:
+    workflows: [CI]
+    branches: [main]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      all_metrics:
+        description: Redeploy all metrics
+        required: false
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+
+env:
+  SPACE_NAMESPACE: creative-graphic-design
+
+jobs:
+  changed-metrics:
+    name: list changed metrics
+    # A fork can also name a branch main; only trust successful push runs from this repository's main.
+    if: >-
+      github.event_name == 'pull_request' ||
+      (
+        github.event_name == 'workflow_dispatch' &&
+        github.ref == 'refs/heads/main'
+      ) ||
+      (
+        github.event_name == 'workflow_run' &&
+        github.event.workflow_run.conclusion == 'success' &&
+        github.event.workflow_run.event == 'push' &&
+        github.event.workflow_run.head_repository.full_name == github.repository &&
+        github.event.workflow_run.head_branch == 'main'
+      )
+    runs-on: ubuntu-latest
+    outputs:
+      metrics: ${{ steps.matrix.outputs.metrics }}
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+        with:
+          repository: ${{ github.repository }}
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Build changed metric matrix
+        id: matrix
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          HEAD_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          ALL_METRICS: ${{ inputs.all_metrics }}
+        run: |
+          set -euo pipefail
+
+          if [[ "${EVENT_NAME}" == "pull_request" ]]; then
+            changed=$(git diff --name-only "${BASE_SHA}...${HEAD_SHA}" | jq -Rsc 'split("\n") | map(select(length > 0))')
+          elif [[ "${EVENT_NAME}" == "workflow_dispatch" && "${ALL_METRICS}" == "true" ]]; then
+            changed='[".github/workflows/deploy.yaml"]'
+          else
+            changed=$(git diff --name-only "${HEAD_SHA}^" "${HEAD_SHA}" | jq -Rsc 'split("\n") | map(select(length > 0))')
+          fi
+
+          metrics=$(find metrics -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort | jq -Rsc 'split("\n") | map(select(length > 0))')
+          selected=$(jq -cn --argjson metrics "${metrics}" --argjson changed "${changed}" '
+            if any($changed[]; . == "uv.lock" or . == "pyproject.toml" or . == "scripts/deploy_space.py" or . == ".github/workflows/deploy.yaml") then
+              $metrics
+            else
+              [$metrics[] as $metric | select(any($changed[]; . == ("metrics/" + $metric) or startswith("metrics/" + $metric + "/"))) | $metric] | unique
+            end
+          ')
+          echo "metrics=${selected}" >> "${GITHUB_OUTPUT}"
+
+  validate-space:
+    name: validate-space (${{ matrix.metric }})
+    if: github.event_name == 'pull_request' && needs.changed-metrics.result == 'success' && needs.changed-metrics.outputs.metrics != '[]'
+    needs: changed-metrics
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        metric: ${{ fromJSON(needs.changed-metrics.outputs.metrics) }}
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v10.3.0
+
+      - name: Validate Space payload
+        env:
+          METRIC: ${{ matrix.metric }}
+        run: uv run --frozen --no-dev python scripts/deploy_space.py --metric "$METRIC" --mode validate --namespace "${SPACE_NAMESPACE}"
+
+  deploy:
+    name: deploy (${{ matrix.metric }})
+    if: >-
+      needs.changed-metrics.result == 'success' &&
+      needs.changed-metrics.outputs.metrics != '[]' &&
+      (
+        (
+          github.event_name == 'workflow_dispatch' &&
+          github.ref == 'refs/heads/main'
+        ) ||
+        (
+          github.event_name == 'workflow_run' &&
+          github.event.workflow_run.conclusion == 'success' &&
+          github.event.workflow_run.event == 'push' &&
+          github.event.workflow_run.head_repository.full_name == github.repository &&
+          github.event.workflow_run.head_branch == 'main'
+        )
+      )
+    needs: changed-metrics
+    runs-on: ubuntu-latest
+    concurrency:
+      group: deploy-${{ matrix.metric }}
+      cancel-in-progress: false
+    strategy:
+      fail-fast: false
+      matrix:
+        metric: ${{ fromJSON(needs.changed-metrics.outputs.metrics) }}
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+          persist-credentials: false
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v10.3.0
+
+      - name: Deploy Space
+        env:
+          METRIC: ${{ matrix.metric }}
+          SOURCE_SHA: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          uv run --frozen --no-dev python scripts/deploy_space.py \
+            --metric "$METRIC" \
+            --mode deploy \
+            --namespace "${SPACE_NAMESPACE}" \
+            --source-sha "${SOURCE_SHA}"

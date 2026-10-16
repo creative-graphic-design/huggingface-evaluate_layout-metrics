@@ -13,10 +13,10 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.10", "3.11"]
+        python-version: ["3.11", "3.12"]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7
         with:
           submodules: true
 
@@ -24,8 +24,8 @@ jobs:
         run: |
           grep -n --exclude-dir={.git,.github,vendor} -rE "FIXME" | while read -r line
           do
-              file=$(echo $line | cut -d: -f1)
-              lineno=$(echo $line | cut -d: -f2)
+              file=$(echo "$line" | cut -d: -f1)
+              lineno=$(echo "$line" | cut -d: -f2)
               echo "::warning file=$file,line=$lineno::${line}"
           done
 
@@ -34,12 +34,12 @@ jobs:
           fi
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
 
       - name: Install the latest version of uv
-        uses: astral-sh/setup-uv@v7
+        uses: astral-sh/setup-uv@v10.3.0
 
       - name: Install dependencies
         run: |
