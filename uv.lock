@@ -846,6 +846,7 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "evaluate", extra = ["template"] },
+    { name = "huggingface-hub" },
 ]
 
 [package.dev-dependencies]
@@ -857,7 +858,10 @@ dev = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "evaluate", extras = ["template"], git = "https://github.com/huggingface/evaluate?rev=7c4656a407213b71cb7e6f6634b7935c18f5140d" }]
+requires-dist = [
+    { name = "evaluate", extras = ["template"], git = "https://github.com/huggingface/evaluate?rev=7c4656a407213b71cb7e6f6634b7935c18f5140d" },
+    { name = "huggingface-hub" },
+]
 
 [package.metadata.requires-dev]
 dev = [
