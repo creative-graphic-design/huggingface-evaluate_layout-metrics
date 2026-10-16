@@ -45,7 +45,7 @@ jobs:
       - name: Check out source
         uses: actions/checkout@v4
         with:
-          repository: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}
+          repository: ${{ github.repository }}
           ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
           fetch-depth: 0
           persist-credentials: false
@@ -61,7 +61,7 @@ jobs:
           set -euo pipefail
 
           if [[ "${EVENT_NAME}" == "pull_request" ]]; then
-            changed=$(git diff --name-only "${BASE_SHA}" "${HEAD_SHA}" | jq -Rsc 'split("\n") | map(select(length > 0))')
+            changed=$(git diff --name-only "${BASE_SHA}...${HEAD_SHA}" | jq -Rsc 'split("\n") | map(select(length > 0))')
           elif [[ "${EVENT_NAME}" == "workflow_dispatch" && "${ALL_METRICS}" == "true" ]]; then
             changed='[".github/workflows/deploy.yaml"]'
           else

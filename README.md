@@ -82,7 +82,7 @@ The owner must configure the Hugging Face token as follows: token type: fine-gra
 
 "Create repos in selected orgs and read/write/manage repos created by this token" is required for `create_repo(repo_type="space", exist_ok=True)` of new Spaces.
 
-Store the token as the repository secret `HF_TOKEN`. To rotate it, create and approve a replacement, update that secret, manually run `workflow_dispatch` with `all metrics` selected, and revoke the old token.
+Store the token as the repository secret `HF_TOKEN`. To rotate it, create and approve a replacement, update that secret, run the Deploy spaces workflow from the Actions tab with Redeploy all metrics checked, and revoke the old token.
 
 The `Deploy spaces` badge near the top covers the single deployment workflow for every metric.
 
