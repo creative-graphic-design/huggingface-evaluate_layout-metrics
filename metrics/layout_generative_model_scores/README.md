@@ -173,8 +173,7 @@ Returns a dictionary containing:
 
 ## Limitations
 
-layout-dm's `compute_generative_model_scores` accepts a list of tensor batches and fixes `nearest_k=5`; this published metric accepts array-like batches and preserves its existing configurable `nearest_k` parameter. Parity tests use the default `nearest_k=5` and convert one array batch to a one-item tensor-batch list for the reference call.
-For other `nearest_k` values, layout-dm has no reference; the published result is the direct `prdc.compute_prdc` result at that same `nearest_k`.
+layout-dm's `compute_generative_model_scores` accepts a list of tensor batches and fixes `nearest_k=5`; this published metric accepts array-like batches and preserves its existing configurable `nearest_k` parameter. PRDC and pytorch-fid are runtime dependencies. Parity tests check PRDC precision, recall, density, and coverage against an independent implementation of the Naeem et al. definitions for `nearest_k` values 1, 3, and 5 plus the committed feature fixture. The maximum absolute difference is `1.11022302462515654e-16` for density; precision, recall, and coverage differ by `0.0`. The checks use `atol=1e-12` for floating-point division order. FID has no independent check yet.
 
 ## Related Metrics
 
