@@ -173,7 +173,7 @@ Returns a dictionary containing:
 
 ## Limitations
 
-layout-dm's `compute_generative_model_scores` accepts a list of tensor batches and fixes `nearest_k=5`; this published metric accepts array-like batches and preserves its existing configurable `nearest_k` parameter. PRDC and pytorch-fid are runtime dependencies. Parity tests check PRDC precision, recall, density, and coverage against an independent implementation of the Naeem et al. definitions for `nearest_k` values 1, 3, and 5 plus the committed feature fixture. The maximum absolute difference is `1.11022302462515654e-16` for density; precision, recall, and coverage differ by `0.0`. The checks use `atol=1e-12` for floating-point division order. FID has no independent check yet.
+layout-dm's `compute_generative_model_scores` accepts a list of tensor batches and fixes `nearest_k=5`; this published metric accepts array-like batches and preserves its existing configurable `nearest_k` parameter. PRDC and pytorch-fid are runtime dependencies. Parity tests check PRDC precision, recall, density, and coverage against an independent implementation of the Naeem et al. definitions for `nearest_k` values 1, 3, and 5 plus the committed feature fixture. The maximum PRDC absolute difference is `1.11022302462515654e-16` for density; precision, recall, and coverage differ by `0.0`. FID is checked against an independent means/covariances/matrix-square-root implementation on seeded Gaussian features and the committed feature fixture; its measured maximum absolute difference is `0.0`. PRDC and FID output checks use `atol=1e-12`; `sqrtm` imaginary round-off is checked at `1e-3` before taking the real covariance square root.
 
 ## Related Metrics
 
