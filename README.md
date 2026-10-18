@@ -65,7 +65,7 @@ alignment_score.compute()
 
 ## Vendor references
 
-Vendored references are read-only submodules used only by parity tests; published metrics do not import those vendored trees. `layout_generative_model_scores` depends on `prdc` and `pytorch-fid` at runtime; parity tests check PRDC precision, recall, density, and coverage against an independent implementation of the Naeem et al. definitions and FID against an independent means/covariances/matrix-square-root implementation.
+Vendored references are read-only submodules used only by parity tests; published metrics do not import those vendored trees. `layout_generative_model_scores` depends on `prdc` and `pytorch-fid` at runtime; parity tests check PRDC precision, recall, density, and coverage against an independent implementation of the Naeem et al. definitions and FID against an independent implementation of the Fréchet distance formula.
 
 - [`CyberAgentAILab/layout-dm`](https://github.com/CyberAgentAILab/layout-dm), Apache-2.0, tag `v1.0.0` at commit `93630ba8f5b04103f3fa8506732a7702cc837463`, used only by parity tests.
 - [`mayu-ot/ltsim`](https://github.com/mayu-ot/ltsim), MIT, tag `v1.0.0-alpha` at commit `544b8bccfce4630591589cdec5c5473392190039`, used only by parity tests.
