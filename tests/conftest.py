@@ -62,11 +62,19 @@ finally:
         if module_name.split(".", 1)[0] in {"data", "model", "util"}:
             sys.modules.pop(module_name, None)
 
+load_vendor_package(
+    "poster_layout",
+    _VENDOR_DIR / "PosterLayout-CVPR2023",
+    execute_init=False,
+)
+poster_layout_eval = importlib.import_module("poster_layout.eval")
+
 __all__ = [
     "const_layout_compute_alignment",
     "const_layout_compute_maximum_iou_for_groups",
     "const_layout_compute_overlap",
     "const_layout_get_cond2layouts",
+    "poster_layout_eval",
 ]
 
 

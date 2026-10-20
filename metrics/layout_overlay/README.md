@@ -152,3 +152,13 @@ Returns a `float` value representing the average IoU of overlapping element pair
 - [Layout Underlay Effectiveness](../layout_underlay_effectiveness/): Evaluates underlay element placement
 - [Layout Average IoU](../layout_average_iou/): IoU-based overlap for all elements
 - [Layout Validity](../layout_validity/): Checks basic validity constraints
+
+## Limitations
+
+Parity tests map normalized boxes to pixels and apply PosterLayout's
+`getRidOfInvalid` step before calling pinned `metrics_ove`
+([`eval.py#L205-L222`](https://github.com/PKU-ICST-MIPL/PosterLayout-CVPR2023/blob/44ee576471f3c06d06fc632f13e3f96d0c381847/eval.py#L205-L222)).
+On the ten committed small-set entries the maximum absolute difference is
+4.6e-9; the 1e-6 tolerance covers the reference's float32 reduction versus the
+published metric's float64 feature conversion. The reference assumes 513 ×
+750, while the published metric deliberately accepts configurable dimensions.

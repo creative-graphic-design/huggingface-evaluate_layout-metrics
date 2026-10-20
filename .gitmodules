@@ -7,3 +7,6 @@
 [submodule "vendor/const-layout"]
 	path = vendor/const-layout
 	url = https://github.com/ktrk115/const_layout.git
+[submodule "vendor/PosterLayout-CVPR2023"]
+	path = vendor/PosterLayout-CVPR2023
+	url = https://github.com/PKU-ICST-MIPL/PosterLayout-CVPR2023.git

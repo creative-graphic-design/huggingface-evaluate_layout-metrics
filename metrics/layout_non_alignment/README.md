@@ -153,3 +153,15 @@ Returns a `float` value representing the non-alignment score.
 - [Layout Alignment](../layout_alignment/): Measures positive alignment between elements
 - [Layout Validity](../layout_validity/): Checks basic validity constraints
 - [Layout Overlay](../layout_overlay/): Measures element overlap (excluding underlay)
+
+## Limitations
+
+Parity tests map normalized boxes to pixels, filter invalid elements, and
+compare with pinned `metrics_ali`
+([`eval.py#L306-L339`](https://github.com/PKU-ICST-MIPL/PosterLayout-CVPR2023/blob/44ee576471f3c06d06fc632f13e3f96d0c381847/eval.py#L306-L339)).
+On the ten committed entries the maximum absolute difference is 1.9e-8 from
+float32 reduction versus float64 feature conversion; parity uses a 1e-6
+tolerance. The published metric normalizes by its supplied canvas, whereas
+the reference hardcodes 513 × 750: on a 100 × 100 synthetic case the published
+score is 0.0915149811 and the reference score is 0.0170987601. This difference
+is preserved and tested explicitly.
