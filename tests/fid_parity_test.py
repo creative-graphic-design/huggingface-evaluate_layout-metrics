@@ -24,8 +24,11 @@ def _independent_fid(feats_real: np.ndarray, feats_fake: np.ndarray) -> float:
     mu_fake = np.mean(feats_fake, axis=0)
     sigma_real = np.cov(feats_real, rowvar=False)
     sigma_fake = np.cov(feats_fake, rowvar=False)
-    # Match pytorch-fid: np.cov(rowvar=False) is the unbiased N−1 covariance; the
-    # 1e-3 diagonal-imaginary bound and .real handling follow it (residue ≤2.3e-7 on the rank-deficient fixture), with no eps·I fallback because these inputs never yield non-finite sqrtm, so failures stay loud.
+    # Match pytorch-fid: np.cov(rowvar=False) is the unbiased N−1 covariance;
+    # the 1e-3 diagonal-imaginary bound and .real handling follow it. The
+    # measured residue is ≤2.3e-7 on the rank-deficient fixture. We omit the
+    # eps·I fallback because these inputs never yield non-finite sqrtm, so
+    # failures stay loud.
     covariance_mean = linalg.sqrtm(sigma_real.dot(sigma_fake))
     if np.iscomplexobj(covariance_mean):
         np.testing.assert_allclose(
@@ -45,7 +48,11 @@ def _assert_fid_parity(actual: dict[str, float], expected: float) -> None:
     np.testing.assert_allclose(actual["fid"], expected, rtol=0.0, atol=FID_ATOL)
 
 
-def _compute_metric(metric, feats_real: np.ndarray, feats_fake: np.ndarray):
+def _compute_metric(
+    metric: evaluate.EvaluationModule,
+    feats_real: np.ndarray,
+    feats_fake: np.ndarray,
+) -> dict[str, float]:
     with warnings.catch_warnings():
         warnings.filterwarnings(
             "ignore",
