@@ -64,7 +64,7 @@ finally:
 
 load_vendor_package(
     "poster_layout",
-    _VENDOR_DIR / "PosterLayout-CVPR2023",
+    _VENDOR_DIR / "pku-poster-layout",
     execute_init=False,
 )
 poster_layout_eval = importlib.import_module("poster_layout.eval")
