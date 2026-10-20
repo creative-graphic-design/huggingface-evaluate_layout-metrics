@@ -4,3 +4,6 @@
 [submodule "vendor/layout-dm"]
 	path = vendor/layout-dm
 	url = https://github.com/CyberAgentAILab/layout-dm.git
+[submodule "vendor/const-layout"]
+	path = vendor/const-layout
+	url = https://github.com/ktrk115/const_layout.git

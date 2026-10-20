@@ -154,6 +154,8 @@ Returns a dictionary containing multiple alignment scores from different methods
 
 The layout-dm reference uses PyTorch while this published metric uses NumPy. Parity tests therefore allow `atol=1e-12` for floating-point roundoff; the largest observed absolute difference across the three fixture batches and the seeded random batch was `1.39e-17`.
 
+The secondary const_layout check maps its `compute_alignment` result to `alignment-LayoutGAN++`. Its implementation masks both padded rows and columns ([`metric.py` lines 181-182](https://github.com/ktrk115/const_layout/blob/5287480505939345543fff0b9f2e5d541e6f84e2/metric.py#L181-L182)), while layout-dm masks only padded rows ([`metric.py` lines 113-115](https://github.com/CyberAgentAILab/layout-dm/blob/93630ba8f5b04103f3fa8506732a7702cc837463/src/trainer/trainer/helpers/metric.py#L113-L115)). The published metric follows layout-dm; the tests assert this expected secondary-reference difference, with maximum absolute differences of `0.7047896154460861`, `0.63911725936018`, `0.07302368559612943`, and `0.13075950522778584` for fixtures 1–3 and seeded random input.
+
 ## Related Metrics
 
 - [Layout Non-Alignment](../layout_non_alignment/): Measures spatial non-alignment between elements

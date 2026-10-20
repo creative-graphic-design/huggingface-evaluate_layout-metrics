@@ -1,3 +1,4 @@
+import importlib.machinery
 import importlib.util
 import os
 import pathlib
@@ -8,7 +9,9 @@ import pytest
 import torch
 
 
-def load_vendor_package(name: str, package_path: pathlib.Path):
+def load_vendor_package(
+    name: str, package_path: pathlib.Path, *, execute_init: bool = True
+):
     """Load one package from a vendored source tree without exposing its parent tree."""
     if not package_path.is_dir():
         raise RuntimeError(
@@ -17,11 +20,13 @@ def load_vendor_package(name: str, package_path: pathlib.Path):
         )
 
     init_path = package_path / "__init__.py"
-    spec = importlib.util.spec_from_file_location(
-        name,
-        init_path if init_path.is_file() else None,
-        submodule_search_locations=[str(package_path)],
-    )
+    if execute_init and init_path.is_file():
+        spec = importlib.util.spec_from_file_location(
+            name, init_path, submodule_search_locations=[str(package_path)]
+        )
+    else:
+        spec = importlib.machinery.ModuleSpec(name, loader=None, is_package=True)
+        spec.submodule_search_locations = [str(package_path)]
     if spec is None:
         raise RuntimeError(f"could not load the vendored package '{name}'")
 
@@ -37,6 +42,27 @@ load_vendor_package("layout_eval", _VENDOR_DIR / "ltsim" / "src" / "layout_eval"
 load_vendor_package(
     "trainer", _VENDOR_DIR / "layout-dm" / "src" / "trainer" / "trainer"
 )
+_CONST_LAYOUT_DIR = _VENDOR_DIR / "const-layout"
+load_vendor_package("const_layout", _CONST_LAYOUT_DIR)
+# const_layout.metric uses top-level legacy imports; avoid its unrelated data registry.
+load_vendor_package("data", _CONST_LAYOUT_DIR / "data", execute_init=False)
+sys.path.insert(0, str(_CONST_LAYOUT_DIR))
+try:
+    from const_layout.metric import (
+        __compute_maximum_iou as const_layout_compute_maximum_iou_for_groups,
+        __get_cond2layouts as const_layout_get_cond2layouts,
+        compute_alignment as const_layout_compute_alignment,
+        compute_overlap as const_layout_compute_overlap,
+    )
+finally:
+    sys.path.remove(str(_CONST_LAYOUT_DIR))
+
+__all__ = [
+    "const_layout_compute_alignment",
+    "const_layout_compute_maximum_iou_for_groups",
+    "const_layout_compute_overlap",
+    "const_layout_get_cond2layouts",
+]
 
 
 @pytest.fixture
