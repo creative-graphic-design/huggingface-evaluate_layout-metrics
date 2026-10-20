@@ -185,6 +185,8 @@ Each score is an array with one value per layout in the batch.
 
 The layout-dm reference uses PyTorch while this published metric uses NumPy. Parity tests therefore allow `atol=1e-12` for floating-point roundoff; the largest observed absolute difference across the three fixture batches and the seeded random batch was `1.42e-14`.
 
+The secondary const_layout check maps its `compute_overlap` result to `overlap-LayoutGAN++`; it matches layout-dm and the published metric on the fixtures and seeded random input within the same `atol=1e-12` comparison. The const_layout function is the normalized AC-LayoutGAN calculation ([`metric.py` lines 138-164](https://github.com/ktrk115/const_layout/blob/5287480505939345543fff0b9f2e5d541e6f84e2/metric.py#L138-L164)), while the other published outputs remain covered by the primary layout-dm check.
+
 ## Related Metrics
 
 - [Layout Average IoU](../layout_average_iou/): Measures overlap using IoU metric
