@@ -156,12 +156,6 @@ Returns a `float` value representing the non-alignment score.
 
 ## Limitations
 
-Parity tests map normalized boxes to pixels, filter invalid elements, and
-compare with pinned `metrics_ali`
-([`eval.py#L306-L339`](https://github.com/PKU-ICST-MIPL/PosterLayout-CVPR2023/blob/44ee576471f3c06d06fc632f13e3f96d0c381847/eval.py#L306-L339)).
-On the ten committed entries the maximum absolute difference is 1.9e-8 from
-float32 reduction versus float64 feature conversion; parity uses a 1e-6
-tolerance. The published metric normalizes by its supplied canvas, whereas
-the reference hardcodes 513 × 750: on a 100 × 100 synthetic case the published
-score is 0.0915149811 and the reference score is 0.0170987601. This difference
-is preserved and tested explicitly.
+Parity tests map normalized boxes to pixels, filter invalid elements, and compare with pinned `metrics_ali` ([`eval.py#L306-L339`](https://github.com/PKU-ICST-MIPL/PosterLayout-CVPR2023/blob/44ee576471f3c06d06fc632f13e3f96d0c381847/eval.py#L306-L339)). On the ten committed entries the maximum absolute difference is 1.9e-8 from float32 reduction versus float64 feature conversion; parity uses a 1e-6 tolerance. The published metric normalizes by its supplied canvas, whereas the reference hardcodes 513 × 750: on a 100 × 100 synthetic case the published score is 0.0915149811 and the reference score is 0.0170987601. This difference is preserved and tested explicitly.
+
+PosterLayout's `metrics_ali` loops over `range(n)` without using the loop index, so every element adds the same global minimum delta; the published metric keeps this as `for _ in range(n)`. On the committed fixture, the shipped score is 0.0054257973599846545 versus 0.019617308234896033 for a per-element minimum implementation.

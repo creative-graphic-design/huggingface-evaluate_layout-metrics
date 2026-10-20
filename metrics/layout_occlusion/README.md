@@ -164,10 +164,4 @@ Returns a `float` value representing the average saliency of occluded regions (r
 
 ## Limitations
 
-Parity tests map normalized boxes to 513 × 750 pixel boxes, map each committed
-small-set image name to PosterLayout's relative `Dataset/test/...` path, and
-compare the published metric with pinned `metrics_occ`
-([`eval.py#L341-L369`](https://github.com/PKU-ICST-MIPL/PosterLayout-CVPR2023/blob/44ee576471f3c06d06fc632f13e3f96d0c381847/eval.py#L341-L369)).
-The reference resizes and evaluates a fixed 513 × 750 canvas; the published
-metric supports other dimensions, which are deliberate published behavior and
-have no equivalent upstream call.
+Parity tests map normalized boxes to 513 × 750 pixel boxes, map each committed small-set image name to PosterLayout's relative `Dataset/test/...` path, and compare the published metric with pinned `metrics_occ` ([`eval.py#L341-L369`](https://github.com/PKU-ICST-MIPL/PosterLayout-CVPR2023/blob/44ee576471f3c06d06fc632f13e3f96d0c381847/eval.py#L341-L369)). The reference resizes and evaluates a fixed 513 × 750 canvas; the published metric supports other dimensions, which are deliberate published behavior and have no equivalent upstream call.

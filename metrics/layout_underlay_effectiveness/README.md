@@ -178,14 +178,4 @@ Returns a dictionary containing:
 
 ## Limitations
 
-Parity tests map normalized boxes to pixels, filter invalid elements, and call
-the pinned `metrics_und_l` and `metrics_und_s` references
-([`eval.py#L224-L252`](https://github.com/PKU-ICST-MIPL/PosterLayout-CVPR2023/blob/44ee576471f3c06d06fc632f13e3f96d0c381847/eval.py#L224-L252),
-[`eval.py#L265-L292`](https://github.com/PKU-ICST-MIPL/PosterLayout-CVPR2023/blob/44ee576471f3c06d06fc632f13e3f96d0c381847/eval.py#L265-L292)).
-On the ten committed entries the loose-score maximum absolute difference is
-6.0e-8 from float32 reduction versus float64 feature conversion; parity uses a
-1e-6 tolerance. With no underlay, the published metric returns NaN from the
-empty mean while the reference returns 0. The published metric also retains
-the upstream `xr_2 >= xr_2` containment condition; a test records the shared
-behavior for a foreground box extending past the underlay's right edge rather
-than changing either implementation.
+Parity tests map normalized boxes to pixels, filter invalid elements, and call the pinned `metrics_und_l` and `metrics_und_s` references ([`eval.py#L224-L252`](https://github.com/PKU-ICST-MIPL/PosterLayout-CVPR2023/blob/44ee576471f3c06d06fc632f13e3f96d0c381847/eval.py#L224-L252), [`eval.py#L265-L292`](https://github.com/PKU-ICST-MIPL/PosterLayout-CVPR2023/blob/44ee576471f3c06d06fc632f13e3f96d0c381847/eval.py#L265-L292)). On the ten committed entries the loose-score maximum absolute difference is 6.0e-8 from float32 reduction versus float64 feature conversion; parity uses a 1e-6 tolerance. With no underlay, the published metric returns NaN from the empty mean while the reference returns 0. The published metric also retains the upstream `xr_2 >= xr_2` containment condition; a test records the shared behavior for a foreground box extending past the underlay's right edge rather than changing either implementation.
