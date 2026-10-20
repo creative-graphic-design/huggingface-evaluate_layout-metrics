@@ -3,6 +3,7 @@ import importlib.util
 import os
 import pathlib
 import sys
+from types import ModuleType
 from typing import List
 
 import pytest
@@ -11,7 +12,7 @@ import torch
 
 def load_vendor_package(
     name: str, package_path: pathlib.Path, *, execute_init: bool = True
-):
+) -> ModuleType:
     """Load one package from a vendored source tree without exposing its parent tree."""
     if not package_path.is_dir():
         raise RuntimeError(
@@ -43,6 +44,7 @@ load_vendor_package(
     "trainer", _VENDOR_DIR / "layout-dm" / "src" / "trainer" / "trainer"
 )
 _CONST_LAYOUT_DIR = _VENDOR_DIR / "const-layout"
+_CONST_LAYOUT_MODULES_BEFORE = set(sys.modules)
 load_vendor_package("const_layout", _CONST_LAYOUT_DIR)
 # const_layout.metric uses top-level legacy imports; avoid its unrelated data registry.
 load_vendor_package("data", _CONST_LAYOUT_DIR / "data", execute_init=False)
@@ -56,6 +58,9 @@ try:
     )
 finally:
     sys.path.remove(str(_CONST_LAYOUT_DIR))
+    for module_name in set(sys.modules) - _CONST_LAYOUT_MODULES_BEFORE:
+        if module_name.split(".", 1)[0] in {"data", "model", "util"}:
+            sys.modules.pop(module_name, None)
 
 __all__ = [
     "const_layout_compute_alignment",

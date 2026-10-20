@@ -69,7 +69,7 @@ Official references are vendored as read-only submodules when no installable rel
 
 - [`CyberAgentAILab/layout-dm`](https://github.com/CyberAgentAILab/layout-dm), Apache-2.0, tag `v1.0.0` at commit `93630ba8f5b04103f3fa8506732a7702cc837463`, used only by parity tests.
 - [`mayu-ot/ltsim`](https://github.com/mayu-ot/ltsim), MIT, tag `v1.0.0-alpha` at commit `544b8bccfce4630591589cdec5c5473392190039`, used only by parity tests.
-- [`ktrk115/const_layout`](https://github.com/ktrk115/const_layout), AGPL-3.0, `master` at commit `5287480505939345543fff0b9f2e5d541e6f84e2`, a read-only secondary cross-check for alignment, overlap, and maximum IoU in parity tests only; never imported by a published metric.
+- [`ktrk115/const_layout`](https://github.com/ktrk115/const_layout), AGPL-3.0, `master` at commit `5287480505939345543fff0b9f2e5d541e6f84e2`, vendored at `vendor/const-layout` as a read-only secondary cross-check for alignment, overlap, and maximum IoU in parity tests only; never imported by a published metric.
 
 ## Contributing and deployment
 

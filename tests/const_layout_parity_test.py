@@ -99,9 +99,6 @@ def test_alignment_three_way_fixture(
 
     # const_layout returns the normalized AC-LayoutGAN score, corresponding to
     # LayoutGAN++ here. It masks padded columns too; layout-dm masks rows only.
-    _assert_array_parity(
-        actual["alignment-LayoutGAN++"], layout_dm["alignment-LayoutGAN++"]
-    )
     difference = np.max(
         np.abs(const_layout.numpy() - layout_dm["alignment-LayoutGAN++"].numpy())
     )
@@ -129,9 +126,6 @@ def test_alignment_three_way_seeded_random(metrics_dir):
     const_layout = const_layout_compute_alignment(torch_bbox, torch_mask)
     for key, value in layout_dm.items():
         _assert_array_parity(actual[key], value)
-    _assert_array_parity(
-        actual["alignment-LayoutGAN++"], layout_dm["alignment-LayoutGAN++"]
-    )
     difference = np.max(
         np.abs(const_layout.numpy() - layout_dm["alignment-LayoutGAN++"].numpy())
     )
@@ -220,7 +214,6 @@ def test_maximum_iou_three_way_seeded_random(metrics_dir):
     conditions = (
         np.array([0]),
         np.array([1, 1]),
-        np.array([0, 1, 2]),
         np.array([2, 2, 3]),
         np.array([0, 0, 1, 2]),
         np.array([1, 1, 1, 3]),
@@ -228,8 +221,17 @@ def test_maximum_iou_three_way_seeded_random(metrics_dir):
     for categories in conditions:
         layouts1.append((generator.random((len(categories), 4)), categories.copy()))
         layouts2.append((generator.random((len(categories), 4)), categories.copy()))
-    # Unmatched category multisets are ignored by all three references; the
-    # matched groups still vary element counts and include unequal collection sizes.
+
+    # The [0, 1, 2] group has two layouts on one side and three on the other,
+    # exercising the non-trivial outer assignment in all three references.
+    group_categories = np.array([0, 1, 2])
+    for _ in range(2):
+        layouts1.append((generator.random((3, 4)), group_categories.copy()))
+    for _ in range(3):
+        layouts2.append((generator.random((3, 4)), group_categories.copy()))
+
+    # Unmatched category multisets are ignored by all three references.
+    layouts1.append((generator.random((1, 4)), np.array([7])))
     layouts1.append((generator.random((2, 4)), np.array([9, 9])))
     layouts2.append((generator.random((1, 4)), np.array([8])))
 

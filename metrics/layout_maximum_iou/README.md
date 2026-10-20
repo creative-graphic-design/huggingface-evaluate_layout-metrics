@@ -161,7 +161,7 @@ Returns a single `float` value representing:
 
 layout-dm's `compute_maximum_iou` accepts `(bboxes, categories)` tuples; this published metric keeps its existing Hugging Face Evaluate API of dictionaries with `bboxes` and `categories`. The parity adapter converts between these representations before comparing the scores.
 
-The secondary const_layout check uses the same tuple adapter and its pinned grouping/assignment helpers (the public wrapper always starts a multiprocessing pool). It matches layout-dm and the published metric on the existing fixture and seeded random inputs; unmatched category multisets are ignored by all three implementations, while matched groups vary in element count. The comparison uses `rtol=0, atol=1e-12` for float64 reduction order; the largest measured residue was `5.55e-17` on the fixture.
+The secondary const_layout check uses the same tuple adapter and its pinned grouping/assignment helpers (the public wrapper always starts a multiprocessing pool). It matches layout-dm and the published metric on the existing fixture and seeded random inputs; unmatched category multisets are ignored by all three implementations, while the seeded input exercises a matched category group with two layouts on one side and three on the other. The comparison uses `rtol=0, atol=1e-12` for float64 reduction order; the largest measured residue was `5.55e-17` on the fixture.
 
 ## Related Metrics
 
