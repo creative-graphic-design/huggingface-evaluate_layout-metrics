@@ -6,7 +6,7 @@ import evaluate
 import numpy as np
 import pytest
 import torch
-from PIL import Image
+from PIL import Image, ImageDraw
 
 from tests.conftest import poster_layout_eval
 
@@ -126,16 +126,19 @@ def test_underlay_effectiveness_matches_poster_layout(
         )
 
 
-def test_unreadability_matches_poster_layout(
+def test_unreadability_differs_from_original_due_to_uint8_sobel_clipping_and_overflow(
     metrics_dir: pathlib.Path,
-    test_fixture_dir: pathlib.Path,
-    small_poster_data,
     tmp_path: pathlib.Path,
     monkeypatch: pytest.MonkeyPatch,
 ):
-    boxes, labels, names = small_poster_data
-    _poster_dataset(tmp_path, test_fixture_dir)
-    monkeypatch.chdir(tmp_path)
+    image_path = tmp_path / "Dataset" / "test" / "image_canvas" / "vertical-stripe.png"
+    image_path.parent.mkdir(parents=True)
+    image = Image.new("L", (WIDTH, HEIGHT), 0)
+    ImageDraw.Draw(image).rectangle((128, 0, 255, HEIGHT - 1), fill=255)
+    image.save(image_path)
+
+    boxes = np.array([[[0.0, 0.0, 1.0, 1.0]]])
+    labels = np.array([[[1]]])
     actual = evaluate.load(
         path=_metric_path(metrics_dir, "layout_unreadability"),
         canvas_width=WIDTH,
@@ -143,12 +146,17 @@ def test_unreadability_matches_poster_layout(
     ).compute(
         predictions=boxes,
         gold_labels=labels,
-        image_canvases=_fixture_paths(test_fixture_dir, names, "image_canvas"),
+        image_canvases=[[str(image_path)]],
     )
-    expected = poster_layout_eval.metrics_rea(
-        names, _filtered_labels(labels, boxes), _pixel_boxes(boxes)
+    monkeypatch.chdir(tmp_path)
+    original = poster_layout_eval.metrics_rea(
+        ["vertical-stripe.png"], labels.copy(), _pixel_boxes(boxes)
     )
-    assert actual == expected
+
+    # Float Sobel keeps both signed stripe edges; uint8 clipping/overflow keeps one.
+    assert actual == pytest.approx(4 / WIDTH, abs=1e-12)
+    assert original == pytest.approx(2 / WIDTH, abs=1e-12)
+    assert actual != original
 
 
 def test_occlusion_matches_poster_layout(
@@ -211,19 +219,33 @@ def test_utility_matches_poster_layout(
     assert actual == expected
 
 
-def test_non_alignment_matches_poster_layout(
-    metrics_dir: pathlib.Path, small_poster_data
+def test_non_alignment_differs_from_original_due_to_global_minimum_loop_bug(
+    metrics_dir: pathlib.Path,
 ):
-    boxes, labels, _ = small_poster_data
+    boxes = np.array(
+        [
+            [
+                [0.1, 0.1, 0.3, 0.3],
+                [0.15, 0.5, 0.35, 0.7],
+                [0.5, 0.2, 0.7, 0.4],
+            ]
+        ]
+    )
+    labels = np.array([[[1], [1], [1]]])
     actual = evaluate.load(
         path=_metric_path(metrics_dir, "layout_non_alignment"),
         canvas_width=WIDTH,
         canvas_height=HEIGHT,
     ).compute(predictions=boxes, gold_labels=labels)
-    expected = poster_layout_eval.metrics_ali(
+    original = poster_layout_eval.metrics_ali(
         _filtered_labels(labels, boxes), _pixel_boxes(boxes)
     )
-    np.testing.assert_allclose(actual, expected, rtol=0.0, atol=POSTER_ATOL)
+
+    # The fixed definition sums each element's nearest penalty; PosterLayout
+    # repeats the global minimum for all three elements.
+    assert actual == pytest.approx(0.0903102799829795, abs=1e-12)
+    assert original == pytest.approx(0.06682918413345675, abs=1e-12)
+    assert actual != original
 
 
 def test_underlay_empty_batch_difference_is_explicit(metrics_dir: pathlib.Path):
@@ -259,18 +281,18 @@ def test_underlay_tautological_right_edge_condition_is_explicit(
     assert expected == 1
 
 
-def test_utility_denominator_difference_is_explicit(
+def test_utility_zero_utility_samples_match_original_after_denominator_fix(
     metrics_dir: pathlib.Path, tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch
 ):
     white = tmp_path / "white.png"
     black = tmp_path / "black.png"
     Image.new("L", (WIDTH, HEIGHT), 255).save(white)
     Image.new("L", (WIDTH, HEIGHT), 0).save(black)
-    names = ["white.png", "black.png"]
+    names = ["black.png", "white.png"]
     boxes = np.array([[[0.0, 0.0, 1.0, 1.0]], [[0.0, 0.0, 1.0, 1.0]]])
     labels = np.array([[[1]], [[1]]])
-    map_1 = [[str(white)], [str(black)]]
-    map_2 = [[str(white)], [str(black)]]
+    map_1 = [[str(black)], [str(white)]]
+    map_2 = [[str(black)], [str(white)]]
     actual = evaluate.load(
         path=_metric_path(metrics_dir, "layout_utility"),
         canvas_width=WIDTH,
@@ -297,8 +319,23 @@ def test_utility_denominator_difference_is_explicit(
             target.symlink_to(source)
     monkeypatch.chdir(tmp_path)
     expected = poster_layout_eval.metrics_uti(names, labels.copy(), _pixel_boxes(boxes))
-    assert actual == 1.0
-    assert expected == 0.5
+    assert actual == expected == 0.5
+
+    zero_names = ["white.png", "white.png"]
+    zero_actual = evaluate.load(
+        path=_metric_path(metrics_dir, "layout_utility"),
+        canvas_width=WIDTH,
+        canvas_height=HEIGHT,
+    ).compute(
+        predictions=boxes,
+        gold_labels=labels,
+        saliency_maps_1=[[str(white)], [str(white)]],
+        saliency_maps_2=[[str(white)], [str(white)]],
+    )
+    zero_original = poster_layout_eval.metrics_uti(
+        zero_names, labels.copy(), _pixel_boxes(boxes)
+    )
+    assert zero_actual == zero_original == 0.0
 
 
 def test_non_alignment_canvas_difference_is_explicit(metrics_dir: pathlib.Path):

@@ -27,9 +27,9 @@ Lower scores indicate better text placement on flat, readable backgrounds.
 
 ## Metric Details
 
-- Uses Sobel gradient operators to detect edges and texture in background canvas
-- Computes gradient magnitude (non-flatness) in regions covered by text elements
-- Excludes underlay/decoration elements from background canvas analysis
+- Converts grayscale pixels to float32 before applying signed x- and y-direction Sobel filters
+- Computes `sqrt((gx² + gy²) / 2)`, scales each image by its maximum gradient to the 0–255 range, quantizes the scaled gradient map to 8-bit integers, and averages those values under text elements
+- Removes underlay/decoration regions from the text mask, then averages scores across all samples
 - From PosterLayout (Hsu et al., CVPR 2023) and CGL-GAN methodology
 - Lower gradient scores mean text is on flatter, more readable backgrounds
 
@@ -170,8 +170,8 @@ Returns a `float` value representing the average gradient intensity under text e
 - [Layout Utility](../layout_utility/): Measures utilization of suitable space
 - [Layout Underlay Effectiveness](../layout_underlay_effectiveness/): Evaluates underlay placement
 
-## Limitations
+## Definition and Comparability
 
-Parity tests map normalized boxes to pixels, map each committed small-set canvas to PosterLayout's relative `Dataset/test/image_canvas` path, and compare with pinned `metrics_rea` ([`eval.py#L173-L203`](https://github.com/PKU-ICST-MIPL/PosterLayout-CVPR2023/blob/44ee576471f3c06d06fc632f13e3f96d0c381847/eval.py#L173-L203)). The reference fixes the canvas at 513 × 750; the published metric's configurable canvas dimensions are deliberate behavior without an equivalent upstream call.
+The metric computes Sobel gradients in float32 so positive and negative responses are squared without clipping or 8-bit overflow. It then scales the gradient map to 0–255, quantizes it to 8-bit integers, and averages the quantized values under text elements. For the documented fixture, this quantization gives a score of 0.02552; averaging the unquantized scaled values would give 0.02690. This corrects the unreadability calculation in PosterLayout's original code; values are not comparable with numbers reported in papers that used that code.
 
-PosterLayout's `cv2.Sobel(img, -1, …)` computes on uint8 data, so negative gradients clip to 0 and `grad_x**2` retains uint8 overflow; the published metric copies this behavior. This behavior is preserved for parity with the original evaluation code.
+PosterLayout fixes its canvas at 513 × 750; this metric continues to accept configurable canvas dimensions.

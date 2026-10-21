@@ -27,9 +27,9 @@ Higher scores indicate better utilization of suitable space, though extremely hi
 
 ## Metric Details
 
-- Uses the **negative/inverted saliency map** (S') to identify suitable placement regions
-- Suitable space = regions with LOW visual importance (complement of salient areas)
-- Computes the ratio of element-covered suitable space to total suitable space
+- Combines the two saliency maps by taking their pixelwise maximum, then inverts the result to weight suitable space
+- For each sample, divides suitable-space weight covered by valid elements by the total suitable-space weight; a zero denominator gives that sample a score of 0
+- Averages the sample scores across the full batch, including samples with zero utility
 - From PosterLayout (Hsu et al., CVPR 2023) for content-aware poster design
 - Higher utility means elements effectively use non-salient space
 
@@ -175,6 +175,8 @@ Returns a `float` value representing the utilization rate of suitable space (ran
 - [Layout Validity](../layout_validity/): Checks basic validity constraints
 - [Layout Unreadability](../layout_unreadability/): Evaluates text placement quality
 
-## Limitations
+## Definition and Comparability
 
-Parity tests map normalized boxes to pixels, map both saliency-map inputs to PosterLayout's relative `Dataset/test/saliencymaps_*` paths, and compare with pinned `metrics_uti` ([`eval.py#L144-L171`](https://github.com/PKU-ICST-MIPL/PosterLayout-CVPR2023/blob/44ee576471f3c06d06fc632f13e3f96d0c381847/eval.py#L144-L171)). The reference divides by every image name, including zero-utility cases; the published metric averages only nonzero cases, so it diverges from both upstream and this repository's occlusion and unreadability metrics, which divide by every sample. A two-image test records the explicit difference (published 1.0, reference 0.5), and the published metric returns NaN when all samples have zero utility. The reference also fixes the canvas at 513 × 750, while the published metric accepts configurable dimensions.
+The metric now averages each sample's utility, assigning zero when the sample has no suitable-space mass or no covered suitable space. Its values now match PosterLayout's original `metrics_uti` implementation and values reported in papers that used that code. They are not comparable with values from earlier versions of this metric, which omitted zero-utility samples.
+
+PosterLayout fixes its canvas at 513 × 750; this metric continues to accept configurable canvas dimensions.

@@ -80,14 +80,9 @@ class LayoutNonAlignment(evaluate.Metric):
             ],
         )
 
-    def ali_delta(self, xs: npt.NDArray[np.float64]) -> float:
-        n = len(xs)
-        min_delta = np.inf
-        for i in range(n):
-            for j in range(i + 1, n):
-                delta = abs(xs[i] - xs[j])
-                min_delta = min(min_delta, delta)
-        return min_delta
+    def ali_delta(self, xs: npt.NDArray[np.float64], index: int) -> float:
+        other_values = np.delete(xs, index)
+        return float(np.min(np.abs(xs[index] - other_values)))
 
     def ali_g(self, x: float) -> float:
         return -math.log(1 - x, 10)
@@ -177,11 +172,11 @@ class LayoutNonAlignment(evaluate.Metric):
                 continue
 
             n = len(mask_box)
-            for _ in range(n):
+            for i in range(n):
                 g_val = []
                 for j in range(6):
                     xys = theda_arr[:, j]
-                    delta = self.ali_delta(xys)
+                    delta = self.ali_delta(xys, i)
                     g_val.append(self.ali_g(delta))
                 ali += min(g_val)
             metrics += ali

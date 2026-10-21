@@ -27,9 +27,9 @@ The metric comes from PosterLayout (Hsu et al., CVPR 2023) and AC-GAN (Li et al.
 
 ## Metric Details
 
-- Analyzes element edge positions (left, right, top, bottom) to detect alignment patterns
-- Computes delta (minimum distance) between element edges
-- Applies logarithmic transformation to penalize near-misses more than obvious non-alignments
+- For each valid element, finds its nearest other element for each of six normalized positions: left, top, center x, center y, right, and bottom
+- Uses the smallest of those six distances for that element, transforms it with `-log10(1 - distance)`, and sums the penalties within each layout
+- Averages the per-layout totals across the batch
 - Lower scores indicate better overall alignment (less non-alignment)
 
 ## Usage
@@ -154,8 +154,8 @@ Returns a `float` value representing the non-alignment score.
 - [Layout Validity](../layout_validity/): Checks basic validity constraints
 - [Layout Overlay](../layout_overlay/): Measures element overlap (excluding underlay)
 
-## Limitations
+## Definition and Comparability
 
-Parity tests map normalized boxes to pixels, filter invalid elements, and compare with pinned `metrics_ali` ([`eval.py#L306-L339`](https://github.com/PKU-ICST-MIPL/PosterLayout-CVPR2023/blob/44ee576471f3c06d06fc632f13e3f96d0c381847/eval.py#L306-L339)). On the ten committed entries the maximum absolute difference is 1.9e-8 from float32 reduction versus float64 feature conversion; parity uses a 1e-6 tolerance. The published metric normalizes by its supplied canvas, whereas the reference hardcodes 513 × 750: on a 100 × 100 synthetic case the published score is 0.0915149811 and the reference score is 0.0170987601. This difference is preserved and tested explicitly.
+The metric now sums each valid element's own minimum alignment penalty. This corrects a loop-index bug in PosterLayout's original `metrics_ali`; values are not comparable with numbers reported in papers that used the original code.
 
-PosterLayout's `metrics_ali` loops over `range(n)` without using the loop index, so every element adds the same global minimum delta; the published metric keeps this as `for _ in range(n)`. On the committed fixture, the shipped score is 0.0054257973599846545 versus 0.019617308234896033 for a per-element minimum implementation.
+This metric normalizes positions by the supplied canvas dimensions, while PosterLayout hardcodes 513 × 750. Results on other canvas sizes can therefore also differ from PosterLayout.

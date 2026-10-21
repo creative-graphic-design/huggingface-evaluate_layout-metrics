@@ -110,7 +110,7 @@ class LayoutUnreadability(evaluate.Metric):
     def img_to_g_xy(self, img):
         img_cv_gs = self.cvt_pilcv(img, req="pil2cv", color_code=cv2.COLOR_RGB2GRAY)
         assert isinstance(img_cv_gs, np.ndarray)
-        img_cv_gs = np.uint8(img_cv_gs)
+        img_cv_gs = img_cv_gs.astype(np.float32)
 
         # Sobel(src, ddepth, dx, dy)
         grad_x = cv2.Sobel(img_cv_gs, -1, 1, 0)

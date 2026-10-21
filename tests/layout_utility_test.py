@@ -5,6 +5,7 @@ from typing import List
 import evaluate
 import pytest
 import torch
+from PIL import Image
 
 
 @pytest.fixture
@@ -32,7 +33,14 @@ def test_metric(
     saliency_map_filepaths_1: List[pathlib.Path],
     saliency_map_filepaths_2: List[pathlib.Path],
     expected_score: float,
+    is_CI: bool,
 ):
+    if not is_CI and not all(
+        path.is_file()
+        for path in [*saliency_map_filepaths_1, *saliency_map_filepaths_2]
+    ):
+        pytest.skip("The complete PosterLayout saliency-map fixtures are not included.")
+
     assert len(saliency_map_filepaths_1) == len(saliency_map_filepaths_2)
 
     # Convert pathlib.Path to str
@@ -52,3 +60,38 @@ def test_metric(
     )
     score = metric.compute()
     assert score is not None and score == pytest.approx(expected_score, 1e-5)
+
+
+def test_metric_averages_zero_utility_samples_as_zero(
+    metric_path: str, tmp_path: pathlib.Path
+):
+    black = tmp_path / "black.png"
+    white = tmp_path / "white.png"
+    Image.new("L", (10, 10), 0).save(black)
+    Image.new("L", (10, 10), 255).save(white)
+
+    metric = evaluate.load(path=metric_path, canvas_width=10, canvas_height=10)
+    result = metric.compute(
+        predictions=[[[0, 0, 1, 1]], [[0, 0, 1, 1]]],
+        gold_labels=[[[1]], [[1]]],
+        saliency_maps_1=[[str(black)], [str(white)]],
+        saliency_maps_2=[[str(black)], [str(white)]],
+    )
+    # The hand-calculated sample utilities are [1, 0], so their mean is 0.5.
+    assert result == pytest.approx(0.5)
+
+
+def test_metric_returns_zero_for_an_all_zero_utility_batch(
+    metric_path: str, tmp_path: pathlib.Path
+):
+    white = tmp_path / "white.png"
+    Image.new("L", (10, 10), 255).save(white)
+    metric = evaluate.load(path=metric_path, canvas_width=10, canvas_height=10)
+    all_zero = metric.compute(
+        predictions=[[[0, 0, 1, 1]], [[0, 0, 1, 1]]],
+        gold_labels=[[[1]], [[1]]],
+        saliency_maps_1=[[str(white)], [str(white)]],
+        saliency_maps_2=[[str(white)], [str(white)]],
+    )
+    # A sample with no non-salient mass has utility zero; an all-zero batch is 0.
+    assert all_zero == 0.0

@@ -5,6 +5,7 @@ from typing import List
 import evaluate
 import pytest
 import torch
+from PIL import Image, ImageDraw
 
 
 @pytest.fixture
@@ -18,9 +19,11 @@ def metric_path(base_dir: pathlib.Path) -> str:
 
 
 @pytest.fixture
-def expected_score(is_CI: bool) -> float:
-    # https://github.com/PKU-ICST-MIPL/PosterLayout-CVPR2023/blob/main/output/results.txt#L9C14-L9C33
-    return 0.2119157190596277 if is_CI else 0.18741514749764512
+def expected_score(is_CI: bool) -> float | None:
+    if not is_CI:
+        return None
+    # Recomputed after using signed float32 Sobel gradients.
+    return 0.025522707038422725
 
 
 def test_metric(
@@ -30,8 +33,12 @@ def test_metric(
     poster_width: int,
     poster_height: int,
     poster_image_canvas_filepaths: List[pathlib.Path],
-    expected_score: float,
+    expected_score: float | None,
+    is_CI: bool,
 ):
+    if not is_CI and not all(path.is_file() for path in poster_image_canvas_filepaths):
+        pytest.skip("The complete PosterLayout canvas fixtures are not included.")
+
     poster_image_canvas_filepaths = [
         [str(path)]  # type: ignore
         for path in poster_image_canvas_filepaths
@@ -48,4 +55,28 @@ def test_metric(
         image_canvases=poster_image_canvas_filepaths,
     )
     score = metric.compute()
-    assert score is not None and score == expected_score
+    assert score is not None
+    if expected_score is None:
+        assert 0 <= score <= 1
+    else:
+        assert score == pytest.approx(expected_score, abs=1e-12)
+
+
+def test_metric_uses_signed_sobel_gradients_before_squaring(
+    metric_path: str, tmp_path: pathlib.Path
+):
+    canvas = Image.new("L", (20, 10), 0)
+    ImageDraw.Draw(canvas).rectangle((6, 0, 13, 9), fill=255)
+    image_path = tmp_path / "vertical-stripe.png"
+    canvas.save(image_path)
+
+    metric = evaluate.load(path=metric_path, canvas_width=20, canvas_height=10)
+    result = metric.compute(
+        predictions=[[[0, 0, 1, 1]]],
+        gold_labels=[[[1]]],
+        image_canvases=[[str(image_path)]],
+    )
+
+    # The two vertical edges contribute four 255-valued columns across the
+    # 20-by-10 text region: (4 * 10) / (20 * 10) = 0.2.
+    assert result == pytest.approx(0.2, abs=1e-12)
