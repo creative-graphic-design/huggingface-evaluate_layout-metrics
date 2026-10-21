@@ -169,3 +169,9 @@ Returns a `float` value representing the average gradient intensity under text e
 - [Layout Occlusion](../layout_occlusion/): Evaluates coverage of salient regions
 - [Layout Utility](../layout_utility/): Measures utilization of suitable space
 - [Layout Underlay Effectiveness](../layout_underlay_effectiveness/): Evaluates underlay placement
+
+## Limitations
+
+Parity tests map normalized boxes to pixels, map each committed small-set canvas to PosterLayout's relative `Dataset/test/image_canvas` path, and compare with pinned `metrics_rea` ([`eval.py#L173-L203`](https://github.com/PKU-ICST-MIPL/PosterLayout-CVPR2023/blob/44ee576471f3c06d06fc632f13e3f96d0c381847/eval.py#L173-L203)). The reference fixes the canvas at 513 × 750; the published metric's configurable canvas dimensions are deliberate behavior without an equivalent upstream call.
+
+PosterLayout's `cv2.Sobel(img, -1, …)` computes on uint8 data, so negative gradients clip to 0 and `grad_x**2` retains uint8 overflow; the published metric copies this behavior. This behavior is preserved for parity with the original evaluation code.

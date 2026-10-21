@@ -174,3 +174,7 @@ Returns a `float` value representing the utilization rate of suitable space (ran
 - [Layout Occlusion](../layout_occlusion/): Evaluates coverage of salient (important) regions
 - [Layout Validity](../layout_validity/): Checks basic validity constraints
 - [Layout Unreadability](../layout_unreadability/): Evaluates text placement quality
+
+## Limitations
+
+Parity tests map normalized boxes to pixels, map both saliency-map inputs to PosterLayout's relative `Dataset/test/saliencymaps_*` paths, and compare with pinned `metrics_uti` ([`eval.py#L144-L171`](https://github.com/PKU-ICST-MIPL/PosterLayout-CVPR2023/blob/44ee576471f3c06d06fc632f13e3f96d0c381847/eval.py#L144-L171)). The reference divides by every image name, including zero-utility cases; the published metric averages only nonzero cases, so it diverges from both upstream and this repository's occlusion and unreadability metrics, which divide by every sample. A two-image test records the explicit difference (published 1.0, reference 0.5), and the published metric returns NaN when all samples have zero utility. The reference also fixes the canvas at 513 × 750, while the published metric accepts configurable dimensions.

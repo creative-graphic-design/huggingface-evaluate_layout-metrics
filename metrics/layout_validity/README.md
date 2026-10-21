@@ -159,3 +159,7 @@ Returns a `float` value representing the ratio of valid elements to total elemen
 - [Layout Alignment](../layout_alignment/): Measures spatial organization
 - [Layout Non-Alignment](../layout_non_alignment/): Detects alignment violations
 - [Layout Utility](../layout_utility/): Evaluates space utilization
+
+## Limitations
+
+Parity tests call PosterLayout's pinned `metrics_val` reference ([`eval.py#L105-L127`](https://github.com/PKU-ICST-MIPL/PosterLayout-CVPR2023/blob/44ee576471f3c06d06fc632f13e3f96d0c381847/eval.py#L105-L127)) on the ten committed `PKU_PosterLayout_small` entries. The published metric accepts normalized boxes and configurable canvas dimensions; the reference assumes a 513 × 750 canvas, so non-513 × 750 inputs are not equivalent reference calls.
