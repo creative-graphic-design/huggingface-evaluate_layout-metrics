@@ -162,7 +162,7 @@ class LayoutUtility(evaluate.Metric):
             canvas_height=canvas_height,
         )
 
-        score = []
+        score = 0.0
 
         assert (
             len(predictions)
@@ -195,8 +195,6 @@ class LayoutUtility(evaluate.Metric):
             total_utils = np.sum(c_smap * cal_mask)
 
             if total_not_sal and total_utils:
-                # score += total_utils / total_not_sal
-                score.append(total_utils / total_not_sal)
+                score += total_utils / total_not_sal
 
-        # return score / num_predictions
-        return np.mean(score)
+        return score / len(predictions)
