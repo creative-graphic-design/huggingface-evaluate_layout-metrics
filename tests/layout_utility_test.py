@@ -33,7 +33,14 @@ def test_metric(
     saliency_map_filepaths_1: List[pathlib.Path],
     saliency_map_filepaths_2: List[pathlib.Path],
     expected_score: float,
+    is_CI: bool,
 ):
+    if not is_CI and not all(
+        path.is_file()
+        for path in [*saliency_map_filepaths_1, *saliency_map_filepaths_2]
+    ):
+        pytest.skip("The complete PosterLayout saliency-map fixtures are not included.")
+
     assert len(saliency_map_filepaths_1) == len(saliency_map_filepaths_2)
 
     # Convert pathlib.Path to str

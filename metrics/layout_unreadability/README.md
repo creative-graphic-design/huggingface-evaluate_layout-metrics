@@ -28,7 +28,7 @@ Lower scores indicate better text placement on flat, readable backgrounds.
 ## Metric Details
 
 - Converts grayscale pixels to float32 before applying signed x- and y-direction Sobel filters
-- Computes `sqrt((gx² + gy²) / 2)`, scales each image by its maximum gradient to the 0–255 range, and averages those values under text elements
+- Computes `sqrt((gx² + gy²) / 2)`, scales each image by its maximum gradient to the 0–255 range, quantizes the scaled gradient map to 8-bit integers, and averages those values under text elements
 - Removes underlay/decoration regions from the text mask, then averages scores across all samples
 - From PosterLayout (Hsu et al., CVPR 2023) and CGL-GAN methodology
 - Lower gradient scores mean text is on flatter, more readable backgrounds
@@ -172,6 +172,6 @@ Returns a `float` value representing the average gradient intensity under text e
 
 ## Definition and Comparability
 
-The metric computes Sobel gradients in float32 so positive and negative responses are squared without clipping or 8-bit overflow. This corrects the unreadability calculation in PosterLayout's original code; values are not comparable with numbers reported in papers that used that code.
+The metric computes Sobel gradients in float32 so positive and negative responses are squared without clipping or 8-bit overflow. It then scales the gradient map to 0–255, quantizes it to 8-bit integers, and averages the quantized values under text elements. For the documented fixture, this quantization gives a score of 0.02552; averaging the unquantized scaled values would give 0.02690. This corrects the unreadability calculation in PosterLayout's original code; values are not comparable with numbers reported in papers that used that code.
 
 PosterLayout fixes its canvas at 513 × 750; this metric continues to accept configurable canvas dimensions.

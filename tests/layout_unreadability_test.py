@@ -19,11 +19,9 @@ def metric_path(base_dir: pathlib.Path) -> str:
 
 
 @pytest.fixture
-def expected_score(is_CI: bool) -> float:
+def expected_score(is_CI: bool) -> float | None:
     if not is_CI:
-        pytest.skip(
-            "The complete PosterLayout canvas dataset is not included in fixtures."
-        )
+        return None
     # Recomputed after using signed float32 Sobel gradients.
     return 0.025522707038422725
 
@@ -35,8 +33,12 @@ def test_metric(
     poster_width: int,
     poster_height: int,
     poster_image_canvas_filepaths: List[pathlib.Path],
-    expected_score: float,
+    expected_score: float | None,
+    is_CI: bool,
 ):
+    if not is_CI and not all(path.is_file() for path in poster_image_canvas_filepaths):
+        pytest.skip("The complete PosterLayout canvas fixtures are not included.")
+
     poster_image_canvas_filepaths = [
         [str(path)]  # type: ignore
         for path in poster_image_canvas_filepaths
@@ -53,7 +55,11 @@ def test_metric(
         image_canvases=poster_image_canvas_filepaths,
     )
     score = metric.compute()
-    assert score is not None and score == pytest.approx(expected_score, abs=1e-12)
+    assert score is not None
+    if expected_score is None:
+        assert 0 <= score <= 1
+    else:
+        assert score == pytest.approx(expected_score, abs=1e-12)
 
 
 def test_metric_uses_signed_sobel_gradients_before_squaring(
