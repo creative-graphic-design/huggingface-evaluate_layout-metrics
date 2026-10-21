@@ -113,8 +113,8 @@ class LayoutUnreadability(evaluate.Metric):
         img_cv_gs = img_cv_gs.astype(np.float32)
 
         # Sobel(src, ddepth, dx, dy)
-        grad_x = cv2.Sobel(img_cv_gs, cv2.CV_32F, 1, 0)
-        grad_y = cv2.Sobel(img_cv_gs, cv2.CV_32F, 0, 1)
+        grad_x = cv2.Sobel(img_cv_gs, -1, 1, 0)
+        grad_y = cv2.Sobel(img_cv_gs, -1, 0, 1)
         grad_xy = ((grad_x**2 + grad_y**2) / 2) ** 0.5
         grad_xy = grad_xy / np.max(grad_xy) * 255
         img_g_xy = Image.fromarray(grad_xy).convert("L")
